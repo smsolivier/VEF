@@ -12,6 +12,7 @@ class FEM:
 		D = 1/(3*Sigmat) 
 
 		dx = xb/N 
+		self.dx = dx 
 
 		self.x = np.linspace(0, xb, N) 
 
@@ -28,15 +29,15 @@ class FEM:
 
 	def solve(self, q):
 
-		phi = TDMA(-self.aW, self.ap, -self.aE, q)
+		phi = TDMA(-self.aW, self.ap, -self.aE, q*self.dx)
 
 		return self.x, phi 
 
 if __name__ == '__main__':
 
-	fem = FEM(100, .1, .83, 1)
+	fem = FEM(1000, .1, .83, 100)
 
-	x, phi = fem.solve(np.ones(100))
+	x, phi = fem.solve(np.ones(1000))
 
 	plt.plot(x, phi)
 	plt.show()

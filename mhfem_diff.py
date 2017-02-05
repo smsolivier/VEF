@@ -7,7 +7,7 @@ import sys
 
 class MHFEM:
 
-	def __init__(self, N, sigma_a=.1, sigma_t=.83, xb=1, BCL=0, BCR=0):
+	def __init__(self, N, sigma_a=.1, sigma_t=.83, xb=1, BCL=0, BCR=0, EDGE=0):
 		''' initialize MHFEM spatial discretization 
 			BC:
 				0: reflecting
@@ -16,6 +16,8 @@ class MHFEM:
 		''' 
 
 		self.N = N
+		self.EDGE = EDGE
+		self.xb = xb 
 
 		self.n = 1 + 2*N # number of elements per row of coefficient matrix 
 
@@ -101,19 +103,31 @@ class MHFEM:
 		# solve for new flux 
 		phi = np.dot(np.linalg.inv(self.A), b)
 
-		# extract cell center flux values 
-		phiCenter = np.zeros(self.N)
+		if (self.EDGE):
+			# extract edges 
+			phiEdge = np.zeros(self.N+1)
 
-		ii = 0 # store iterations of phiCenter 
-		for i in range(1, self.n, 2):
+			ii = 0 
+			for i in range(0, self.n, 2):
 
-			phiCenter[ii] = phi[i] 
+				phiEdge[ii] = phi[i] 
 
-			ii += 1
+				ii += 1 
 
-		assert(ii == self.N)
+			return np.linspace(0, self.xb, self.N+1), phiEdge
 
-		return self.x, phiCenter
+		else:
+			# extract cell center flux values 
+			phiCenter = np.zeros(self.N)
+
+			ii = 0 # store iterations of phiCenter 
+			for i in range(1, self.n, 2):
+
+				phiCenter[ii] = phi[i] 
+
+				ii += 1
+
+			return self.x, phiCenter
 
 if __name__ == '__main__':
 
@@ -125,7 +139,7 @@ if __name__ == '__main__':
 	Q = 1 
 
 	N = 100 # number of volumes 
-	mhfem = MHFEM(N, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2) # initialize solver object 
+	mhfem = MHFEM(N, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=1) # initialize solver object 
 
 	x, phi = mhfem.solve(np.ones(N)*Q) # solve for flux with uniform Q 
 

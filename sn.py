@@ -4,14 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from fem import * 
+from mhfem_diff import * 
+from fv_diff import * 
 
 class Transport:
-	''' parent class containing:
+	''' Diamond (Crank Nicolson) differences transport 
+		mu dpsi/dx + sigmat psi = sigmas/2 phi + Q/2 
+		parent class containing:
 			left to right sweeping 
 			right to left sweeping 
 			source iteration 
 		must supply the sweep(phi) function in the inherited class for 
 			SI to work 
+		assumes uniform source, q 
 	'''  
 
 	def __init__(self, N, Sigmaa, Sigmat, q, xb=1):
@@ -41,7 +46,7 @@ class Transport:
 	def sweepLR(self, phi):
 		''' sweep left to right ''' 
 
-		for i in range(N-2, -1, -1):
+		for i in range(self.N-2, -1, -1):
 
 			self.psiL[i] = (1 - .5*self.Sigmat*self.h)*self.psiL[i+1] + \
 				self.Sigmas/4*self.h*(phi[i] + phi[i+1]) + self.q*self.h/2 
@@ -51,7 +56,7 @@ class Transport:
 	def sweepRL(self, phi):
 		''' sweep right to left ''' 
 
-		for i in range(1, N):
+		for i in range(1, self.N):
 
 			self.psiR[i] = (1 - .5*self.Sigmat*self.h)*self.psiR[i-1] + \
 				self.Sigmas/4*self.h*(phi[i] + phi[i-1]) + self.q*self.h/2 
@@ -96,6 +101,7 @@ class Sn(Transport):
 		self.psiR[0] = self.psiL[0] # reflecting bc 
 		self.sweepRL(phi) # sweep right to left 
 
+		# return cell edge flux 
 		return self.psiL + self.psiR # integrate psi 
 
 class DSA(Transport):
@@ -110,7 +116,8 @@ class DSA(Transport):
 		Transport.__init__(self, N, Sigmaa, Sigmat, q, xb)
 
 		# create fem object on top of standard Transport initialization 
-		self.fem = FEM(self.N, self.Sigmaa, self.Sigmat, self.xb)
+		# self.fem = FEM(self.N, self.Sigmaa, self.Sigmat, self.xb)
+		self.fem = MHFEM(self.N-1, self.Sigmaa, self.Sigmat, self.xb, BCL=0, BCR=2, EDGE=1)
 
 	def sweep(self, phi):
 
@@ -126,54 +133,37 @@ class DSA(Transport):
 		phihalf = self.psiR + self.psiL 
 
 		# DSA step 
-		x, f = self.fem.solve(self.Sigmas*(phihalf - phi)*self.h)
+		x, f = self.fem.solve(self.Sigmas*(phihalf - phi))
 
 		# compute new flux 
 		return phihalf + f 
 
-N = 1000
-Sigmat = 1 
-q = 1 
+if __name__ == '__main__':
 
-c = np.linspace(0, .92, 20) 
+	N = 200 # number of edges 
+	Sigmat = 1 
+	c = .9 # ratio of Sigmas to Sigmat 
+	Sigmaa = Sigmat*(1 - c) 
+	q = 1
+	xb = 100 
 
-# c = 1 - Sigmaa/Sigmat 
-Sigmaa = Sigmat*(1 - c) 
+	tol = 1e-6 
 
-# tol = 1e-6 
+	sn = Sn(N, Sigmaa, Sigmat, q, xb=xb)
+	dsa = DSA(N, Sigmaa, Sigmat, q, xb=xb)
+	# diff = finiteVolume(N, lambda x: Sigmaa, lambda x: Sigmat, xb=xb, BCL=0, BCR=2)
+	# diff = FEM(N, Sigmaa, Sigmat, xb=xb)
+	diff = MHFEM(N-1, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=1)
 
-# x, phi, it = sourceIteration(DSA(N, .1, .83, 1, xb=1), tol)
+	x, phi, it = sn.sourceIteration(tol)
+	xdsa, phidsa, itdsa = dsa.sourceIteration(tol)
+	xdiff, phidiff = diff.solve(np.ones(N)*q)
 
-# plt.plot(x, phi)
-# plt.show()
-
-# sn = Sn(N, Sigmaa[10], Sigmat, q, xb=1)
-# dsa = DSA(N, Sigmaa[10], Sigmat, q, xb=1)
-# x, phi, it = sn.sourceIteration(1e-6)
-# xdsa, phidsa, itdsa = dsa.sourceIteration(1e-6)
-
-# plt.plot(x, phi)
-# plt.plot(xdsa, phidsa)
-# plt.show()
-
-it = np.zeros(len(Sigmaa))
-itdsa = np.zeros(len(Sigmaa))
-tol = 1e-3
-
-for i in range(len(Sigmaa)):
-
-	# solve Sn
-	sn = Sn(N, Sigmaa[i], Sigmat, q, xb=20)
-	x, phi, it[i] = sn.sourceIteration(tol)
-
-	# solve DSA 
-	dsa = DSA(N, Sigmaa[i], Sigmat, q, xb=20)
-	xdsa, phidsa, itdsa[i] = dsa.sourceIteration(tol)
-
-plt.plot(c, it, '-o', label='S2')
-plt.plot(c, itdsa, '-o', label='DSA')
-plt.legend(loc='best')
-plt.xlabel(r'$\frac{\Sigma_s}{\Sigma_t}$')
-plt.ylabel('Number of Iterations')
-plt.show()
+	plt.plot(x, phi, label=r'$S_2$')
+	plt.plot(xdsa, phidsa, label=r'$S_2$ DSA')
+	plt.plot(xdiff, phidiff, label='Diffusion')
+	plt.legend(loc='best')
+	plt.xlabel('x')
+	plt.ylabel('$\phi$')
+	plt.show()
 

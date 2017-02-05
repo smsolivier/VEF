@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 from TDMA import * 
 
+''' has trouble with reflective left boundary for large domains ''' 
+
 class FEM:
 
 	def __init__(self, N, Sigmaa, Sigmat, xb, BCL=0, BCR=0):

@@ -20,11 +20,11 @@ N = 250
 BC = 1
 
 # mhfem 
-mhfem = MHFEM(N, Sigmaa, Sigmat, xb=xb, BC=BC)
+mhfem = MHFEM(N, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2)
 xfe, phife = mhfem.solve(np.ones(N)*Q)
 
 # fv 
-fv = finiteVolume(N, lambda x: Sigmat, lambda x: Sigmaa, xb=xb, BC=BC)
+fv = finiteVolume(N, lambda x: Sigmaa, lambda x: Sigmat, xb=xb, BCL=0, BCR=2)
 xfv, phifv = fv.solve(np.ones(N)*Q)
 
 # exact solution 

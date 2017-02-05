@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from mhfem_diff import *
 from fv_diff import *
 
+''' mms on MHFEM and FV ''' 
+
 Sigmaa = .1 
 Sigmat = .83 
 
@@ -34,9 +36,9 @@ def getOrder(solver):
 
 	return err_phi, order
 
-getOrder([MHFEM(x, BCL=0, BCR=0) for x in N])
+getOrder([MHFEM(x, BCL=0, BCR=1) for x in N])
 
-getOrder([finiteVolume(x, lambda x: Sigmat, lambda x: Sigmaa) for x in N])
+getOrder([finiteVolume(x, lambda x: Sigmaa, lambda x: Sigmat, BCL=0, BCR=1) for x in N])
 
 # mhfem = MHFEM(50, BCL=0, BCR=0)
 # x, phi = mhfem.solve(Qmms(mhfem.x))

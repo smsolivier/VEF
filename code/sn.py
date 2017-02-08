@@ -174,8 +174,8 @@ class DSA(Transport):
 		Transport.__init__(self, N, n, Sigmaa, Sigmat, q, xb)
 
 		# create fem object on top of standard Transport initialization 
-		# self.fem = FEM(self.N, self.Sigmaa, self.Sigmat, self.xb)
-		self.fem = MHFEM(self.N-1, self.Sigmaa, self.Sigmat, self.xb, BCL=0, BCR=2, EDGE=1)
+		self.fem = mhfemacc.MHFEM(self.x, np.ones(self.N)/3, lambda x: self.Sigmaa, 
+			lambda x: self.Sigmat, xb=self.xb, BCL=0, BCR=1)
 
 	def sweep(self, phi):
 
@@ -241,7 +241,7 @@ if __name__ == '__main__':
 
 	tol = 1e-6 
 
-	n = 8
+	n = 16
 
 	sn = Sn(N, n, Sigmaa, Sigmat, q, xb=xb)
 	mu = muAccel(N, n, Sigmaa, Sigmat, q, xb=xb)

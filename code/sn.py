@@ -7,6 +7,8 @@ from fem import *
 from mhfem_diff import * 
 from fv_diff import * 
 
+import mhfem_acc as mhfemacc 
+
 class Transport:
 	''' Diamond (Crank Nicolson) differenced transport 
 		mu dpsi/dx + sigmat psi = sigmas/2 phi + Q/2 
@@ -150,11 +152,11 @@ class Sn(Transport):
 		''' sweep with reflecting left bc and vacuum right bc ''' 
 
 		self.psiL[:,-1] = 0 # vacuum bc, no left moving entering left side 
-		self.sweepRL(phi) # sweep left to right 
+		self.sweepRL(phi) # sweep right to left  
 
 		# set psiR boundary 
 		self.psiR[:,0] = self.psiL[:,0] # reflecting bc 
-		self.sweepLR(phi) # sweep right to left 
+		self.sweepLR(phi) # sweep left to right  
 
 		# return flux 
 		return self.integratePsi() 
@@ -179,11 +181,11 @@ class DSA(Transport):
 
 		# transport sweep 
 		self.psiL[:,-1] = 0 # vacuum bc, no left moving entering left side 
-		self.sweepRL(phi) # sweep left to right 
+		self.sweepRL(phi) # sweep right to left  
 
 		# set psiR boundary 
 		self.psiR[:,0] = self.psiL[:,0] # reflecting bc 
-		self.sweepLR(phi) # sweep right to left 
+		self.sweepLR(phi) # sweep left to right  
 
 		# compute phi^l+1/2 
 		phihalf = self.integratePsi()
@@ -194,6 +196,40 @@ class DSA(Transport):
 		# compute new flux 
 		return phihalf + f 
 
+class muAccel(Transport):
+
+	def sweep(self, phi):
+
+		# transport sweep 
+		self.psiL[:,-1] = 0 # vaccuum bc, no left moving entering left side 
+		self.sweepRL(phi) # sweep right to left 
+
+		# set psiR boundary 
+		self.psiR[:,0] = self.psiL[:,0] # reflecting bc 
+		self.sweepLR(phi) # sweep left to right 
+
+		# compute phi^l+1/2 
+		self.phihalf = self.integratePsi()
+
+		# compute <mu^2> 
+		top = 0 # store int mu^2 psi dmu 
+		# loop through angles
+		for i in range(int(self.n/2)):
+
+			top += self.muR[i]**2*self.psiL[i,:] * self.wL[i] + \
+				self.muR[i]**2*self.psiR[i,:] * self.wR[i]
+
+		mu2 = top/self.phihalf
+
+		# create MHFEM object 
+		mhfem = mhfemacc.MHFEM(self.x, mu2, lambda x: self.Sigmaa, 
+			lambda x: self.Sigmat, xb=self.xb, BCL=0, BCR=1)
+
+		x, phi = mhfem.solve(self.q*np.ones(self.N-1))
+
+		return phi 
+
+
 if __name__ == '__main__':
 
 	N = 200 # number of edges 
@@ -201,23 +237,26 @@ if __name__ == '__main__':
 	c = .9 # ratio of Sigmas to Sigmat 
 	Sigmaa = Sigmat*(1 - c) 
 	q = 1
-	xb = 1
+	xb = 50
 
 	tol = 1e-6 
 
-	n = 2
+	n = 8
 
 	sn = Sn(N, n, Sigmaa, Sigmat, q, xb=xb)
+	mu = muAccel(N, n, Sigmaa, Sigmat, q, xb=xb)
 	# dsa = DSA(N, n, Sigmaa, Sigmat, q, xb=xb)
 	# diff = finiteVolume(N, lambda x: Sigmaa, lambda x: Sigmat, xb=xb, BCL=0, BCR=2)
 	# diff = FEM(N, Sigmaa, Sigmat, xb=xb)
 	diff = MHFEM(N-1, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=1)
 
 	x, phi, it = sn.sourceIteration(tol)
+	xmu, phimu, itmu = mu.sourceIteration(tol)
 	# xdsa, phidsa, itdsa = dsa.sourceIteration(tol)
 	xdiff, phidiff = diff.solve(np.ones(N)*q)
 
 	plt.plot(x, phi, label='S'+str(n)+' SI')
+	plt.plot(xmu, mu.phihalf, label='S'+str(n)+' mu')
 	# plt.plot(xdsa, phidsa, label='S' + str(n) + ' DSA')
 	plt.plot(xdiff, phidiff, label='Diffusion')
 	plt.legend(loc='best')

@@ -93,6 +93,10 @@ class MHFEM:
 			print('right boundary condition not defined')
 			sys.exit()
 
+		# plt.imshow(A, interpolation='none')
+		# plt.colorbar()
+		# plt.show()
+
 		# make variables public 
 		self.A = A 
 		self.n = n 

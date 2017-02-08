@@ -7,7 +7,7 @@ import sys
 
 class MHFEM:
 
-	def __init__(self, N, sigma_a=.1, sigma_t=.83, xb=1, BCL=0, BCR=0, EDGE=0):
+	def __init__(self, N, sigma_a, sigma_t, xb=1, BCL=0, BCR=0, EDGE=0):
 		''' initialize MHFEM spatial discretization 
 			BC:
 				0: reflecting
@@ -16,14 +16,14 @@ class MHFEM:
 		''' 
 
 		self.N = N
-		self.EDGE = EDGE
+		self.EDGE = EDGE # return edge values or cell center values 
 		self.xb = xb 
 
 		self.n = 1 + 2*N # number of elements per row of coefficient matrix 
 
-		self.h = xb/N # cell spacing, uniform 
-		# self.x = np.linspace(0, xb, self.n) # array of n evenly spaced points 
-		self.x = np.linspace(self.h/2, xb - self.h/2, N)
+		self.h = xb/N 
+
+		self.x = np.linspace(-self.h/2, xb-self.h/2, N)
 
 		# build A matrix 
 		A = np.zeros((self.n, self.n)) # coefficient matrix  
@@ -31,21 +31,21 @@ class MHFEM:
 		for i in range(1, self.n, 2):
 
 			# set phi_i equation
-				A[i,i-1:i+2] = np.array([
-					-2/(sigma_t*self.h), # phi_i-1/2 
-					4/(sigma_t*self.h) + sigma_a*self.h, # phi_i 
-					-2/(sigma_t*self.h)
-					]) # phi_i+1/2 
+			A[i,i-1:i+2] = np.array([
+				-2/(sigma_t*self.h), # phi_i-1/2 
+				4/(sigma_t*self.h) + sigma_a*self.h, # phi_i 
+				-2/(sigma_t*self.h)
+				]) # phi_i+1/2 
 
-				# set phi_i+1/2 equation
-				if (i != self.n-2): # don't overwrite phi_N+1/2 equation 
-					A[i+1,i-1:i+4] = np.array([
-						1, # phi_i-1/2 
-						-3, # phi_i 
-						4, # phi_i+1/2 
-						-3, # phi_i+1 
-						1 # phi_i+3/2 
-						])
+			# set phi_i+1/2 equation
+			if (i != self.n-2): # don't overwrite phi_N+1/2 equation 
+				A[i+1,i-1:i+4] = np.array([
+					1, # phi_i-1/2 
+					-3, # phi_i 
+					4, # phi_i+1/2 
+					-3, # phi_i+1 
+					1 # phi_i+3/2 
+					])
 
 		# boundary conditions 
 		# left 
@@ -138,20 +138,38 @@ if __name__ == '__main__':
 
 	Q = 1 
 
-	N = 100 # number of volumes 
-	mhfem = MHFEM(N, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=1) # initialize solver object 
+	N = 10 # number of volumes 
+	mhfem = MHFEM(N, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=0) # initialize solver object 
 
 	x, phi = mhfem.solve(np.ones(N)*Q) # solve for flux with uniform Q 
 
 	# exact solution 
-	D = 1/(3*Sigmat)
+	D = 1/(3*Sigmat) 
 	L = np.sqrt(D/Sigmaa)
-	atilde = 2*xb + 2*D 
-
-	phi_ex = lambda x: Q/Sigmaa*(1 - np.cosh(x/L)/np.cosh(atilde/L))
+	c1 = -Q/Sigmaa/(np.cosh(xb/L) + 2*D/L*np.sinh(xb/L))
+	phi_ex = lambda x: c1*np.cosh(x/L) + Q/Sigmaa 
 
 	# plot 
-	plt.plot(x, phi_ex(x), '--', label='Exact')
-	plt.plot(x, phi, label='MHFEM')
-	plt.legend(loc='best')
+	# plt.plot(x, phi_ex(x), '--', label='Exact')
+	# plt.plot(x, phi, label='MHFEM')
+	# plt.legend(loc='best')
+	# plt.show()
+
+	# check order of convergence 
+	N = np.array([400, 800, 1000])
+	mh = [MHFEM(x, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=1) for x in N]
+
+	err = np.zeros(len(N))
+	for i in range(len(N)):
+
+		x, phi = mh[i].solve(np.ones(N[i])*Q)
+
+		err[i] = np.linalg.norm(phi - phi_ex(x), 2)
+
+	fit = np.polyfit(np.log(1/N), np.log(err), 1)
+
+	print(fit[0])
+
+	plt.loglog(1/N, np.exp(fit[1]) * (1/N)**fit[0], '-o')
+	plt.loglog(1/N, err, '-o')
 	plt.show()

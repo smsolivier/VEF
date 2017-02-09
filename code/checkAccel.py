@@ -9,12 +9,12 @@ from hidespines import *
 
 ''' compare the number of iterations for S_2 with DSA and without ''' 
 
-N = 100 # number of edges 
+N = 101 # number of edges 
 Sigmat = 1 
-c = np.linspace(0, .95, 20)
+c = np.linspace(0, 1, 20)
 Sigmaa = Sigmat*(1 - c) 
 q = 1 
-xb = 1 
+xb = 20
 
 tol = 1e-6 
 
@@ -36,12 +36,13 @@ for i in range(len(Sigmaa)):
 	xmu, phimu, itmu[i] = mu.sourceIteration(tol)
 
 	# solve dsa 
-	dsa = DSA(N, n, Sigmaa[i], Sigmat, q, xb=20)
-	xdsa, phidsa, itdsa[i] = dsa.sourceIteration(tol)
+	# dsa = DSA(N, n, Sigmaa[i], Sigmat, q, xb=20)
+	# xdsa, phidsa, itdsa[i] = dsa.sourceIteration(tol)
 
-plt.plot(c, it, '-o', label='S$_8$ No Accel')
-plt.plot(c, itmu, '-o', label='S$_8$ Edd. Accel')
-plt.plot(c, itdsa, '-o', label='S$_8$ DSA')
+plt.figure(figsize=(8,6))
+plt.plot(c, it, '-o', label='No Accel', clip_on=False)
+plt.plot(c, itmu, '-o', label='Edd. Accel', clip_on=False)
+# plt.plot(c, itdsa, '-o', label='DSA')
 hidespines(plt.gca())
 plt.yscale('log')
 plt.legend(loc='best', frameon=False)

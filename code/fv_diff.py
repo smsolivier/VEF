@@ -38,7 +38,7 @@ class finiteVolume:
 		elif (BCL == 1): # zero flux 
 			ab[0] = 2*D0/h 
 		elif (BCL == 2): # marshak 
-			ab[0] = 2*D0/(4*D0 + 4*h)
+			ab[0] = 2*D0/(4*D0 + h)
 		else:
 			print('left boundary not defined')
 			sys.exit()
@@ -50,7 +50,7 @@ class finiteVolume:
 		elif (BCR == 1): # zero flux BC
 			ab[-1] = 2*DN/h 
 		elif (BCR == 2): # marshak condition 
-			ab[-1] = 2*DN/(4*DN + 4*h)
+			ab[-1] = 2*DN/(4*DN + h)
 		else:
 			print('right boundary not defined')
 			sys.exit()

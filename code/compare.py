@@ -3,39 +3,61 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from mhfem_diff import * 
+from mhfem_acc import * 
 from fv_diff import * 
-from fem import * 
+from fem2 import * 
+
+from scipy.interpolate import interp1d
 
 ''' compare MHFEM to finite volume ''' 
 
-N = 1000
-
-xb = 50
-
 Sigmaa = .1 
 Sigmat = .83 
-q = .1 
 
-bc = 1
+xb = 1
 
-# initialize finite volume with marshak condition 
-fv = finiteVolume(N, lambda x: Sigmaa, lambda x: Sigmat, xb, BCL=0, BCR=2)
+Q = 1 
 
-# initialize MHFEM with marshak condition 
-fe = MHFEM(N, Sigmaa, Sigmat, xb, BCL=0, BCR=2)
+# exact solution 
+D = 1/(3*Sigmat) 
+L = np.sqrt(D/Sigmaa)
+c1 = -Q/Sigmaa/(np.cosh(xb/L) + 2*D/L*np.sinh(xb/L))
+phi_ex = lambda x: c1*np.cosh(x/L) + Q/Sigmaa 
+x_ex = np.linspace(0, xb, 100)
 
-# initialize regular fem 
-fe2 = FEM(N, Sigmaa, Sigmat, xb)
+N = np.array([50, 100, 200, 400])
 
-# solve for flux 
-b = np.ones(N)*q 
-xfv, phifv = fv.solve(b)
-xfe, phife = fe.solve(b)
-xfe2, phife2 = fe2.solve(b)
+# make solver objects 
+mhfem = [MHFEM(np.linspace(0, xb, x), np.ones(x)/3, 
+	lambda x: Sigmaa, lambda x: Sigmat) for x in N]
+fem = [FEM(np.linspace(0, xb, x), np.ones(x)/3, lambda x: Sigmaa, lambda x: Sigmat) for x in N]
+fv = [finiteVolume(x, lambda x: Sigmaa, lambda x: Sigmat, xb=xb, BCL=0, BCR=2) for x in N]
 
-plt.plot(xfv, phifv, label='FV')
-plt.plot(xfe, phife, label='MHFEM')
-plt.plot(xfe2, phife2, label='FEM')
-plt.legend(loc='best')
-plt.show()
+def getOrder(sol, xeval):
+
+	err = np.zeros(len(sol))
+
+	for i in range(len(sol)):
+
+		x, phi = sol[i].solve(np.ones(N[i])*Q)
+
+		# err[i] = np.linalg.norm(phi - phi_ex(x), 2)
+		# err[i] = np.sqrt(np.sum(phi - phi_ex(x))**2/np.sum(phi_ex(x)**2))
+		
+		f = interp1d(x, phi)
+
+		err[i] = np.fabs(f(xeval) - phi_ex(xeval))/phi_ex(xeval)
+
+	fit = np.polyfit(np.log(xb/N), np.log(err), 1)
+
+	order = np.log(err[-2]/err[-1])/np.log(2)
+
+	print(fit[0], order)
+
+	return fit[0]
+
+getOrder(mhfem, xb/2)
+getOrder(fem, xb/2)
+getOrder(fv, xb/2)
+
+# plt.show()

@@ -8,6 +8,7 @@ from mhfem_diff import *
 from fv_diff import * 
 
 import mhfem_acc as mhfemacc 
+import fem2 as fem2 
 
 class Transport:
 	''' Diamond (Crank Nicolson) differenced transport 
@@ -222,10 +223,10 @@ class muAccel(Transport):
 		mu2 = top/self.phihalf
 
 		# create MHFEM object 
-		mhfem = mhfemacc.MHFEM(self.x, mu2, lambda x: self.Sigmaa, 
-			lambda x: self.Sigmat, xb=self.xb, BCL=0, BCR=1)
+		sol = mhfemacc.MHFEM(self.x, mu2, lambda x: self.Sigmaa, 
+			lambda x: self.Sigmat, BCL=0, BCR=1)
 
-		x, phi = mhfem.solve(self.q*np.ones(self.N-1))
+		x, phi = sol.solve(self.q*np.ones(self.N))
 
 		return phi 
 
@@ -237,7 +238,7 @@ if __name__ == '__main__':
 	c = .9 # ratio of Sigmas to Sigmat 
 	Sigmaa = Sigmat*(1 - c) 
 	q = 1
-	xb = 50
+	xb = 5
 
 	tol = 1e-6 
 
@@ -245,6 +246,7 @@ if __name__ == '__main__':
 
 	sn = Sn(N, n, Sigmaa, Sigmat, q, xb=xb)
 	mu = muAccel(N, n, Sigmaa, Sigmat, q, xb=xb)
+	# mu = muAccel(fem2.FEM, N, n, Sigmaa, Sigmat, q, xb=xb)
 	# dsa = DSA(N, n, Sigmaa, Sigmat, q, xb=xb)
 	# diff = finiteVolume(N, lambda x: Sigmaa, lambda x: Sigmat, xb=xb, BCL=0, BCR=2)
 	# diff = FEM(N, Sigmaa, Sigmat, xb=xb)

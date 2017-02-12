@@ -9,14 +9,27 @@ import sys
 
 class MHFEM:
 
-	def __init__(self, xe, mu2, Sigmaa, Sigmat, xb=1, BCL=0, BCR=1):
+	def __init__(self, xe, mu2, Sigmaa, Sigmat, BCL=0, BCR=1):
+		''' solves moment equations with general <mu^2> 
+			Inputs:
+				xe: array of cell edges 
+				mu2: array of <mu^2> values at cell edges (will be interpolated)
+				Sigmaa: absorption XS function 
+				Sigmat: total XS function 
+				BCL: left boundary 
+					0: reflecting 
+					1: marshak 
+				BCR: right boundary 
+					0: reflecting 
+					1: marshak 
+		''' 
 
 		N = np.shape(xe)[0] # number of cell edges 
 
 		n = 2*N - 1 # number of rows and columns of A 
 
 		h = np.zeros(N-1) # store cell widths at the cell center 
-		for i in range(1, N-1):
+		for i in range(1, N):
 
 			h[i-1] = xe[i] - xe[i-1] # distance between cell edges 
 
@@ -93,9 +106,7 @@ class MHFEM:
 			print('right boundary condition not defined')
 			sys.exit()
 
-		# plt.imshow(A, interpolation='none')
-		# plt.colorbar()
-		# plt.show()
+		# np.savetxt('A.txt', A, delimiter=',')
 
 		# make variables public 
 		self.A = A 
@@ -139,10 +150,10 @@ if __name__ == '__main__':
 
 	Q = 1 
 
-	N = 100 # number of cells 
+	N = 20 # number of cells 
 	xe = np.linspace(0, 1, N+1)
 	mu2 = np.ones(N+1)/3 
-	mhfem = MHFEM(xe, mu2, lambda x: Sigmaa, lambda x: Sigmat, xb=1)
+	mhfem = MHFEM(xe, mu2, lambda x: Sigmaa, lambda x: Sigmat)
 	x, phi = mhfem.solve(np.ones(N)*Q)
 
 	# exact solution 
@@ -159,7 +170,7 @@ if __name__ == '__main__':
 	# check order of convergence 
 	N = np.array([400, 800, 1000])
 	mh = [MHFEM(np.linspace(0, xb, x), np.ones(x)/3, 
-		lambda x: Sigmaa, lambda x: Sigmat, xb=1) for x in N]
+		lambda x: Sigmaa, lambda x: Sigmat) for x in N]
 
 	err = np.zeros(len(N))
 	for i in range(len(N)):

@@ -8,7 +8,7 @@ from mhfem_diff import *
 from fv_diff import * 
 
 import mhfem_acc as mhfemacc 
-import fem2 as fem2 
+import fem as fem
 
 class Transport:
 	''' Diamond (Crank Nicolson) differenced transport 
@@ -111,6 +111,20 @@ class Transport:
 
 		return phi 
 
+	def getEddington(self):
+
+		# compute <mu^2> 
+		top = 0 # store int mu^2 psi dmu 
+		# loop through angles
+		for i in range(int(self.n/2)):
+
+			top += self.muR[i]**2*self.psiL[i,:] * self.wL[i] + \
+				self.muR[i]**2*self.psiR[i,:] * self.wR[i]
+
+		mu2 = top/self.integratePsi()
+
+		return mu2 
+
 	def sourceIteration(self, tol, PLOT=False):
 		''' lag RHS of transport equation and iterate until flux converges ''' 
 
@@ -212,15 +226,7 @@ class muAccel(Transport):
 		# compute phi^l+1/2 
 		self.phihalf = self.integratePsi()
 
-		# compute <mu^2> 
-		top = 0 # store int mu^2 psi dmu 
-		# loop through angles
-		for i in range(int(self.n/2)):
-
-			top += self.muR[i]**2*self.psiL[i,:] * self.wL[i] + \
-				self.muR[i]**2*self.psiR[i,:] * self.wR[i]
-
-		mu2 = top/self.phihalf
+		mu2 = self.getEddington()
 
 		# create MHFEM object 
 		sol = mhfemacc.MHFEM(self.x, mu2, lambda x: self.Sigmaa, 
@@ -238,15 +244,14 @@ if __name__ == '__main__':
 	c = .9 # ratio of Sigmas to Sigmat 
 	Sigmaa = Sigmat*(1 - c) 
 	q = 1
-	xb = 5
+	xb = 100
 
 	tol = 1e-6 
 
-	n = 16
+	n = 8
 
 	sn = Sn(N, n, Sigmaa, Sigmat, q, xb=xb)
 	mu = muAccel(N, n, Sigmaa, Sigmat, q, xb=xb)
-	# mu = muAccel(fem2.FEM, N, n, Sigmaa, Sigmat, q, xb=xb)
 	# dsa = DSA(N, n, Sigmaa, Sigmat, q, xb=xb)
 	# diff = finiteVolume(N, lambda x: Sigmaa, lambda x: Sigmat, xb=xb, BCL=0, BCR=2)
 	# diff = FEM(N, Sigmaa, Sigmat, xb=xb)

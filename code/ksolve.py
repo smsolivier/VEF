@@ -10,7 +10,7 @@ import sys
 # import solver classes 
 from mhfem_diff import * 
 from fv_diff import * 
-from fem2 import * 
+from fem import * 
 
 def powerIteration(solver, nuSigmaf=.125, tol=1e-8, LOUD=False):
 	''' use power iteration to solve for fundamental mode flux and k ''' 
@@ -114,7 +114,7 @@ N = np.array([40, 80, 160, 320]) # number of cells to use
 # list of solver objects 
 mhfem = [MHFEM(x, Sigmaa, Sigmat, xb=xb, BCL=BCL, BCR=BCR) for x in N] 
 fv = [finiteVolume(x, Sigmaa_f, Sigmat_f, xb=xb, BCL=BCL, BCR=BCR) for x in N] 
-fe = [FEM(np.linspace(0, xb, x), np.ones(x)/3, lambda x: Sigmaa, lambda x: Sigmat) for x in N]
+# fe = [FEM(np.linspace(0, xb, x), np.ones(x)/3, lambda x: Sigmaa, lambda x: Sigmat) for x in N]
 
 # get error and order for fv and mhfem 
 fv_err, fv_ord, fv_ordk = getOrder(fv, Sigmaa, Sigmat, nuSigmaf)

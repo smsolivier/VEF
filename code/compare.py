@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 from mhfem_acc import * 
 from fv_diff import * 
-from fem2 import * 
+from fem import * 
 
 from scipy.interpolate import interp1d
 

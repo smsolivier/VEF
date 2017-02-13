@@ -71,9 +71,13 @@ def getOrder(sol, xeval):
 # plt.plot(xeval, order, '-o')
 # plt.show()
 
-xeval = xb/2
+xeval = xb/10
+
+print('MHFEM', end=' ')
 getOrder(mhfem, xeval)
+print('FEM', end='   ')
 getOrder(fem, xeval)
+print('FV', end='    ')
 getOrder(fv, xeval)
 
 # plt.show()

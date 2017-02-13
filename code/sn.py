@@ -18,12 +18,21 @@ class Transport:
 			right to left sweeping 
 			gauss legendre psi integrator 
 			source iteration 
+			<mu^2> generator 
 		must supply the sweep(phi) function in the inherited class for 
 			SI to work 
 		assumes uniform source, q 
 	'''  
 
 	def __init__(self, N, n, Sigmaa, Sigmat, q, xb=1):
+		''' Inputs:
+				N: number of cell edges 
+				n: number of discrete ordinates 
+				Sigmaa: constant absorption XS 
+				Sigmat: constant total XS 
+				q: uniform fixed source 
+				xb: domain boundary 
+		''' 
 
 		self.N = N # number of cell edges  
 		self.n = n # number of discrete ordinates 

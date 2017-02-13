@@ -84,6 +84,7 @@
 	This scheme allows the \SN equations and moment equations to be solved with different spatial discretizations. This means \SN can be discretized using normal methods such as Linear Discontinuous Galerkin or Diamond Differencing while the moment equations can be solved on the same grid as the hydrodynamics. 
 
 	This method differs from DSA in that two solutions are generated: one from \SN and one from the moment equations and that the \SN and acceleration steps do not have to be consistently differenced. The solution of the moment equations will be used because the moment equations are conservative while \SN is not. 
+	
 \section{Results}
 	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created in addition to an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated and DSA S$_8$ with 100 spatial cells. Figure \ref{fig:comparison} shows the number of iterations until the L$^2$ norm of the flux converged to within a tolerance of \num{1e-6} for varying ratios of $\Sigma_s$ to $\Sigma_t$. 
 
@@ -99,7 +100,7 @@
 	Figure \ref{fig:comparison} suggests that Eddington acceleration is a valid method for accelerating \SN SI calculations. The required iterations until convergence is significantly lower for Eddington accelerated S$_8$. This is especially evident for the pure scattering regime ($\Sigma_s = \Sigma_t$) where S$_8$ was accelerated by a factor of 750. In addition, Eddington acceleration performed as well as DSA. This scheme produces a conservative solution and does not require the \SN and acceleration steps to be consistently differenced. 
 
 \section{Future Work} 
-	
+
 
 \section{Acknowledgments}
 

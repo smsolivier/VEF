@@ -212,6 +212,10 @@ class DSA(Transport):
 		return phihalf + f 
 
 class muAccel(Transport):
+	''' inherits discretization initialization, sweepLR, sweepRL, sourceIteration, 
+			getEddingtion from Transport class 
+		Eddington acceleration sweep method 
+	''' 
 
 	def sweep(self, phi):
 
@@ -226,7 +230,7 @@ class muAccel(Transport):
 		# compute phi^l+1/2 
 		self.phihalf = self.integratePsi()
 
-		mu2 = self.getEddington()
+		mu2 = self.getEddington() # get <mu^2> 
 
 		# create MHFEM object 
 		sol = mhfemacc.MHFEM(self.x, mu2, lambda x: self.Sigmaa, 
@@ -244,7 +248,7 @@ if __name__ == '__main__':
 	c = .9 # ratio of Sigmas to Sigmat 
 	Sigmaa = Sigmat*(1 - c) 
 	q = 1
-	xb = 100
+	xb = 1
 
 	tol = 1e-6 
 
@@ -255,12 +259,17 @@ if __name__ == '__main__':
 	# dsa = DSA(N, n, Sigmaa, Sigmat, q, xb=xb)
 	# diff = finiteVolume(N, lambda x: Sigmaa, lambda x: Sigmat, xb=xb, BCL=0, BCR=2)
 	# diff = FEM(N, Sigmaa, Sigmat, xb=xb)
-	diff = MHFEM(N-1, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=1)
+	# diff = MHFEM(N-1, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=1)
+	diff = FEM(np.linspace(0, xb, N), np.ones(N)/3, lambda x: Sigmaa, 
+		lambda x: Sigmat, BCL=0, BCR=1)
 
 	x, phi, it = sn.sourceIteration(tol)
 	xmu, phimu, itmu = mu.sourceIteration(tol)
 	# xdsa, phidsa, itdsa = dsa.sourceIteration(tol)
 	xdiff, phidiff = diff.solve(np.ones(N)*q)
+
+	plt.plot(xmu, mu.getEddington())
+	plt.show()
 
 	plt.plot(x, phi, label='S'+str(n)+' SI')
 	plt.plot(xmu, mu.phihalf, label='S'+str(n)+' mu')

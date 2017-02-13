@@ -28,11 +28,6 @@ class MHFEM:
 
 		n = 2*N - 1 # number of rows and columns of A 
 
-		h = np.zeros(N-1) # store cell widths at the cell center 
-		for i in range(1, N):
-
-			h[i-1] = xe[i] - xe[i-1] # distance between cell edges 
-
 		xc = np.zeros(N-1) # store cell centers 
 		for i in range(1, N):
 			xc[i-1] = (xe[i] + xe[i-1])/2 # midpoint between cell edges 
@@ -82,8 +77,8 @@ class MHFEM:
 			alpha = 4/(Sigmat(x[1])*(x[2] - x[0])) 
 			A[0,:3] = np.array([
 				1 + 2*alpha*mu2f(x[0]), 
-				3*alpha*mu2f(x[1]), 
-				-alpha*mu2f(x[2])
+				-3*alpha*mu2f(x[1]), 
+				alpha*mu2f(x[2])
 				])
 		else:
 			print('left boundary condition not defined')
@@ -146,12 +141,12 @@ if __name__ == '__main__':
 	Sigmaa = .1 
 	Sigmat = .83 
 
-	xb = 1 
+	xb = 1
 
 	Q = 1 
 
-	N = 20 # number of cells 
-	xe = np.linspace(0, 1, N+1)
+	N = 200 # number of cells 
+	xe = np.linspace(0, xb, N+1)
 	mu2 = np.ones(N+1)/3 
 	mhfem = MHFEM(xe, mu2, lambda x: Sigmaa, lambda x: Sigmat)
 	x, phi = mhfem.solve(np.ones(N)*Q)
@@ -163,12 +158,14 @@ if __name__ == '__main__':
 	phi_ex = lambda x: c1*np.cosh(x/L) + Q/Sigmaa 
 	x_ex = np.linspace(0, xb, 100)
 
-	plt.plot(x_ex, phi_ex(x_ex), '--')
-	plt.plot(x, phi)
-	plt.show()
+	# plt.plot(x_ex, phi_ex(x_ex), '--')
+	# plt.plot(x, phi)
+	# plt.plot(x, np.fabs(phi - phi_ex(x)), '-o')
+	# plt.yscale('log')
+	# plt.show()
 
 	# check order of convergence 
-	N = np.array([400, 800, 1000])
+	N = np.array([20, 40, 80, 160])
 	mh = [MHFEM(np.linspace(0, xb, x), np.ones(x)/3, 
 		lambda x: Sigmaa, lambda x: Sigmat) for x in N]
 
@@ -179,12 +176,17 @@ if __name__ == '__main__':
 
 		err[i] = np.linalg.norm(phi - phi_ex(x), 2)
 
-	fit = np.polyfit(np.log(1/N), np.log(err), 1)
+		plt.plot(x, np.fabs(phi - phi_ex(x)))
+
+	plt.yscale('log')
+	plt.show()
+
+	fit = np.polyfit(np.log(1/(N-1)), np.log(err), 1)
 
 	print(fit[0])
 
-	plt.loglog(1/N, np.exp(fit[1]) * (1/N)**fit[0], '-o')
-	plt.loglog(1/N, err, '-o')
+	plt.loglog(1/(N-1), np.exp(fit[1]) * (1/(N-1))**fit[0], '-o')
+	plt.loglog(1/(N-1), err, '-o')
 	plt.show()
 
 

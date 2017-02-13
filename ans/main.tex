@@ -40,12 +40,12 @@
 			\phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
 				\xrightarrow{\text{S}_N} \sum_{n=1}^N w_n \psi_n(x)
 		\end{equation}
-	where $\psi_n(x) = \psi(x,\mu_n)$ and the $w_n$ the quadrature weights corresponding to the $\mu_n$ \cite{llnl}. The \SN equations are then 
+	where $\psi_n(x) = \psi(x,\mu_n)$ and $w_n$ the quadrature weights corresponding to each $\mu_n$ \cite{llnl}. The \SN equations are then 
 		\begin{equation} \label{eq:sn}
 			\mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
 			\frac{\Sigma_s(x)}{2} \sum_{n=1}^N w_n \psi_n(x) + \frac{Q(x)}{2} 
 		\end{equation}
-	where $n = 1, 2, \dots, N$. 
+	for $n = 1, 2, \dots, N$. 
 
 	In the Source Iteration (SI) scheme, the right hand side of Eq. \ref{eq:sn} is lagged. In other words, 
 		\begin{equation} \label{eq:si}
@@ -54,7 +54,7 @@
 		\end{equation}
 	Equation \ref{eq:si} is iterated until the flux converges. If $\phi^0(x) = 0$ then $\phi^\ell$ is the scalar flux of particles that have undergone $\ell - 1$ collisions \cite{adams}. Thus, the number of iterations until convergence is directly linked to the number of collisions in a particle's lifetime. Typically, SI becomes increasingly slow to converge as the ratio of $\Sigma_s$ to $\Sigma_t$ approaches unity. 
 
-	Fortunately, the regime where SI is slow to converge is also the regime where Diffusion Theory is most accurate. A popular method for accelerating SI is Diffusion Synthetic Acceleration (DSA) where a transport sweep is conducted and then a diffusion solve is used to generate a correction factor. Standard DSA requires correction schemes such as the Source Correction, Diffusion Coefficient, and Removal Correction schemes presented in \cite{alcouffe} to prevent instability in highly scattering regimes with coarse spatial grids. 
+	Fortunately, the regime where SI is slow to converge is also the regime where Diffusion Theory is most accurate. A popular method for accelerating SI is Diffusion Synthetic Acceleration (DSA) where a transport sweep is conducted and then a diffusion solve is used to generate a correction factor. DSA requires correction schemes such as the Source Correction, Diffusion Coefficient, and Removal Correction schemes presented in \cite{alcouffe} to prevent instability in highly scattering regimes with coarse spatial grids. 
 
 	Lawrence Livermore National Laboratory (LLNL) is developing a high--order radiation--hydrodynamics code. The hydrodynamics portion is discretized using the Mixed--Hybrid Finite Element Method (MHFEM), where values are taken to be constant within a cell with discontinuous jumps at both cell edges \cite{mhfem}. MHFEM is particularly suited for hydrodynamics but not for radiation transport. This work seeks to efficiently accelerate \SN calculations with a scheme that is both robust and compatible with MHFEM hydrodynamics. 
 
@@ -85,18 +85,21 @@
 
 	This method differs from DSA in that two solutions are generated: one from \SN and one from the moment equations and that the \SN and acceleration steps do not have to be consistently differenced. The solution of the moment equations will be used because the moment equations are conservative while \SN is not. 
 \section{Results}
-	As a proof of concept for Eddington Acceleration, a Diamond Differenced \SN code was created in addition to an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare Eddington Accelerated and unaccelerated S$_8$. Figure \ref{fig:comparison} shows the number of iterations until the L2 norm of the flux converged to within a tolerance of \num{1e-6} for varying ratios of $\Sigma_s$ to $\Sigma_t$. 
+	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created in addition to an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated and DSA S$_8$ with 100 spatial cells. Figure \ref{fig:comparison} shows the number of iterations until the L$^2$ norm of the flux converged to within a tolerance of \num{1e-6} for varying ratios of $\Sigma_s$ to $\Sigma_t$. 
 
 
 	\begin{figure}[ht] % replace 't' with 'b' to force it to be on the bottom
 	  \centering
-	  \includegraphics[width=8.5cm]{../code/accel.pdf}
-	  \caption{A comparison of unaccelerated and Eddington accelerated S$_8$. }
+	  \includegraphics[width=8.5cm]{accel.pdf}
+	  \caption{A comparison of unaccelerated, Eddington accelerated and DSA S$_8$. }
 	  \label{fig:comparison}
 	\end{figure}
 
 \section{Conclusions}
-	Figure \ref{fig:comparison} suggests that Eddington Acceleration is a valid method for accelerating \SN SI calculations. The required iterations until convergence is significantly lower for Eddington accelerated S$_8$. This is especially evident for the pure scattering regime ($\Sigma_s = \Sigma_t$) where S$_8$ was accelerated by a factor of 750. This scheme produces a conservative solution and does not require the \SN and acceleration steps to be consistently differenced. 
+	Figure \ref{fig:comparison} suggests that Eddington acceleration is a valid method for accelerating \SN SI calculations. The required iterations until convergence is significantly lower for Eddington accelerated S$_8$. This is especially evident for the pure scattering regime ($\Sigma_s = \Sigma_t$) where S$_8$ was accelerated by a factor of 750. In addition, Eddington acceleration performed as well as DSA. This scheme produces a conservative solution and does not require the \SN and acceleration steps to be consistently differenced. 
+
+\section{Future Work} 
+	
 
 \section{Acknowledgments}
 

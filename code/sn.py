@@ -190,7 +190,7 @@ class DSA(Transport):
 
 		# create fem object on top of standard Transport initialization 
 		self.fem = mhfemacc.MHFEM(self.x, np.ones(self.N)/3, lambda x: self.Sigmaa, 
-			lambda x: self.Sigmat, xb=self.xb, BCL=0, BCR=1)
+			lambda x: self.Sigmat, BCL=0, BCR=1)
 
 	def sweep(self, phi):
 

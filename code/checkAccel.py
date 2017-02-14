@@ -25,18 +25,21 @@ tol = 1e-6
 
 n = 8
 
+x = np.linspace(0, xb, N)
+q = np.ones(N)
+
 for i in range(len(Sigmaa)):
 
 	# solve Sn
-	sn = Sn(N, n, Sigmaa[i], Sigmat, q, xb=20)
+	sn = Sn(x, n, lambda x: Sigmaa[i], lambda x: Sigmat, q)
 	x, phi, it[i] = sn.sourceIteration(tol)
 
 	# solve mu 
-	mu = muAccel(N, n, Sigmaa[i], Sigmat, q, xb=20)
+	mu = muAccel(x, n, lambda x: Sigmaa[i], lambda x: Sigmat, q)
 	xmu, phimu, itmu[i] = mu.sourceIteration(tol)
 
 	# solve dsa 
-	dsa = DSA(N, n, Sigmaa[i], Sigmat, q, xb=20)
+	dsa = DSA(x, n, lambda x: Sigmaa[i], lambda x: Sigmat, q)
 	xdsa, phidsa, itdsa[i] = dsa.sourceIteration(tol)
 
 plt.figure(figsize=(8,6))

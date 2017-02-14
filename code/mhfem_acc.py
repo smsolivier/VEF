@@ -117,7 +117,7 @@ class MHFEM:
 		# set odd equations to the source, leave even as zero 
 		for i in range(1, self.n-1, 2):
 
-			b[i] = q[ii] * (self.x[i+1] - self.x[i-1])
+			b[i] = (q[ii] + q[ii+1])/2 * (self.x[i+1] - self.x[i-1])
 
 			ii += 1 
 

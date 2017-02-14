@@ -21,43 +21,35 @@ class Transport:
 			<mu^2> generator 
 		must supply the sweep(phi) function in the inherited class for 
 			SI to work 
-		assumes uniform source, q 
 	'''  
 
-	def __init__(self, N, n, Sigmaa, Sigmat, q, xb=1):
+	def __init__(self, x, n, Sigmaa, Sigmat, q):
 		''' Inputs:
-				N: number of cell edges 
+				x: locations of cell edges 
 				n: number of discrete ordinates 
-				Sigmaa: constant absorption XS 
-				Sigmat: constant total XS 
-				q: uniform fixed source 
-				xb: domain boundary 
+				Sigmaa: absorption XS function  
+				Sigmat: total XS function  
+				q: source function
 		''' 
 
-		self.N = N # number of cell edges  
+		self.N = np.shape(x)[0] # number of cell edges 
 		self.n = n # number of discrete ordinates 
 
+		self.x = x 
+
 		assert(n%2 == 0) # assert n is even 
-
-		self.xb = xb 
-
-		self.h = xb/N 
-
-		self.x = np.linspace(0, xb, N) 
 
 		# make material properties public 
 		self.Sigmaa = Sigmaa 
 		self.Sigmat = Sigmat 
-		self.Sigmas = Sigmat - Sigmaa
+		self.Sigmas = lambda x: Sigmat(x) - Sigmaa(x)
 		self.q = q 
 
 		# store all psis at each cell edge 
-		self.psiL = np.zeros((n, N)) # mu < 0  
-		self.psiR = np.zeros((n, N)) # mu > 0 
+		self.psiL = np.zeros((n, self.N)) # mu < 0  
+		self.psiR = np.zeros((n, self.N)) # mu > 0 
 
-		self.phi = np.zeros(N) # store flux 
-
-		print('c =', self.Sigmas/Sigmat)
+		self.phi = np.zeros(self.N) # store flux 
 
 		# generate mu's 
 		self.mu, self.w = np.polynomial.legendre.leggauss(n)
@@ -80,13 +72,16 @@ class Transport:
 			# spatial loop from right to left 
 			for j in range(self.N-2, -1, -1):
 
-				# rhs 
-				b = self.Sigmas/4*(phi[j] + phi[j+1]) + self.q/2
+				midpoint = (self.x[j] + self.x[j+1])/2 # location of cell center 
+				h = self.x[j+1] - self.x[j] # cell width 
 
-				self.psiL[i,j] = b*self.h - (.5*self.Sigmat*self.h - 
+				# rhs 
+				b = self.Sigmas(midpoint)/4*(phi[j] + phi[j+1]) + .25*(self.q[j] + self.q[j+1])
+
+				self.psiL[i,j] = b*h - (.5*self.Sigmat(midpoint)*h - 
 					np.fabs(self.muL[i]))*self.psiL[i,j+1]
 
-				self.psiL[i,j] /= .5*self.Sigmat*self.h + np.fabs(self.muL[i])
+				self.psiL[i,j] /= .5*self.Sigmat(midpoint)*h + np.fabs(self.muL[i])
 
 	def sweepLR(self, phi):
 		''' sweep left to right ''' 
@@ -100,13 +95,16 @@ class Transport:
 			# spatial loop from left to right 
 			for j in range(1, self.N):
 
-				# rhs 
-				b = self.Sigmas/4*(phi[j] + phi[j-1]) + self.q/2 
+				midpoint = (self.x[j] + self.x[j-1])/2 # cell center 
+				h = self.x[j] - self.x[j-1] # cell width 
 
-				self.psiR[i,j] = b*self.h - (.5*self.Sigmat*self.h - 
+				# rhs 
+				b = self.Sigmas(midpoint)/4*(phi[j] + phi[j-1]) + .25*(self.q[j] + self.q[j-1])
+
+				self.psiR[i,j] = b*h - (.5*self.Sigmat(midpoint)*h - 
 					self.muR[i])*self.psiR[i,j-1]
 
-				self.psiR[i,j] /= .5*self.Sigmat*self.h + self.muR[i] 
+				self.psiR[i,j] /= .5*self.Sigmat(midpoint)*h + self.muR[i] 
 
 	def integratePsi(self):
 		''' use guass legendre quadrature points to integrate psi ''' 
@@ -121,6 +119,7 @@ class Transport:
 		return phi 
 
 	def getEddington(self):
+		''' compute Eddington factor ''' 
 
 		# compute <mu^2> 
 		top = 0 # store int mu^2 psi dmu 
@@ -138,16 +137,25 @@ class Transport:
 		''' lag RHS of transport equation and iterate until flux converges ''' 
 
 		it = 0 # store number of iterations 
-		phi = np.zeros(self.N) 
+		phi = np.zeros(self.N) # store flux at each spatial location  
+		edd = np.zeros(self.N) # store eddington factor 
+
+		self.phiCon = [] 
+		self.eddCon = [] 
 
 		while (True):
 
 			phi_old = np.copy(phi) # store old flux 
+			edd_old = np.copy(edd) # store old edd 
 
 			phi = self.sweep(phi) # update flux 
+			edd = self.getEddington()
+
+			self.phiCon.append(np.linalg.norm(phi - phi_old, 2)/np.linalg.norm(phi, 2))
+			self.eddCon.append(np.linalg.norm(edd - edd_old, 2)/np.linalg.norm(edd, 2))
 
 			# check for convergence 
-			if (np.linalg.norm(phi - phi_old, 2) < tol):
+			if (np.linalg.norm(phi - phi_old, 2)/np.linalg.norm(phi, 2) < tol):
 
 				break 
 
@@ -192,14 +200,14 @@ class DSA(Transport):
 	''' 
 
 	# override Transport initialization 
-	def __init__(self, N, n, Sigmaa, Sigmat, q, xb):
+	def __init__(self, x, n, Sigmaa, Sigmat, q):
 
 		# call Transport initialization 
-		Transport.__init__(self, N, n, Sigmaa, Sigmat, q, xb)
+		Transport.__init__(self, x, n, Sigmaa, Sigmat, q)
 
 		# create fem object on top of standard Transport initialization 
-		self.fem = mhfemacc.MHFEM(self.x, np.ones(self.N)/3, lambda x: self.Sigmaa, 
-			lambda x: self.Sigmat, BCL=0, BCR=1)
+		self.fem = mhfemacc.MHFEM(self.x, np.ones(self.N)/3, self.Sigmaa, 
+			self.Sigmat, BCL=0, BCR=1)
 
 	def sweep(self, phi):
 
@@ -215,7 +223,7 @@ class DSA(Transport):
 		phihalf = self.integratePsi()
 
 		# DSA step 
-		x, f = self.fem.solve(self.Sigmas*(phihalf - phi))
+		x, f = self.fem.solve(self.Sigmas(self.x)*(phihalf - phi))
 
 		# compute new flux 
 		return phihalf + f 
@@ -242,43 +250,44 @@ class muAccel(Transport):
 		mu2 = self.getEddington() # get <mu^2> 
 
 		# create MHFEM object 
-		sol = mhfemacc.MHFEM(self.x, mu2, lambda x: self.Sigmaa, 
-			lambda x: self.Sigmat, BCL=0, BCR=1)
+		sol = mhfemacc.MHFEM(self.x, mu2, self.Sigmaa, self.Sigmat, BCL=0, BCR=1)
 
-		x, phi = sol.solve(self.q*np.ones(self.N))
+		x, phi = sol.solve(self.q)
 
 		return phi 
 
 
 if __name__ == '__main__':
 
-	N = 200 # number of edges 
+	N = 100 # number of edges 
 	Sigmat = 1 
 	c = .9 # ratio of Sigmas to Sigmat 
 	Sigmaa = Sigmat*(1 - c) 
-	q = 1
 	xb = 1
 
 	tol = 1e-6 
 
 	n = 8
 
-	sn = Sn(N, n, Sigmaa, Sigmat, q, xb=xb)
-	mu = muAccel(N, n, Sigmaa, Sigmat, q, xb=xb)
+	x = np.linspace(0, xb, N)
+	q = np.ones(N)
+
+	sn = Sn(x, n, lambda x: Sigmaa, lambda x: Sigmat, q)
+	mu = muAccel(x, n, lambda x: Sigmaa, lambda x: Sigmat, q)
 	# dsa = DSA(N, n, Sigmaa, Sigmat, q, xb=xb)
 	# diff = finiteVolume(N, lambda x: Sigmaa, lambda x: Sigmat, xb=xb, BCL=0, BCR=2)
 	# diff = FEM(N, Sigmaa, Sigmat, xb=xb)
 	# diff = MHFEM(N-1, Sigmaa, Sigmat, xb=xb, BCL=0, BCR=2, EDGE=1)
-	diff = FEM(np.linspace(0, xb, N), np.ones(N)/3, lambda x: Sigmaa, 
+	diff = mhfemacc.MHFEM(np.linspace(0, xb, N), np.ones(N)/3, lambda x: Sigmaa, 
 		lambda x: Sigmat, BCL=0, BCR=1)
 
 	x, phi, it = sn.sourceIteration(tol)
 	xmu, phimu, itmu = mu.sourceIteration(tol)
 	# xdsa, phidsa, itdsa = dsa.sourceIteration(tol)
-	xdiff, phidiff = diff.solve(np.ones(N)*q)
+	xdiff, phidiff = diff.solve(q)
 
-	plt.plot(xmu, mu.getEddington())
-	plt.show()
+	# plt.plot(xmu, mu.getEddington())
+	# plt.show()
 
 	plt.plot(x, phi, label='S'+str(n)+' SI')
 	plt.plot(xmu, mu.phihalf, label='S'+str(n)+' mu')

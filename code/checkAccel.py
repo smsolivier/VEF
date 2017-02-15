@@ -42,6 +42,7 @@ for i in range(len(Sigmaa)):
 	dsa = DSA(x, n, lambda x: Sigmaa[i], lambda x: Sigmat, q)
 	xdsa, phidsa, itdsa[i] = dsa.sourceIteration(tol)
 
+print(it/itmu)
 plt.figure(figsize=(8,6))
 plt.plot(c, it, '-o', label='No Accel', clip_on=False)
 plt.plot(c, itmu, '-*', label='Edd. Accel', clip_on=False)
@@ -52,4 +53,8 @@ plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$\Sigma_s/\Sigma_t$', fontsize=20)
 plt.ylabel('Number of Iterations', fontsize=16)
 plt.savefig('../ans/accel.pdf')
+
+plt.figure()
+plt.plot(c, it/itmu)
+plt.yscale('log')
 plt.show()

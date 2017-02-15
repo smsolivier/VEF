@@ -1,6 +1,6 @@
 \documentclass{anstrans}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title{Eddington Acceleration}
+\title{Accelerating Discrete Ordinates Source Iteration with the Eddington Factor}
 \author{Samuel S. Olivier*}
 
 \institute{Department of Nuclear Engineering, Texas A\&M University, College Station, TX 77843}
@@ -51,25 +51,27 @@
 			\phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
 				\xrightarrow{\text{S}_N} \sum_{n=1}^N w_n \psi_n(x)
 		\end{equation}
-	where $\psi_n(x) = \psi(x,\mu_n)$ and $w_n$ the quadrature weights corresponding to each $\mu_n$ \cite{llnl}. The \SN equations are then 
+	where $\psi_n(x) = \psi(x,\mu_n)$ and $w_n$ are the quadrature weights corresponding to each $\mu_n$ \cite{llnl}. The \SN equations are then 
 		\begin{equation} \label{eq:sn}
 			\mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
-			\frac{\Sigma_s(x)}{2} \sum_{n=1}^N w_n \psi_n(x) + \frac{Q(x)}{2} 
+			\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} 
 		\end{equation}
-	for $n = 1, 2, \dots, N$. 
+	for $n = 1, 2, \dots, N$ where $\phi(x)$ is defined by Eq. \ref{eq:quad}. 
 
 	In the Source Iteration (SI) solution method, the right hand side of Eq. \ref{eq:sn} is lagged. In other words, 
 		\begin{equation} \label{eq:si}
 			\mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
-			\frac{\Sigma_s(x)}{2} \sum_{n=1}^N w_n \psi_n^\ell(x) + \frac{Q(x)}{2}. 
+			\frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2}. 
 		\end{equation}
 	Equation \ref{eq:si} is iterated until 
 		\begin{equation} \label{eq:converg}
 			\frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon
 		\end{equation}
-	where $\phi(x)$ is defined in Eq. \ref{eq:quad} and $\epsilon$ is a sufficiently small tolerance. If the initial guess for the scalar flux, $\phi^0(x)$, is zero for all values of $x$, then $\phi^\ell(x)$ is the scalar flux of particles that have undergone $\ell - 1$ collisions \cite{adams}. Thus, the number of iterations until convergence is directly linked to the number of collisions in a particle's lifetime. Typically, SI becomes increasingly slow to converge as the ratio of $\Sigma_s$ to $\Sigma_t$ approaches unity and the amount of particle leakage from the system goes to zero. SI is slowest in highly scattering systems with small losses to absorption and particle leakage. 
+	where $\epsilon$ is a sufficiently small tolerance. 
 
-	Fortunately, the regime where SI is slow to converge is also the regime where Diffusion Theory is most accurate. A popular method for accelerating SI is Diffusion Synthetic Acceleration (DSA) where a transport sweep is conducted and then a diffusion solve is used to generate a correction factor. DSA requires carefully differencing the \SN and diffusion steps in a consistent manner to prevent instability in highly scattering media with coarse spatial grids \cite{alcouffe}. DSA is not applicable in the setting of this presentation due to the incompatibility of MHFEM and \SN. A new acceleration method is needed that avoids the consistency pitfall of DSA. 
+	If the initial guess for the scalar flux, $\phi^0(x)$, is zero for all values of $x$, then $\phi^\ell(x)$ is the scalar flux of particles that have undergone $\ell - 1$ collisions \cite{adams}. Thus, the number of iterations until convergence is directly linked to the number of collisions in a particle's lifetime. Typically, SI becomes increasingly slow to converge as the ratio of $\Sigma_s$ to $\Sigma_t$ approaches unity and the amount of particle leakage from the system goes to zero. SI is slowest in highly scattering systems with small losses to absorption and particle leakage. In full radiation transport simulations with millions of unknowns, unneeded source iterations can be prohibitively expensive. 
+
+	Fortunately, the regime where SI is slow to converge is also the regime where Diffusion Theory is most accurate. A popular method for accelerating SI is Diffusion Synthetic Acceleration (DSA) where each source iteration involves both a transport sweep and a diffusion solve. DSA requires carefully differencing the \SN and diffusion steps in a consistent manner to prevent instability in highly scattering media with coarse spatial grids \cite{alcouffe,morel}. DSA is not applicable in the setting of this presentation due to the incompatibility of MHFEM and \SN and the increased computational expense of solving consistently differenced diffusion. A new acceleration method is needed that avoids the consistency pitfall of DSA. 
 
 \section{Eddington Acceleration}
 	The zeroth and first angular moments of Eq. \ref{eq:bte} are 
@@ -81,48 +83,83 @@
 			\frac{\ud}{\ud x} \edd(x) \phi(x) + \Sigma_t(x) J(x) = 0  
 		\end{equation}
 		\end{subequations}
-	where $J = \int_{-1}^{1} \mu \ \psi(x, \mu) \ud \mu$ is the current and 
+	where $J(x) = \int_{-1}^{1} \mu \ \psi(x, \mu) \ud \mu$ is the current and 
 		\begin{equation} \label{eq:eddington} 
-			\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x, \mu) \ud \mu}{\int_{-1}^1 \psi(x, \mu) \ud \mu} \xrightarrow{\text{S}_N} \frac{\sum_{n=1}^N \mu_n^2 w_n\psi_n(x)}{\sum_{n=1}^N w_n \psi_n(x)}
+			\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x, \mu) \ud \mu}{\int_{-1}^1 \psi(x, \mu) \ud \mu}
 		\end{equation}
-	the Eddington factor. Note that no approximations have been made to arrive at Eqs. \ref{eq:zero} and \ref{eq:first}. The Eddington factor is the true angular flux weighted average of $\mu^2$ and therefore Eqs. \ref{eq:zero} and \ref{eq:first} are just as accurate as Eq. \ref{eq:bte}. 
+	the Eddington factor. Note that no approximations have been made to arrive at Eqs. \ref{eq:zero} and \ref{eq:first}. The Eddington factor is the true angular flux weighted average of $\mu^2$ and therefore Eqs. \ref{eq:zero} and \ref{eq:first} are just as accurate as Eq. \ref{eq:bte}. In \SN, the Eddington factor is 
+		\begin{equation} \label{eq:edd_sn}
+			\edd(x) = \frac{\sum_{n=1}^N \mu_n^2 w_n\psi_n(x)}{\sum_{n=1}^N w_n \psi_n(x)}
+		\end{equation}
 
-	This formulation is beneficial because Eq. \ref{eq:zero} is a conservative balance equation and if $\edd(x)$ is known, the moment equations' system of two, first--order ordinary differential equations can be solved directly with well--established methods. However, computing $\edd(x)$ requires already knowing the solution. 
+	This formulation is beneficial because Eq. \ref{eq:zero} is a conservative balance equation and if, $\edd(x)$ is known, the moment equations' system of two, first--order ordinary differential equations can be solved directly with well--established methods. However, computing $\edd(x)$ requires already knowing the angular flux. 
 
 	The proposed acceleration scheme is: 
 		\begin{enumerate}
 			\item Compute $\psi_n$ with \SN and an arbitrary spatial discretization
-			\item Compute $\edd$ with Eq. \ref{eq:eddington}
+			\item Compute $\edd$ with Eq. \ref{eq:edd_sn}
 			\item Interpolate $\edd$ onto the MHFEM grid 
-			\item Solve the moment equations with the preconditioned $\edd$ using MHFEM. 
+			\item Solve the moment equations for $\phi(x)$ with the preconditioned $\edd$ using MHFEM. 
 		\end{enumerate}
-	Acceleration occurs because the Eddington factor is a weak function of angular flux. This means that even poor angular flux solutions can accurately approximate the Eddington factor. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the acceleration step is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. The updated flux is then used on the right hand side of Eq. \ref{eq:si} to produce an even more accurate approximation of $\edd(x)$. 
+	This process is one source iteration consisting of an \SN transport step to compute the Eddington factor and an MHFEM acceleration step to compute $\phi(x)$. The scalar flux from the acceleration step is used in the right hand side of Eq. \ref{eq:si} and steps 1--4 are repeated until the acceleration step's $\phi(x)$ converges according to Eq. \ref{eq:converg}.  
+
+	Acceleration occurs because the Eddington factor is a weak function of angular flux. This means that even poor angular flux solutions can accurately approximate the Eddington factor. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the acceleration step is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
 	This scheme allows the \SN equations and moment equations to be solved with different spatial discretizations. \SN can be discretized using normal methods such as Linear Discontinuous Galerkin or Diamond Differencing while the moment equations can be solved on the same grid as the hydrodynamics. 
 	% operator split iteration, computationally economic to use moment equations 
 
 	% This method differs from DSA in that two solutions are generated: one from \SN and one from the moment equations and that the \SN and acceleration steps do not have to be consistently differenced. The solution of the moment equations will be used because the moment equations are conservative while \SN is not. 
-	
-\section{Results}
-	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created in addition to an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated and DSA S$_8$ with 100 spatial cells. Figure \ref{fig:comparison} shows the number of iterations until the L$^2$ norm of the flux converged to within a tolerance of \num{1e-6} for varying ratios of $\Sigma_s$ to $\Sigma_t$. 
 
-	\begin{figure}[ht] % replace 't' with 'b' to force it to be on the bottom
+% \section{Diamond Differenced \SN}
+% 	The Diamond Differenced (DD) \SN equations corresponding to Eq. \ref{eq:sn} are 
+% 		\begin{equation} \label{eq:dd}
+% 			\frac{\mu_n}{h_i}\left(\psi_{n,i+1/2} - \psi_{n,i-1/2}\right)
+% 				+ \Sigma_{t,i} \psi_{n,i} = \frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N \psi_{n',i}w_{n'}
+% 				+ \frac{Q_i}{2}
+% 		\end{equation}
+% 	where $\psi_{n,i\pm1/2} = \psi_n(x_{i\pm1/2})$ is the cell edge angular flux and $\Sigma_{t,i} = \Sigma_t(x_i)$, $\Sigma_{s,i} = \Sigma_s(x_i)$ and $Q_i = Q(x_i)$ the cell averaged total cross section, scattering cross section and fixed source. The $x_{i\pm1/2}$ are the cell edge locations of cell $i$ of cell width $h = x_{i+1/2} - x_{i-1/2}$. In DD, the cell centered angular flux is taken to be the average of the adjacent cell edge angular fluxes: 
+% 		\begin{equation} \label{eq:auxDD}
+% 			\psi_{n,i} = \frac{1}{2} \left(\psi_{n,i+1/2} + \psi_{n,i-1/2}\right)
+% 		\end{equation}
+
+\section{Results}
+	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created in addition to an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated and DSA S$_8$ SI with 100 spatial cells. 
+
+	\begin{figure}[h] % replace 't' with 'b' to force it to be on the bottom
 	  \centering
 	  \includegraphics[width=8.5cm]{accel.pdf}
 	  \caption{A comparison of unaccelerated, Eddington accelerated and DSA S$_8$. }
 	  \label{fig:comparison}
 	\end{figure}
 
+	Figure \ref{fig:comparison} shows the number of iterations until the convergence criterion in  Eq. \ref{eq:converg} was met with $\epsilon = \num{1e-6}$ for varying ratios of $\Sigma_s$ to $\Sigma_t$. Aside from $\Sigma_s/\Sigma_t = 0$ where acceleration is not possible, the ratio of unaccelerated to Eddington accelerated iterations ranges between 2.5 and 700. This suggests that acceleration is occurring and that Eddington acceleration does not just do twice the amount of work in each iteration. 
+
+	Figure \ref{fig:conv_si} shows the unaccelerated convergence criterion 
+		\begin{equation}
+			\frac{\|f^{\ell+1} - f^{\ell}\|}{\|f^{\ell+1}\|}
+		\end{equation}
+	as a function of iteration number for $f = \phi(x)$ and $f = \edd(x)$. The large drop in the convergence criterion between the first and second iterations supports the claim that $\edd(x)$ is a weak function of angular flux. When compared to Fig. \ref{fig:conv_edd}, the convergence criterion versus number of iterations for Eddington accelerated S$_8$, it is clear that Eddington acceleration transfers the fast rate of convergence of $\edd(x)$ to $\phi(x)$. 
+
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=8.5cm]{eddCon_si.pdf}
+		\caption{The convergence rate of $\phi(x)$ compared to $\edd(x)$ for unaccelerated S$_8$. }
+		\label{fig:conv_si}
+	\end{figure}
+	\begin{figure}[h]
+		\centering
+		\includegraphics[width=8.5cm]{eddCon_mu.pdf}
+		\caption{The convergence rate of $\phi(x)$ compared to $\edd(x)$ for Eddington accelerated S$_8$.}
+		\label{fig:conv_edd}
+	\end{figure}
+
 	% add convergence rate of phi v edd 
 	% include discussion on acceleration v just doing 2 times as much work. ie actual acceleration is happening 
 
 \section{Conclusions}
-	Figure \ref{fig:comparison} suggests that Eddington acceleration is a valid method for accelerating \SN SI calculations. The required iterations until convergence is significantly lower for Eddington accelerated S$_8$. This is especially evident for the pure scattering regime ($\Sigma_s = \Sigma_t$) where S$_8$ was accelerated by a factor of 750. In addition, Eddington acceleration performed as well as DSA. This scheme produces a conservative solution and does not require the \SN and acceleration steps to be consistently differenced. 
+	The proposed acceleration scheme successfully accelerated S$_8$ source iteration calculations in slab geometry for a wide range of $\Sigma_s/\Sigma_t$. In the pure scattering regime ($\Sigma_s = \Sigma_t$), source iteration was accelerated by a factor of 750. This scheme is especially suited for multiphysics applications because the transport and acceleration steps do not need to be consistently differenced. In addition, the acceleration step produces a conservative solution that is computationally inexpensive compared to a transport sweep. Future work that will also be presented is the application of Eddington acceleration to Linear Discontinuous Galerkin discretized \SN. 
 
-\section{Future Work} 
-
-
-\section{Acknowledgments}
+% \section{Acknowledgments}
 
 \bibliographystyle{ans}
 \bibliography{bibliography.bib}

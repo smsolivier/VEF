@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-hello 
-
 import numpy as np
 import matplotlib.pyplot as plt
 
 from scipy.interpolate import interp1d 
+from scipy.linalg import solve_banded 
 
 import sys 
 
@@ -40,48 +39,77 @@ class MHFEM:
 		# make <mu^2> function 
 		mu2f = interp1d(xe, mu2) 
 
-		# build A matrix 
-		A = np.zeros((n, n)) # coefficient matrix 
+		# store banded matrix entries  
+		# upper diagonals have leading zeros, lower have trailing zeros 
+		# A[0,:] = 2nd upper 
+		# A[1,:] = 1st upper 
+		# A[2,:] = diagonal 
+		# A[3,:] = 1st lower 
+		# A[4,:] = 2nd lower 
+		A = np.zeros((5, n)) # coefficient matrix 
 
-		for i in range(1, n, 2): 
-			# dont edit first equation 
-			# set phi_i and phi_i+1/2 in each iteration 
+		# build equations 
+		for i in range(1, n, 2):
 
-			hi = x[i+1] - x[i-1] # cell i width 
+			hi = x[i+1] - x[i-1] # cell width, x_i+1/2 - x_i-1/2 
 
-			# set phi_i equation 
-			A[i,i-1:i+2] = np.array([
-				-6/(Sigmat(x[i])*hi)*mu2f(x[i-1]), # phi_i-1/2 
-				Sigmaa(x[i])*hi + 12/(Sigmat(x[i])*hi)*mu2f(x[i]), # phi_i 
-				-6/(Sigmat(x[i])*hi)*mu2f(x[i+1]) # phi_i+1/2 
-				])
+			# balance equation 
+			# lower diagonal 
+			A[3,i-1] = -6/(Sigmat(x[i])*hi)*mu2f(x[i-1])
 
-			if (i != n-2): # don't overwite phi_N+1/2 equation 
+			# diagonal term 
+			A[2,i] = Sigmaa(x[i])*hi + 12/(Sigmat(x[i])*hi)*mu2f(x[i])
 
-				h1 = x[i+3] - x[i+1] # cell i+1 width 
+			# upper diagonal 
+			A[1,i+1] = -6/(Sigmat(x[i])*hi)*mu2f(x[i+1]) 
 
-				# set phi_i+1/2 equation 
-				A[i+1,i-1:i+4] = np.array([
-					-2/(Sigmat(x[i])*hi) * mu2f(x[i-1]), # phi_i-1/2 
-					6/(Sigmat(x[i])*hi) * mu2f(x[i]), # phi_i 
-					-4*(1/(Sigmat(x[i])*hi) + 1/(Sigmat(x[i+2])*h1))*mu2f(x[i+1]), # phi_i+1/2 
-					6/(Sigmat(x[i+2])*h1)*mu2f(x[i+2]), # phi_i+1 
-					-2/(Sigmat(x[i+2])*h1)*mu2f(x[i+3]) # phi_i+3/2 
-					])
+			# phi_i+1/2 equation
+			if (i != n-2):
+
+				h1 = x[i+3] - x[i+1] # cell i+1 width, x_i+3/2 - x_i+1/2 
+
+				# second lower (phi_i-1/2)
+				A[4,i-1] = -2/(Sigmat(x[i])*hi)*mu2f(x[i-1])
+
+				# first lower (phi_i) 
+				A[3,i] = 6/(Sigmat(x[i])*hi)*mu2f(x[i])
+				
+				# diagonal term (phi_i+1/2)
+				A[2,i+1] = -4*(1/(Sigmat(x[i])*hi) + 1/(Sigmat(x[i+2])*h1))*mu2f(x[i+1])
+
+				# first upper (phi_i+1)
+				A[1,i+2] = 6/(Sigmat(x[i+2])*h1)*mu2f(x[i+2])
+
+				# second upper (phi_i+3/2)
+				A[0,i+3] = -2/(Sigmat(x[i+2])*h1)*mu2f(x[i+3])
 
 		# boundary conditions 
 		# left 
 		if (BCL == 0): # reflecting 
+
 			# J_1L = 0 
-			A[0,:3] = np.array([-2*mu2f(x[0]), 3*mu2f(x[1]), -1*mu2f(x[2])]) 
+			# diagonal (phi_1/2)
+			A[2,0] = -2*mu2f(x[0])
+
+			# first upper (phi_1)
+			A[1,1] = 3*mu2f(x[1])
+
+			# second upper (phi_3/2)
+			A[0,2] = -1*mu2f(x[2])
 
 		elif (BCL == 1): # marshak 
+
 			alpha = 4/(Sigmat(x[1])*(x[2] - x[0])) 
-			A[0,:3] = np.array([
-				1 + 2*alpha*mu2f(x[0]), 
-				-3*alpha*mu2f(x[1]), 
-				alpha*mu2f(x[2])
-				])
+
+			# diagonal (phi_1/2)
+			A[2,0] = 1 + 2*alpha*mu2f(x[0])
+
+			# first upper (phi_1)
+			A[1,1] = -3*alpha*mu2f(x[1])
+
+			# second upper (phi_3/2)
+			A[0,2] = alpha*mu2f(x[2])
+
 		else:
 			print('left boundary condition not defined')
 			sys.exit()
@@ -89,21 +117,33 @@ class MHFEM:
 		# right
 		if (BCR == 0): # reflecting 
 			# J_NR = 0 
-			A[-1,-3:] = np.array([mu2f(x[-3]), -3*mu2f(x[-2]), 2*mu2f(x[-1])])
+			# A[-1,-3:] = np.array([mu2f(x[-3]), -3*mu2f(x[-2]), 2*mu2f(x[-1])])
+
+			# second lower (phi_N-1/2)
+			A[4,-3] = mu2f(x[-3])
+
+			# first lower (phi_N)
+			A[3,-2] = -3*mu2f(x[-2])
+
+			# diagonal (phi_N+1/2)
+			A[2,-1] = 2*mu2f(x[-1])
 
 		elif (BCR == 1): # marshak 
+
 			alpha = 4/(Sigmat(x[-2])*(x[-1] - x[-3]))
-			A[-1,-3:] = np.array([
-				alpha*mu2f(x[-3]), 
-				-3*alpha*mu2f(x[-2]), 
-				1 + 2*alpha*mu2f(x[-1])
-				])
+
+			# second lower (phi_N-1/2)
+			A[4,-3] = alpha*mu2f(x[-3])
+
+			# first lower (phi_N)
+			A[3,-2] = -3*alpha*mu2f(x[-2])
+
+			# diagonal (phi_N+1/2)
+			A[2,-1] = 1 + 2*alpha*mu2f(x[-1])
 
 		else:
 			print('right boundary condition not defined')
 			sys.exit()
-
-		# np.savetxt('A.txt', A, delimiter=',')
 
 		# make variables public 
 		self.A = A 
@@ -124,7 +164,8 @@ class MHFEM:
 			ii += 1 
 
 		# solve for flux 
-		phi = np.dot(np.linalg.inv(self.A), b)
+		# solve banded matrix 
+		phi = solve_banded((2,2), self.A, b)
 
 		# get edge values 
 		phiEdge = np.zeros(self.N)
@@ -147,10 +188,10 @@ if __name__ == '__main__':
 
 	Q = 1 
 
-	N = 200 # number of cells 
+	N = 10 # number of cells 
 	xe = np.linspace(0, xb, N+1)
 	mu2 = np.ones(N+1)/3 
-	mhfem = MHFEM(xe, mu2, lambda x: Sigmaa, lambda x: Sigmat)
+	mhfem = MHFEM(xe, mu2, lambda x: Sigmaa, lambda x: Sigmat, BCL=0, BCR=1)
 	x, phi = mhfem.solve(np.ones(N)*Q)
 
 	# exact solution 
@@ -160,11 +201,11 @@ if __name__ == '__main__':
 	phi_ex = lambda x: c1*np.cosh(x/L) + Q/Sigmaa 
 	x_ex = np.linspace(0, xb, 100)
 
-	# plt.plot(x_ex, phi_ex(x_ex), '--')
-	# plt.plot(x, phi)
+	plt.plot(x_ex, phi_ex(x_ex), '--')
+	plt.plot(x, phi)
 	# plt.plot(x, np.fabs(phi - phi_ex(x)), '-o')
 	# plt.yscale('log')
-	# plt.show()
+	plt.show()
 
 	# check order of convergence 
 	N = np.array([20, 40, 80, 160])

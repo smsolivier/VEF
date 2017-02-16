@@ -265,9 +265,9 @@ if __name__ == '__main__':
 	Sigmaa = Sigmat*(1 - c) 
 	xb = 1
 
-	tol = 1e-6 
+	tol = 1e-10
 
-	n = 8
+	n = 16
 
 	x = np.linspace(0, xb, N)
 	q = np.ones(N)
@@ -290,7 +290,7 @@ if __name__ == '__main__':
 	# plt.show()
 
 	plt.plot(x, phi, label='S'+str(n)+' SI')
-	plt.plot(xmu, mu.phihalf, label='S'+str(n)+' mu')
+	plt.plot(xmu, phimu, label='S'+str(n)+' Edd')
 	# plt.plot(xdsa, phidsa, label='S' + str(n) + ' DSA')
 	plt.plot(xdiff, phidiff, label='Diffusion')
 	plt.legend(loc='best')

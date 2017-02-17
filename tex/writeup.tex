@@ -17,13 +17,15 @@
 \usepackage{siunitx}
 \usepackage{xspace}
 
+\usepackage{subcaption}
+
 \usepackage{setspace}
 % \doublespacing
 
 \usepackage[compact]{titlesec}
 
-\usepackage[nomarkers, nolists]{endfloat} % places all floats at the end of the document 
-\renewcommand{\efloatseparator}{} % reduce float spacing 
+% \usepackage[nomarkers, nolists]{endfloat} % places all floats at the end of the document 
+% \renewcommand{\efloatseparator}{} % reduce float spacing 
 
 
 % \usepackage{newtxtext}
@@ -86,8 +88,9 @@
 \newcommand{\dderiv}[2]{\frac{\ud #1}{\ud #2}}
 \newcommand{\edd}{\langle \mu^2 \rangle} 
 
-
 \begin{document} % --------------------------------------------------
+
+\include{title}
 \section{Introduction}
 	% Two of the most challenging computational tasks are radiation transport and hydrodynamics. 
 	One of the most challenging computational tasks is simulating the interaction of radiation with matter. 
@@ -97,7 +100,7 @@
 
 	% Radiation transport and hydrodynamics can be combined using operator splitting, where the radiation transport and hydrodynamics 
 
-	Lawrence Livermore National Laboratory (LLNL) is developing a high--order radiation--hydrodynamics code. The hydrodynamics portion is discretized using the Mixed Hybrid Finite Element Method (MHFEM), where values are taken to be constant within a cell with discontinuous jumps at both cell edges \cite{mhfem}. MHFEM is particularly suited for hydrodynamics but not for radiation transport. This work seeks to develop an acceleration scheme capable of robustly reducing the number of iterations in Discrete Ordinates Source Iteration calculations while being compatible with MHFEM multiphysics.  
+	Lawrence Livermore National Laboratory (LLNL) is developing a high--order radiation--hydrodynamics code. The hydrodynamics portion is discretized using the Mixed Hybrid Finite Element Method (MHFEM), where values are taken to be constant within a cell with discontinuous jumps at both cell edges \cite{mhfem}. MHFEM is particularly suited for hydrodynamics but not for radiation transport. This work seeks to develop an acceleration scheme capable of robustly reducing the number of iterations in Discrete Ordinates Source Iteration calculations while being compatible with MHFEM multiphysics.   
 
 \section{Background}
 	The steady--state, mono--energetic, isotropically--scattering, fixed--source Linear Boltzmann Equation in planar geometry is: 
@@ -170,7 +173,67 @@
 	Acceleration occurs because the Eddington factor is a weak function of angular flux. This means that even poor angular flux solutions can accurately approximate the Eddington factor. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the acceleration step is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
 	In addition to acceleration, this scheme allows the \SN equations and moment equations to be solved with different spatial discretizations. \SN can be spatially discretized using normal methods such as Linear Discontinuous Galerkin or Diamond Differencing while the moment equations can be solved on the same grid as the hydrodynamics. 
+	% operator split iteration, computationally economic to use moment equations 
 
+	% This method differs from DSA in that two solutions are generated: one from \SN and one from the moment equations and that the \SN and acceleration steps do not have to be consistently differenced. The solution of the moment equations will be used because the moment equations are conservative while \SN is not. 
+
+\section{Diamond Differenced Discrete Ordinates}
+	The Diamond Differenced (DD) \SN equations corresponding to Eq. \ref{eq:sn} are 
+		\begin{equation} \label{eq:dd}
+			\frac{\mu_n}{h_i}\left(\psi_{n,i+1/2} - \psi_{n,i-1/2}\right)
+				+ \Sigma_{t,i} \psi_{n,i} = \frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N \psi_{n',i}w_{n'}
+				+ \frac{Q_i}{2}
+		\end{equation}
+	where $\psi_{n,i\pm1/2} = \psi_n(x_{i\pm1/2})$ is the cell edge angular flux and $\Sigma_{t,i} = \Sigma_t(x_i)$, $\Sigma_{s,i} = \Sigma_s(x_i)$ and $Q_i = Q(x_i)$ the cell averaged total cross section, scattering cross section and fixed source. The $x_{i\pm1/2}$ are the cell edge locations of cell $i$ of cell width $h = x_{i+1/2} - x_{i-1/2}$. In DD, the cell centered angular flux is taken to be the average of the adjacent cell edge angular fluxes: 
+		\begin{equation} \label{eq:auxDD}
+			\psi_{n,i} = \frac{1}{2} \left(\psi_{n,i+1/2} + \psi_{n,i-1/2}\right)
+		\end{equation}
+
+\section{Linear Discontinuous Galerkin Discrete Ordinates}
+\section{Mixed Hybrid Finite Element Method}
+
+\section{Results}
+	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created along with an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells. 
+
+	\begin{figure} % replace 't' with 'b' to force it to be on the bottom
+		\centering
+		\includegraphics[width=5in]{accel.pdf}
+		\caption{A comparison of the number of iterations until convergence for unaccelerated, Eddington accelerated, and DSA S$_8$ SI. }
+		\label{fig:comparison}
+	\end{figure}
+
+	Figure \ref{fig:comparison} shows the number of iterations until the convergence criterion in  Eq. \ref{eq:converg} was met with $\epsilon = \num{1e-6}$ for varying ratios of $\Sigma_s$ to $\Sigma_t$. Aside from $\Sigma_s/\Sigma_t = 0$ where acceleration is not possible, the ratio of unaccelerated to Eddington accelerated iterations ranges between 2.5 and 750. This suggests that acceleration is occurring and that Eddington acceleration does not just do twice the amount of work in each iteration. 
+
+	Figure \ref{fig:conv_si} shows the unaccelerated convergence criterion 
+		\begin{equation}
+			\frac{\|f^{\ell+1} - f^{\ell}\|}{\|f^{\ell+1}\|}
+		\end{equation}
+	as a function of iteration number for $f = \phi(x)$ and $f = \edd(x)$. The large drop in the convergence criterion between the first and second iterations supports the claim that $\edd(x)$ is a weak function of angular flux as it quickly converges despite a less convergent angular flux. When compared to Fig. \ref{fig:conv_edd}, a plot of the convergence criterion versus number of iterations for Eddington accelerated S$_8$, it is clear that Eddington acceleration transfers the fast rate of convergence of $\edd(x)$ to $\phi(x)$. 
+
+	\begin{figure}
+		\centering
+		\begin{subfigure}{.49\textwidth} 
+			\centering
+			\includegraphics[width=\textwidth]{eddCon_si.pdf}
+			\caption{}
+			\label{fig:conv_si}
+		\end{subfigure}
+		\begin{subfigure}{.49\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{eddCon_mu.pdf}
+			\caption{}
+			\label{fig:conv_edd}
+		\end{subfigure}
+		\caption{The convergence rate of $\phi(x)$ compared to $\edd(x)$ for (a) unaccelerated and (b) Eddington accelerated S$_8$. }
+	\end{figure}
+
+	% add convergence rate of phi v edd 
+	% include discussion on acceleration v just doing 2 times as much work. ie actual acceleration is happening 
+
+\section{Conclusions}
+	The proposed acceleration scheme successfully accelerated S$_8$ source iteration calculations in slab geometry for a wide range of $\Sigma_s/\Sigma_t$. In the pure scattering regime ($\Sigma_s = \Sigma_t$), source iteration was accelerated by a factor of 750. This scheme is especially suited for multiphysics applications because the transport and acceleration steps do not need to be consistently differenced. In addition, the acceleration step produces a conservative solution that is computationally inexpensive compared to a transport sweep. Future work that will also be presented is the application of Eddington acceleration to Linear Discontinuous Galerkin discretized \SN. 
+
+% \clearpage
 \bibliographystyle{ans}
 \bibliography{bibliography}
 \end{document} % --------------------------------------------------

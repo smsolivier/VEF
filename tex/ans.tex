@@ -77,7 +77,7 @@
 	Fortunately, the regime where SI is slow to converge is also the regime where Diffusion Theory is most accurate. A popular method for accelerating SI is Diffusion Synthetic Acceleration (DSA) where each source iteration involves both a transport sweep and a diffusion solve. DSA requires carefully differencing the \SN and diffusion steps in a consistent manner to prevent instability in highly scattering media with coarse spatial grids \cite{alcouffe,morel}. DSA is not applicable in the setting of this presentation due to the incompatibility of MHFEM and \SN and the increased computational expense of solving consistently differenced diffusion. A new acceleration method is needed that avoids the consistency pitfall of DSA. 
 
 \section{Eddington Acceleration}
-	The zeroth and first angular moments of Eq. \ref{eq:bte} are 
+	The first and second angular moments of Eq. \ref{eq:bte} are 
 		\begin{subequations} 
 		\begin{equation} \label{eq:zero}
 			\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) 

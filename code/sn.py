@@ -89,9 +89,6 @@ class Transport:
 		# loop through positive angles 
 		for i in range(int(self.n/2)):
 
-			# store discretized rhs 
-			
-
 			# spatial loop from left to right 
 			for j in range(1, self.N):
 

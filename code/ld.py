@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import sn as DD
 
 class LD:
+	''' Linear Discontinuous Galerkin Sn ''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q):
 		''' 
@@ -80,10 +81,14 @@ class LD:
 
 				# rhs 
 				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[i]*h/4 # left 
-				if (j == 0):
+				if (j == 0): # boundary condition 
+
+					# reflecting 
 					b[0] += self.mu[i]*self.psiL[self.mu == -self.mu[i],0]
-				else:
+
+				else: # normal sweep 
 					b[0] += self.mu[i]*self.psiR[i,j-1] # upwind term 
+
 				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[i+1]*h/4 # right 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
@@ -117,7 +122,11 @@ class LD:
 				# rhs 
 				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[i]*h/4 # left 
 				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[i+1]*h/4 # right 
-				if (j != self.N-1):
+
+				if (j == self.N-1): # boundary condition 
+					b[1] += 0 # vacuum bc 
+ 
+				else: # normal sweep
 					b[1] -= self.mu[i]*self.psiL[i,j+1] # downwind term 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
@@ -158,6 +167,7 @@ class LD:
 		return mu2 
 
 	def edgeFlux(self):
+		''' convert up/down wind values to cell edges ''' 
 
 		psi = np.zeros((self.n, self.N+1)) # store cell edge flux 
 
@@ -189,9 +199,7 @@ class LD:
 
 		return phi 
 
-
-
-	def sourceIteration(self, tol, PLOT=False):
+	def sourceIteration(self, tol):
 		''' lag RHS of transport equation and iterate until flux converges ''' 
 
 		it = 0 # store number of iterations 
@@ -199,9 +207,6 @@ class LD:
 		phiR = np.zeros(self.N) # LD right flux 
 		phi = np.zeros(self.N) # cell centered flux 
 		edd = np.zeros(self.N) # store eddington factor 
-
-		self.phiCon = [] 
-		self.eddCon = [] 
 
 		while (True):
 
@@ -211,8 +216,6 @@ class LD:
 			phiL, phiR = self.sweep(phiL, phiR) # update flux 
 
 			phi = .5*(phiL + phiR) # cell centered flux 
-
-			self.phiCon.append(np.linalg.norm(phi - phi_old, 2)/np.linalg.norm(phi, 2))
 
 			# check for convergence 
 			if (np.linalg.norm(phi - phi_old, 2)/np.linalg.norm(phi, 2) < tol):
@@ -224,16 +227,9 @@ class LD:
 
 		print('Number of iterations =', it) 
 
-		if (PLOT):
-			for i in range(int(self.n/2)):
-				plt.plot(self.x, self.psiL[i,:], label=str(self.muL[i]))
-				plt.plot(self.x, self.psiR[i,:], label=str(self.muR[i]))
-
-			plt.legend(loc='best')
-			plt.show()
-
 		# return spatial locations, flux and number of iterations 
 		return self.x, phi, it 
+
 N = 20
 xb = 2
 x = np.linspace(0, xb, N)
@@ -241,7 +237,7 @@ Sigmaa = lambda x: .1
 Sigmat = lambda x: .83 
 q = np.ones(N) 
 
-n = 8
+n = 16
 
 ld = LD(x, n, Sigmaa, Sigmat, q)
 

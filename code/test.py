@@ -28,7 +28,7 @@ A[0,1] = -1/2
 A[1,0] = 1/2
 A[1,1] = 1/2 + sigmat*dx/2 
 
-b = np.ones(2)*dx
+b = np.ones(2)*dx/4
 
 ans = np.linalg.solve(A, b)
 
@@ -44,7 +44,7 @@ for i in range(N-2, -1, -1):
 	A[1,0] = 1/2
 	A[1,1] = 1/2 + sigmat*dx/2 
 
-	b = np.ones(2)*dx
+	b = np.ones(2)*dx/4
 	b[1] += psiL[1,i+1]
 
 	ans = np.linalg.solve(A, b)
@@ -58,7 +58,7 @@ A[0,1] = 1/2
 A[1,0] = -1/2 
 A[1,1] = -1/2 + sigmat*dx/2 + 1 
 
-b = np.ones(2)*dx 
+b = np.ones(2)*dx/4
 b[0] += psiL[1,0] 
 ans = np.linalg.solve(A, b)
 psiL[0,0] = ans[0]
@@ -75,7 +75,7 @@ for i in range(1, N):
 	A[1,1] = -1/2 + sigmat*dx/2 + 1
 
 	# rhs 
-	b = np.ones(2)*dx
+	b = np.ones(2)*dx/4
 	b[0] += psiR[0,i-1]
 
 	ans = np.linalg.solve(A, b)
@@ -83,12 +83,13 @@ for i in range(1, N):
 	psiL[0,i] = ans[0] 
 	psiR[0,i] = ans[1] 
 
-xmc, flux, leakL, leakR = monteCarlo(1000, 10, )
+xmc, flux, leakL, leakR = montecarlo(10000, 10, 20, sigmat, 0, .1, 1, xb)
 
 psi = .5*(psiL[0,:] + psiR[0,:]) + .5*(psiL[1,:] + psiR[1,:])
 # plt.plot(x, psiL[0,:] + psiR[0,:])
 # plt.plot(x, psiL[1,:] + psiR[1,:])
 plt.plot(x, psi)
+plt.errorbar(xmc, flux[:,0], yerr=flux[:,1])
 # plt.plot(psiL[0,:], '-o')
 # plt.plot(psiR[0,:], '-o')
 plt.show()

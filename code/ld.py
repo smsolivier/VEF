@@ -43,6 +43,8 @@ class LD:
 		self.psiL = np.zeros((self.n, self.N)) # LD left point  
 		self.psiR = np.zeros((self.n, self.N)) # LD right point 
 
+		self.psi = np.zeros((self.n, self.N)) # cell edged flux 
+
 		self.phi = np.zeros(self.N) # store flux 
 
 		# generate mu's, mu is arranged negative to positive 
@@ -80,7 +82,7 @@ class LD:
 				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.x[j])*h/2 + self.mu[i] # psiR 
 
 				# rhs 
-				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[i]*h/4 # left 
+				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[j]*h/4 # left 
 				if (j == 0): # boundary condition 
 
 					# reflecting 
@@ -89,7 +91,7 @@ class LD:
 				else: # normal sweep 
 					b[0] += self.mu[i]*self.psiR[i,j-1] # upwind term 
 
-				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[i+1]*h/4 # right 
+				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[j+1]*h/4 # right 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
 
@@ -120,8 +122,8 @@ class LD:
 				A[0,1] = self.mu[i]/2 
 
 				# rhs 
-				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[i]*h/4 # left 
-				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[i+1]*h/4 # right 
+				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[j]*h/4 # left 
+				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[j+1]*h/4 # right 
 
 				if (j == self.N-1): # boundary condition 
 					b[1] += 0 # vacuum bc 
@@ -149,55 +151,51 @@ class LD:
 			phiL += self.psiL[i,:] * self.w[i] 
 			phiR += self.psiR[i,:] * self.w[i]
 
-		return phiL, phiR 
+		return phiL, phiR  
 
-	def getEddington(self):
-		''' compute Eddington factor ''' 
-
-		# compute <mu^2> 
-		top = 0 # store int mu^2 psi dmu 
-		# loop through angles
-		for i in range(int(self.n/2)):
-
-			top += self.muR[i]**2*self.psiL[i,:] * self.wL[i] + \
-				self.muR[i]**2*self.psiR[i,:] * self.wR[i]
-
-		mu2 = top/self.integratePsi()
-
-		return mu2 
-
-	def edgeFlux(self):
-		''' convert up/down wind values to cell edges ''' 
-
-		psi = np.zeros((self.n, self.N+1)) # store cell edge flux 
+	def edgePsi(self):
+		''' get celled edge angular flux accounting for up/down winding ''' 
 
 		for i in range(self.n):
 
-			if (self.mu[i] > 0):
+			if (self.mu[i] > 0): # positive angles 
 
 				# set boundary values 
-				psi[i,0] = self.psiL[self.mu == -self.mu[i],0]
+				self.psi[i,0] = self.psiL[self.mu == -self.mu[i],0] # reflecting 
 
 				for j in range(self.N):
 
-					psi[i,j+1] = self.psiR[i,j] 
+					self.psi[i,j+1] = self.psiR[i,j] # psi_j+1/2 = psi_i,R  
 
-			else:
+			else: # negative angles 
 
 				# set boundary values 
-				psi[i,-1] = 0 
+				self.psi[i,-1] = 0 # vacuum 
 
 				for j in range(self.N-1, -1, -1):
 
-					psi[i,j] = self.psiL[i,j]
+					self.psi[i,j] = self.psiL[i,j] # psi_j-1/2 = psi_i,L
+
+	def getEddington(self):
+		''' compute <mu^2> ''' 
 
 		phi = np.zeros(self.N + 1) # cell edge flux 
 
 		for i in range(self.n):
 
-			phi += psi[i,:] * self.w[i]
+			phi += self.psi[i,:] * self.w[i]
 
-		return phi 
+		# Eddington factor 
+		mu2 = np.zeros(self.N+1) 
+
+		top = 0 
+		for i in range(self.n):
+
+			top += self.mu[i]**2 * self.psi[i,:] * self.w[i] 
+
+		mu2 = top/phi 
+
+		return mu2
 
 	def sourceIteration(self, tol):
 		''' lag RHS of transport equation and iterate until flux converges ''' 
@@ -230,7 +228,7 @@ class LD:
 		# return spatial locations, flux and number of iterations 
 		return self.x, phi, it 
 
-N = 20
+N = 5
 xb = 2
 x = np.linspace(0, xb, N)
 Sigmaa = lambda x: .1 
@@ -243,8 +241,7 @@ ld = LD(x, n, Sigmaa, Sigmat, q)
 
 sn = DD.Sn(x, n, Sigmaa, Sigmat, q)
 
-xc, phi, it = ld.sourceIteration(1e-6)
-phi = ld.edgeFlux()
+x, phi, it = ld.sourceIteration(1e-6)
 
 xsn, phisn, itsn = sn.sourceIteration(1e-6)
 

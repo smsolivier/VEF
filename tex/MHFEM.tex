@@ -38,23 +38,26 @@ with
 	\end{equation}
 The Eddington factor will be interpolated onto the same grid as the scalar flux so that cell edge and cell center values will be available.  
 
-The current, $J(x)$, is a linear function defined by 
+The current, $J(x)$, is a piecewise linear function defined by 
 	\begin{equation} \label{mhfem:J}
 		J(x) = \sum_{i=1}^I \jil \bl + \jir \br
 	\end{equation} 
 where $\jil$ and $\jir$ are the current on the left and right edges of the cell. 
 
-There are five unknowns in every cell $\phi_{i-1/2}$, $\phi_{i}$, $\phi_{i+1/2}$, $\jil$, and $\jir$. Thus, five equations are needed. The first equation is obtained by integrating Eq. \ref{eq:zero} over cell $i$
+\subsection{Interior}
+On the interior cells, $i \in [2, I-1]$, each cell has five unknowns: $\phi_{i-1/2}$, $\phi_i$, $\phi_{i+1/2}$, $\jil$, and $\jir$. Since $\phi_{i+1/2} = \phi_{(i+1)-1/2}$, only $\phi_{i}$, $\phi_{i+1/2}$, $\jil$, and $\jir$ must be specified in each cell as the left edge of the cell is specified by the right edge of the previous cell. Thus four equations are needed for each interior cell. 
+
+The first is found by integrating Eq. \ref{eq:zero} over cell $i$ yielding the balance equation
 	\begin{equation} \label{mhfem:balance}
 		\jir - \jil + \Sigma_{a,i} \phi_i h_i = Q_i h_i. 
 	\end{equation}
 Equations for the cell edge current, $\jil$ and $\jir$, are found by multiplying Eq. \ref{eq:first} by $\bl$ and $\br$ and integrating over cell $i$. This yields 
 	\begin{subequations}
 	\begin{equation}
-		\int_{x_{i-1/2}}^{x_{i+1/2}} \bl \dderiv{}{x} \edd(x) \phi(x) + \bl \Sigma_t(x) J(x) \ud x
+		\int_{x_{i-1/2}}^{x_{i+1/2}} \bl \dderiv{}{x} \edd(x) \phi(x) + \bl \Sigma_t(x) J(x) \ud x = 0
 	\end{equation}
 	\begin{equation}
-		\int_{x_{i-1/2}}^{x_{i+1/2}} \br \dderiv{}{x} \edd(x) \phi(x) + \br \Sigma_t(x) J(x) \ud x
+		\int_{x_{i-1/2}}^{x_{i+1/2}} \br \dderiv{}{x} \edd(x) \phi(x) + \br \Sigma_t(x) J(x) \ud x = 0
 	\end{equation}
 	\end{subequations}
 Integrating by parts produces 
@@ -67,7 +70,7 @@ Integrating by parts produces
 		\edd_{i+1/2}\phi_{i+1/2} - \edd_i \phi_i + \Sigma_{t,i}h_i \left(\frac{\jil}{6} + \frac{\jir}{3}\right) = 0.
 	\end{equation}
 	\end{subequations}
-Eliminating $\jil$ from Eq. \ref{mhfem:half1} and $\jir$ from Eq. \ref{mhfem:half2} results in the second and third equations
+Eliminating $\jil$ from Eq. \ref{mhfem:half1} and $\jir$ from Eq. \ref{mhfem:half2}:
 	\begin{equation} \label{mhfem:jir_f}
 		\jir = \frac{-2}{\Sigma_{t,i}h_i} \left[ \eddphi{i-1/2} - 3\eddphi{i} + 2\eddphi{i+1/2} \right]
 	\end{equation}
@@ -75,61 +78,63 @@ Eliminating $\jil$ from Eq. \ref{mhfem:half1} and $\jir$ from Eq. \ref{mhfem:hal
 		\jil = \frac{-2}{\Sigma_{t,i} h_i} \left[ -2 \eddphi{i-1/2} + 3\eddphi{i} - \eddphi{i+1/2}\right]
 	\end{equation}
 
-Continuity of current is ensured through enforcing 
+The equation for $\phi_{i+1/2}$ is found by enforcing continuity of current such that the current on the right side of cell $i$ is equivalent to the current on the left side of cell $i+1$. In other words,  
 	\begin{equation}
 		\jir = J_{i+1,L}
 	\end{equation}
-and 
-	\begin{equation}
-		\jil = J_{i-1,R}. 
-	\end{equation}
-Applying these two conditions yields the fourth and fifth equations:
+Applying this condition to Eqs. \ref{mhfem:jir_f} and \ref{mhfem:jil_f}:
 	\begin{equation}
 		\begin{aligned}
 		\alphai{-2}{i} \eddphi{i-1/2} &+ \alphai{6}{i} \eddphi{i} - 4 \left(
 			\frac{1}{\Sigma_{t,i}h_i} + \frac{1}{\Sigma_{t,i+1}h_{i+1}}\right)\eddphi{i+1/2} \\
-		&+ \alphai{6}{i+1}\eddphi{i+1} - \alphai{2}{i+1}\eddphi{i+3/2} = 0
-		\end{aligned}
-	\end{equation}
-	\begin{equation}
-		\begin{aligned}
-		\alphai{-2}{i-1} \eddphi{i-3/2} &+ \alphai{6}{i-1} \eddphi{i-1} - 4 \left(
-			\frac{1}{\Sigma_{t,i-1}h_{i-1}} + \frac{1}{\Sigma_{t,i}h_{i}}\right)\eddphi{i-1/2} \\
-		&+ \alphai{6}{i}\eddphi{i} - \alphai{2}{i}\eddphi{i+1/2} = 0
+		&+ \alphai{6}{i+1}\eddphi{i+1} - \alphai{2}{i+1}\eddphi{i+3/2} = 0. 
 		\end{aligned}
 	\end{equation}
 
-Equations \ref{mhfem:jir_f} and \ref{mhfem:jil_f} can be subbed into Eq. \ref{mhfem:balance} to reduce the system to three equations, three unknowns. The resulting system is 
-	\begin{subequations}
-		\begin{equation}
-			\alphai{-6}{i}\eddphi{i-1/2} + \left(\Sigma_{a,i}h_i + \alphai{12}{i}\edd_i\right) \phi_i - \alphai{6}{i}\eddphi{i+1/2} = Q_i h_i
+The required four equations can be reduced to two by replacing $\jir$ and $\jil$ in Eq. \ref{mhfem:balance} with Eqs. \ref{mhfem:jir_f} and \ref{mhfem:jil_f}. This produces the system of equations for every interior cell $i \in [2, I-1]$: 
+	\begin{subequations} \label{mhfem:intsys}
+		\begin{equation} \label{mhfem:intsys1}
+			\phi_i = \frac{
+				\alphai{6}{i}\eddphi{i-1/2} + \alphai{6}{i}\eddphi{i+1/2} + Q_i h_i
+			}{
+				\Sigma_{a,i}h_i + \alphai{12}{i}\edd_i
+			}
 		\end{equation}
-		\begin{equation}
-			\begin{aligned}
-			\alphai{-2}{i} \eddphi{i-1/2} &+ \alphai{6}{i} \eddphi{i} - 4 \left(
-				\frac{1}{\Sigma_{t,i}h_i} + \frac{1}{\Sigma_{t,i+1}h_{i+1}}\right)\eddphi{i+1/2} \\
-			&+ \alphai{6}{i+1}\eddphi{i+1} - \alphai{2}{i+1}\eddphi{i+3/2} = 0
-			\end{aligned}
-		\end{equation}
-		\begin{equation}
-			\begin{aligned}
-			\alphai{-2}{i-1} \eddphi{i-3/2} &+ \alphai{6}{i-1} \eddphi{i-1} - 4 \left(
-				\frac{1}{\Sigma_{t,i-1}h_{i-1}} + \frac{1}{\Sigma_{t,i}h_{i}}\right)\eddphi{i-1/2} \\
-			&+ \alphai{6}{i}\eddphi{i} - \alphai{2}{i}\eddphi{i+1/2} = 0
-			\end{aligned}
+		\begin{equation} \label{mhfem:intsys2}
+			\phi_{i+1/2} = \frac{
+				\alphai{-2}{i} \eddphi{i-1/2} + \alphai{6}{i} \eddphi{i} + \alphai{6}{i+1}\eddphi{i+1} - \alphai{2}{i+1}\eddphi{i+3/2}
+			}{4\left(
+				\frac{1}{\Sigma_{t,i}h_i} + \frac{1}{\Sigma_{t,i+1}h_{i+1}}\right) \edd_{i+1/2}
+			}
 		\end{equation}
 	\end{subequations}
 
+\subsection{Boundary}
+Equation \ref{mhfem:intsys} provides $2(I-2)$ equations for the $2I+1$ unknowns. Thus, five boundary equations are required. The values not accounted for in Eq. \ref{mhfem:intsys} are $\phi_{1/2}$, $\phi_{1}$, $\phi_{3/2}$, $\phi_{I}$, and $\phi_{I+1/2}$. 
+
 The Marshak boundary condition is 
 	\begin{equation}
-		\phi(x) - 2J(x) = 0. 
+		\phi(x) + 2J(x) = 0. 
 	\end{equation}
-Applied to the left edge of the domain, the equations for cell $i=1$ are 
+At $x = x_{1/2}$:
 	\begin{equation}
-		\phi_{1/2} - 2\jil = 0
+		\phi_{1/2} + 2J_{1,L} = 0
 	\end{equation}
-Apply a reflecting boundary on the right edge 
+Using Eq. \ref{mhfem:jil_f} evaluated at $i=1$, 
 	\begin{equation}
-		J(x_{N+1/2}) = J_{N,R} = 0. 
+		\phi_{1/2} = \frac{
+			\frac{6}{\Sigma_{t,i}h_i} \eddphi{1} - \frac{2}{\Sigma_{t,i}h_i}\eddphi{3/2}
+		}{
+			\frac{1}{2} + \frac{4}{\Sigma_{t,i}h_i}\edd_{1/2}
+		}
 	\end{equation}
-
+Applying a reflecting boundary on the right edge $J(x_{I+1/2}) = J_{I,R} = 0$:
+	\begin{equation} 
+		\phi_{I+1/2} = \frac{
+			-\eddphi{I-1/2} + 3\eddphi{I}
+		}{
+			2\edd_{i+1/2}
+		}
+	\end{equation}
+$\phi_1$ and $\phi_I$ are specified by Eq. \ref{mhfem:intsys1} with $i=1$ and $i=I$. The remaining unknown, $\phi_{3/2}$, is found through Eq. \ref{mhfem:intsys2} with $i=1$. 
+There are now $2I+1$ equations with $2I+1$ unknowns. This system can be solved with the inversion of a banded matrix of bandwidth five. 

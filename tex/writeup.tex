@@ -19,6 +19,8 @@
 
 \usepackage{subcaption}
 
+\usepackage{enumerate}
+
 \usepackage{setspace}
 % \doublespacing
 
@@ -79,8 +81,8 @@
 % \counterwithin{table}{pcount}
 
 \usepackage{glossaries}
-\input{glossary}
 \makeglossaries
+\input{glossary}
 
 % custom commands 
 \newcommand{\SN}{S$_N$\xspace}
@@ -95,6 +97,7 @@
 \begin{document} % --------------------------------------------------
 
 \include{title}
+
 \section{Introduction}
 	% Two of the most challenging computational tasks are radiation transport and hydrodynamics. 
 	One of the most challenging computational tasks is simulating the interaction of radiation with matter. 
@@ -104,7 +107,7 @@
 
 	% Radiation transport and hydrodynamics can be combined using operator splitting, where the radiation transport and hydrodynamics 
 
-	Lawrence Livermore National Laboratory (LLNL) is developing a high--order radiation--hydrodynamics code. The hydrodynamics portion is discretized using the Mixed Hybrid Finite Element Method (MHFEM), where values are taken to be constant within a cell with discontinuous jumps at both cell edges \cite{mhfem}. MHFEM is particularly suited for hydrodynamics but not for radiation transport. This work seeks to develop an acceleration scheme capable of robustly reducing the number of iterations in Discrete Ordinates Source Iteration calculations while being compatible with MHFEM multiphysics.   
+	Lawrence Livermore National Laboratory (LLNL) is developing a high--order radiation--hydrodynamics code. The hydrodynamics portion is discretized using the \gls{mhfem}, where values are taken to be constant within a cell with discontinuous jumps at both cell edges \cite{mhfem}. \gls{mhfem} is particularly suited for hydrodynamics but not for radiation transport. This work seeks to develop an acceleration scheme capable of robustly reducing the number of iterations in Discrete Ordinates Source Iteration calculations while being compatible with \gls{mhfem} multiphysics.   
 
 \section{Background}
 	The steady--state, mono--energetic, isotropically--scattering, fixed--source Linear Boltzmann Equation in planar geometry is: 
@@ -114,7 +117,7 @@
 		\end{equation}
 	where $\mu = \cos\theta$ is the cosine of the angle of flight $\theta$ relative to the $x$--axis, $\Sigma_t(x)$ and $\Sigma_s(x)$ the total and scattering macroscopic cross sections, $Q(x)$ the isotropic fixed--source and $\psi(x, \mu)$ the angular flux \cite{adams}. This is an integro--differential equation due to the placement of the unknown, $\psi(x,\mu)$, under both a derivative and integral.
 
-	The Discrete Ordinates (\SN) angular discretization sets $\mu$ to discrete values stipulated by an $N$--point Gauss quadrature rule. The scalar flux, $\phi(x)$, is then 
+	The \gls{sn} angular discretization sets $\mu$ to discrete values stipulated by an $N$--point Gauss quadrature rule. The scalar flux, $\phi(x)$, is then 
 		\begin{equation} \label{eq:quad}
 			\phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
 				\xrightarrow{\text{S}_N} \sum_{n=1}^N w_n \psi_n(x)
@@ -122,11 +125,11 @@
 	where $\psi_n(x) = \psi(x,\mu_n)$ and $w_n$ are the quadrature weights corresponding to each $\mu_n$ \cite{llnl}. The \SN equations are then 
 		\begin{equation} \label{eq:sn}
 			\mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
-			\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} 
+			\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2}, \ 1 \leq n \leq N
 		\end{equation}
-	where $n = 1, 2, \dots, N$ and $\phi(x)$ is defined by Eq. \ref{eq:quad}. This is now a system of $N$ coupled, ordinary differential equations. 
+	where $\phi(x)$ is defined by Eq. \ref{eq:quad}. This is now a system of $N$ coupled, ordinary differential equations. 
 
-	The Source Iteration (SI) solution method decouples the \SN equations by lagging the right hand side of Eq. \ref{eq:si}. In other words, 
+	The \gls{si} solution method decouples the \gls{sn} equations by lagging the right hand side of Eq. \ref{eq:si}. In other words, 
 		\begin{equation} \label{eq:si}
 			\mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
 			\frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2}, \ 1 \leq n \leq N
@@ -138,9 +141,9 @@
 		\end{equation}
 	where $\epsilon$ is a sufficiently small tolerance. 
 
-	If $\phi^0(x) = 0$, then $\phi^\ell(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions \cite{adams}. Thus, the number of iterations until convergence is directly linked to the number of collisions in a particle's lifetime. Typically, SI becomes increasingly slow to converge as the ratio of $\Sigma_s$ to $\Sigma_t$ approaches unity and the amount of particle leakage from the system goes to zero. SI is slowest in large, optically thick systems with small losses to absorption. In full radiation transport simulations each iteration could involve solving for hundreds of millions of unknowns. To minimize computational expense, acceleration schemes must be developed to rapidly increase the rate of convergence of SI. 
+	If $\phi^0(x) = 0$, then $\phi^\ell(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions \cite{adams}. Thus, the number of iterations until convergence is directly linked to the number of collisions in a particle's lifetime. Typically, \gls{si} becomes increasingly slow to converge as the ratio of $\Sigma_s$ to $\Sigma_t$ approaches unity and the amount of particle leakage from the system goes to zero. SI is slowest in large, optically thick systems with small losses to absorption. In full radiation transport simulations each iteration could involve solving for hundreds of millions of unknowns. To minimize computational expense, acceleration schemes must be developed to rapidly increase the rate of convergence of \gls{si}. 
 
-	Fortunately, the regime where SI is slow to converge is also the regime where Diffusion Theory is most accurate. A popular method for accelerating SI is Diffusion Synthetic Acceleration (DSA) where each source iteration involves both a transport sweep and a diffusion solve. DSA requires carefully differencing the \SN and diffusion steps in a consistent manner to prevent instability in highly scattering media with coarse spatial grids \cite{alcouffe,morel}. DSA is not applicable in the setting of this presentation due to the incompatibility of MHFEM and \SN and the increased computational expense of solving consistently differenced diffusion. A new acceleration method is needed that avoids the consistency pitfall of DSA. 
+	Fortunately, the regime where SI is slow to converge is also the regime where Diffusion Theory is most accurate. A popular method for accelerating SI is \gls{dsa} where each source iteration involves both a transport sweep and a diffusion solve. DSA requires carefully differencing the \gls{sn} and diffusion steps in a consistent manner to prevent instability in highly scattering media with coarse spatial grids \cite{alcouffe,morel}. \gls{dsa} is not applicable in the setting of this presentation due to the incompatibility of MHFEM and \gls{sn} and the increased computational expense of solving consistently differenced diffusion. A new acceleration method is needed that avoids the consistency pitfall of \gls{dsa}. 
 
 \section{Eddington Acceleration}
 	The first and second angular moments of Eq. \ref{eq:bte} are 
@@ -166,7 +169,7 @@
 	This formulation is beneficial because Eq. \ref{eq:zero} is a conservative balance equation and---if $\edd(x)$ is known---the moment equations' system of two first--order, ordinary differential equations can be solved directly with well--established methods. However, computing $\edd(x)$ requires already knowing the angular flux. 
 
 	The proposed acceleration scheme is: 
-		\begin{enumerate}
+		\begin{enumerate}[1)]
 			\item Compute $\psi_n(x)$ with \SN and an arbitrary spatial discretization
 			\item Compute $\edd(x)$ with Eq. \ref{eq:edd_sn}
 			\item Interpolate $\edd(x)$ onto the MHFEM grid 
@@ -176,19 +179,21 @@
 
 	Acceleration occurs because the Eddington factor is a weak function of angular flux. This means that even poor angular flux solutions can accurately approximate the Eddington factor. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the acceleration step is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
-	In addition to acceleration, this scheme allows the \SN equations and moment equations to be solved with different spatial discretizations. \SN can be spatially discretized using normal methods such as Linear Discontinuous Galerkin or Diamond Differencing while the moment equations can be solved on the same grid as the hydrodynamics. 
+	In addition to acceleration, this scheme allows the \SN equations and moment equations to be solved with different spatial discretizations. \SN can be spatially discretized using normal methods such as \gls{dd} or \gls{ld} while the moment equations can be solved on the same grid as the hydrodynamics. 
 	% operator split iteration, computationally economic to use moment equations 
 
 	% This method differs from DSA in that two solutions are generated: one from \SN and one from the moment equations and that the \SN and acceleration steps do not have to be consistently differenced. The solution of the moment equations will be used because the moment equations are conservative while \SN is not. 
 
+\section{Transport Step}
+
 \input{DD}
 
-\section{Linear Discontinuous Galerkin Discrete Ordinates}
+\subsection{Linear Discontinuous Galerkin Discrete Ordinates}
 
 \input{MHFEM}
 
 \section{Results}
-	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created along with an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells. 
+	As a proof of concept for Eddington acceleration, a \gls{dd} \gls{sn} code was created along with an \gls{mhfem} solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells. 
 
 	\begin{figure} % replace 't' with 'b' to force it to be on the bottom
 		\centering

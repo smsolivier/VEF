@@ -1,0 +1,82 @@
+%!TEX root = ./writeup.tex
+
+\section{Diamond Differenced Discrete Ordinates}
+	The Diamond Differenced (DD) \SN equations corresponding to Eq. \ref{eq:sn} are 
+		\begin{equation} \label{eq:dd}
+			\frac{\mu_n}{h_i}\left(\psi_{n,i+1/2} - \psi_{n,i-1/2}\right)
+				+ \Sigma_{t,i} \psi_{n,i} = \frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N \psi_{n',i}w_{n'}
+				+ \frac{Q_i}{2} , \ 1 \leq n \leq N, \ 1 \leq i \leq I
+		\end{equation}
+	where $\psi_{n,i\pm1/2} = \psi_n(x_{i\pm1/2})$ is the cell edge angular flux and $\Sigma_{t,i} = \Sigma_t(x_i)$, $\Sigma_{s,i} = \Sigma_s(x_i)$ and $Q_i = Q(x_i)$ the cell averaged total cross section, scattering cross section and fixed source. The $x_{i\pm1/2}$ are the cell edge locations of cell $i$ of cell width $h = x_{i+1/2} - x_{i-1/2}$. In DD, the cell centered angular flux is taken to be the average of the adjacent cell edge angular fluxes: 
+		\begin{equation} \label{eq:auxDD}
+			\psi_{n,i} = \frac{1}{2} \left(\psi_{n,i+1/2} + \psi_{n,i-1/2}\right).
+		\end{equation}
+	Using this result for the scattering term yields
+		\begin{align}
+			\frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N \psi_{n',i}w_{n'} &= 
+			\frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N 
+				\frac{1}{2} \left(\psi_{n,i+1/2} + \psi_{n,i-1/2}\right) w_{n'} \\
+			&= \frac{\Sigma_{s,i}}{4} \left(\phi_{i-1/2} + \phi_{i+1/2}\right)
+		\end{align}
+	In SI, the scattering term is lagged: 
+		\begin{equation} \label{eq:DDSN}
+			\frac{\mu_n}{h_i}\left(\psi_{n,i+1/2}^{\ell+1} - \psi_{n,i-1/2}^{\ell+1}\right)
+				+ \Sigma_{t,i} \psi_{n,i}^{\ell+1} = 
+				\frac{\Sigma_{s,i}}{4} \left(\phi_{i-1/2}^\ell + \phi_{i+1/2}^\ell\right)
+				+ \frac{Q_i}{2}, \ 
+			1 \leq n \leq N, \ 1 \leq i \leq I
+		\end{equation}
+	Solving for $\psi_{n,j\pm1/2}^{\ell+1}$ yields  
+		\begin{subequations}
+			\begin{equation} \label{eq:psiplus}
+				\psi_{n,j+1/2}^{\ell+1} = 
+				\frac{
+				\frac{\Sigma_s}{2}h_i \left(\phi_{i-1/2}^\ell + \phi_{i+1/2}^\ell\right)
+				+ Q_i h_i - \left(\Sigma_t h_i - 2\mu_n\right) \psi_{n,i-1/2}^{\ell+1}
+				}
+				{
+				\Sigma_t h_i + 2\mu_n 
+				}, \ \mu_n > 0 
+			\end{equation}
+			\begin{equation} \label{eq:psiminus}
+				\psi_{n,j-1/2}^{\ell+1} = 
+				\frac{
+				\frac{\Sigma_s}{2}h_i \left(\phi_{i-1/2}^\ell + \phi_{i+1/2}^\ell\right)
+				+ Q_i h_i - 
+					\left(\Sigma_t h_i - 2|\mu_n|\right) \psi_{n,i+1/2}^{\ell+1}
+				}
+				{
+				\Sigma_t h_i + 2|\mu_n| 
+				}, \ \mu_n < 0 
+			\end{equation}
+		\end{subequations}
+	Equation \ref{eq:psiplus} specifies the flux exiting the right side of cell $i$ given the flux that entered through the left side while Eq. \ref{eq:psiminus} specifies the flux exiting the left side of cell $i$ given the flux that entered through the right side. 
+
+	By specifying boundary conditions for $\psi_{n,1/2}^{\ell+1}$ for $\mu_n>0$ and $\psi_{n,I+1/2}^{\ell+1}$ for $\mu<0$, Eqs. \ref{eq:psiplus} and \ref{eq:psiminus} can be solved non-iteratively. The boundary conditions for a vacuum left boundary and reflecting right boundary are 
+		\begin{subequations}
+		\begin{equation} \label{eq:leftBC}
+			\psi_{n,1/2}^{\ell+1} = 0, \ \mu_n > 0
+		\end{equation}
+		\begin{equation} \label{eq:rightBC}
+			\psi_{n,I+1/2}^{\ell+1} = \psi_{m,I+1/2}^{\ell+1}, \ \mu_n = -\mu_m.
+		\end{equation}
+		\end{subequations}
+
+	Using Eq. \ref{eq:leftBC}, the flux exiting the right side of cell $i=1$, $\psi_{n,3/2}^{\ell+1}$, can be found through Eq. \ref{eq:psiplus}. This exiting flux is then the flux entering cell $i=2$ allowing for the determination of $\psi_{n,5/2}^{\ell+1}$. This process of using the result from the previous cell is repeated until $i=I$. At this point all rightward ($\mu>0$) moving flux has been determined for all cells $1 \leq i \leq I$. 
+
+	The reflecting boundary condition, Eq. \ref{eq:rightBC}, can now be applied. This sets the incoming flux on the right side of cell $i=I$. Equation \ref{eq:psiminus} then determines the exiting flux through the left side, $\psi_{n,I-1/2}^{\ell+1}$. Working backward from cell $i=I$, $\psi_{n,I-3/2}^{\ell+1}, \psi_{n,I-5/2}, \dots, \psi_{n,1/2}^{\ell+1}$ for $\mu_n < 0$ can be found. 
+
+	This process of propagating the solution from left to right for $\mu_n > 0$ and then from right to left for $\mu_n < 0$ is known as a transport sweep. At the end of the sweep, new cell edge scalar flux values $\phi_{i\pm1/2}^{\ell+1}$ are generated through 
+		\begin{equation}
+			\phi_{i\pm1/2}^{\ell+1} = \sum_{n=1}^N \psi_{n,i\pm1/2}^{\ell+1} w_n. 
+		\end{equation}
+	A new sweep is then conducted using $\phi_{i\pm1/2}^{\ell+1}$. This process is repeated until the stop criterion of 
+		\begin{equation}
+			\frac{
+			\sum_{i=0}^{I} \left(\phi_{i+1/2}^{\ell+1} - \phi_{i+1/2}^\ell\right)^2
+			}{
+			\sum_{i=0}^{I} \left(\phi_{i+1/2}^{\ell+1}\right)^2
+			}
+			< \epsilon
+		\end{equation}
+	is met. 

@@ -78,6 +78,10 @@
 % \counterwithin{figure}{pcount}
 % \counterwithin{table}{pcount}
 
+\usepackage{glossaries}
+\input{glossary}
+\makeglossaries
+
 % custom commands 
 \newcommand{\SN}{S$_N$\xspace}
 \renewcommand{\vec}[1]{\bm{#1}} %vector is bold italic
@@ -139,7 +143,7 @@
 	Fortunately, the regime where SI is slow to converge is also the regime where Diffusion Theory is most accurate. A popular method for accelerating SI is Diffusion Synthetic Acceleration (DSA) where each source iteration involves both a transport sweep and a diffusion solve. DSA requires carefully differencing the \SN and diffusion steps in a consistent manner to prevent instability in highly scattering media with coarse spatial grids \cite{alcouffe,morel}. DSA is not applicable in the setting of this presentation due to the incompatibility of MHFEM and \SN and the increased computational expense of solving consistently differenced diffusion. A new acceleration method is needed that avoids the consistency pitfall of DSA. 
 
 \section{Eddington Acceleration}
-	The zeroth and first angular moments of Eq. \ref{eq:bte} are 
+	The first and second angular moments of Eq. \ref{eq:bte} are 
 		\begin{subequations} 
 		\begin{equation} \label{eq:zero}
 			\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) 
@@ -177,20 +181,11 @@
 
 	% This method differs from DSA in that two solutions are generated: one from \SN and one from the moment equations and that the \SN and acceleration steps do not have to be consistently differenced. The solution of the moment equations will be used because the moment equations are conservative while \SN is not. 
 
-\section{Diamond Differenced Discrete Ordinates}
-	The Diamond Differenced (DD) \SN equations corresponding to Eq. \ref{eq:sn} are 
-		\begin{equation} \label{eq:dd}
-			\frac{\mu_n}{h_i}\left(\psi_{n,i+1/2} - \psi_{n,i-1/2}\right)
-				+ \Sigma_{t,i} \psi_{n,i} = \frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N \psi_{n',i}w_{n'}
-				+ \frac{Q_i}{2}
-		\end{equation}
-	where $\psi_{n,i\pm1/2} = \psi_n(x_{i\pm1/2})$ is the cell edge angular flux and $\Sigma_{t,i} = \Sigma_t(x_i)$, $\Sigma_{s,i} = \Sigma_s(x_i)$ and $Q_i = Q(x_i)$ the cell averaged total cross section, scattering cross section and fixed source. The $x_{i\pm1/2}$ are the cell edge locations of cell $i$ of cell width $h = x_{i+1/2} - x_{i-1/2}$. In DD, the cell centered angular flux is taken to be the average of the adjacent cell edge angular fluxes: 
-		\begin{equation} \label{eq:auxDD}
-			\psi_{n,i} = \frac{1}{2} \left(\psi_{n,i+1/2} + \psi_{n,i-1/2}\right)
-		\end{equation}
+\input{DD}
 
 \section{Linear Discontinuous Galerkin Discrete Ordinates}
-\section{Mixed Hybrid Finite Element Method}
+
+\input{MHFEM}
 
 \section{Results}
 	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created along with an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells. 
@@ -235,5 +230,7 @@
 
 % \clearpage
 \bibliographystyle{ans}
-\bibliography{bibliography}
+\bibliography{bibliography} 
+
+\printglossaries
 \end{document} % --------------------------------------------------

@@ -1,0 +1,139 @@
+%!TEX root = ./writeup.tex
+
+\newcommand{\bl}{B_{L,i}(x)}
+\newcommand{\br}{B_{R,i}(x)}
+\newcommand{\jil}{J_{i,L}}
+\newcommand{\jir}{J_{i,R}}
+\newcommand{\eddphi}[1]{\edd_{#1}\phi_{#1}}
+\newcommand{\alphai}[2]{\frac{#1}{\Sigma_{t,#2}h_{#2}}}
+
+\section{Mixed Hybrid Finite Element Method Acceleration}
+
+The \gls{mhfem} as applied to Eqs. \ref{eq:zero} and \ref{eq:first} uses the following basis functions:
+	\begin{subequations}
+	\begin{equation} \label{mhfem:BL}
+		\bl = \begin{cases}
+			\frac{x_{i+1/2} - x}{x_{i+1/2} - x_{i-1/2}}, \ x \in [x_{i-1/2}, x_{i+1/2}] \\ 
+			0, \ \text{otherwise}
+		\end{cases}
+	\end{equation}
+	\begin{equation} \label{mhfem:BR}
+		\br = \begin{cases}
+			\frac{x - x_{i-1/2}}{x_{i+1/2} - x_{i-1/2}}, \ x \in [x_{i-1/2}, x_{i+1/2}] \\ 
+			0, \ \text{otherwise}
+		\end{cases}. 
+	\end{equation}
+	\end{subequations}
+The scalar flux is constant within a cell with discontinuous jumps at the cell edges. In other words, 
+	\begin{equation} \label{mhfem:flux}
+		\phi_i(x) = \begin{cases}
+			\phi_i, \ x \in (x_{i-1/2}, x_{i+1/2}) \\ 
+			\phi_{i\pm 1/2}, x = x_{i\pm1/2} \\ 
+			0, \ \text{otherwise}
+		\end{cases} 
+	\end{equation}
+with 
+	\begin{equation} \label{mhfem:sumphi}
+		\phi(x) = \sum_{i=1}^I \phi_i(x). 
+	\end{equation}
+The Eddington factor will be interpolated onto the same grid as the scalar flux so that cell edge and cell center values will be available.  
+
+The current, $J(x)$, is a linear function defined by 
+	\begin{equation} \label{mhfem:J}
+		J(x) = \sum_{i=1}^I \jil \bl + \jir \br
+	\end{equation} 
+where $\jil$ and $\jir$ are the current on the left and right edges of the cell. 
+
+There are five unknowns in every cell $\phi_{i-1/2}$, $\phi_{i}$, $\phi_{i+1/2}$, $\jil$, and $\jir$. Thus, five equations are needed. The first equation is obtained by integrating Eq. \ref{eq:zero} over cell $i$
+	\begin{equation} \label{mhfem:balance}
+		\jir - \jil + \Sigma_{a,i} \phi_i h_i = Q_i h_i. 
+	\end{equation}
+Equations for the cell edge current, $\jil$ and $\jir$, are found by multiplying Eq. \ref{eq:first} by $\bl$ and $\br$ and integrating over cell $i$. This yields 
+	\begin{subequations}
+	\begin{equation}
+		\int_{x_{i-1/2}}^{x_{i+1/2}} \bl \dderiv{}{x} \edd(x) \phi(x) + \bl \Sigma_t(x) J(x) \ud x
+	\end{equation}
+	\begin{equation}
+		\int_{x_{i-1/2}}^{x_{i+1/2}} \br \dderiv{}{x} \edd(x) \phi(x) + \br \Sigma_t(x) J(x) \ud x
+	\end{equation}
+	\end{subequations}
+Integrating by parts produces 
+	\begin{subequations}
+	\begin{equation} \label{mhfem:half1}
+		-\edd_{i-1/2}\phi_{i-1/2} + \edd_i \phi_i + \Sigma_{t,i} h_i \left(\frac{\jil}{3}
+			+ \frac{\jir}{6} \right) = 0
+	\end{equation}
+	\begin{equation} \label{mhfem:half2}
+		\edd_{i+1/2}\phi_{i+1/2} - \edd_i \phi_i + \Sigma_{t,i}h_i \left(\frac{\jil}{6} + \frac{\jir}{3}\right) = 0.
+	\end{equation}
+	\end{subequations}
+Eliminating $\jil$ from Eq. \ref{mhfem:half1} and $\jir$ from Eq. \ref{mhfem:half2} results in the second and third equations
+	\begin{equation} \label{mhfem:jir_f}
+		\jir = \frac{-2}{\Sigma_{t,i}h_i} \left[ \eddphi{i-1/2} - 3\eddphi{i} + 2\eddphi{i+1/2} \right]
+	\end{equation}
+	\begin{equation} \label{mhfem:jil_f}
+		\jil = \frac{-2}{\Sigma_{t,i} h_i} \left[ -2 \eddphi{i-1/2} + 3\eddphi{i} - \eddphi{i+1/2}\right]
+	\end{equation}
+
+Continuity of current is ensured through enforcing 
+	\begin{equation}
+		\jir = J_{i+1,L}
+	\end{equation}
+and 
+	\begin{equation}
+		\jil = J_{i-1,R}. 
+	\end{equation}
+Applying these two conditions yields the fourth and fifth equations:
+	\begin{equation}
+		\begin{aligned}
+		\alphai{-2}{i} \eddphi{i-1/2} &+ \alphai{6}{i} \eddphi{i} - 4 \left(
+			\frac{1}{\Sigma_{t,i}h_i} + \frac{1}{\Sigma_{t,i+1}h_{i+1}}\right)\eddphi{i+1/2} \\
+		&+ \alphai{6}{i+1}\eddphi{i+1} - \alphai{2}{i+1}\eddphi{i+3/2} = 0
+		\end{aligned}
+	\end{equation}
+	\begin{equation}
+		\begin{aligned}
+		\alphai{-2}{i-1} \eddphi{i-3/2} &+ \alphai{6}{i-1} \eddphi{i-1} - 4 \left(
+			\frac{1}{\Sigma_{t,i-1}h_{i-1}} + \frac{1}{\Sigma_{t,i}h_{i}}\right)\eddphi{i-1/2} \\
+		&+ \alphai{6}{i}\eddphi{i} - \alphai{2}{i}\eddphi{i+1/2} = 0
+		\end{aligned}
+	\end{equation}
+
+Equations \ref{mhfem:jir_f} and \ref{mhfem:jil_f} can be subbed into Eq. \ref{mhfem:balance} to reduce the system to three equations, three unknowns. The resulting system is 
+	\begin{subequations}
+		\begin{equation}
+			\alphai{-6}{i}\eddphi{i-1/2} + \left(\Sigma_{a,i}h_i + \alphai{12}{i}\edd_i\right) \phi_i - \alphai{6}{i}\eddphi{i+1/2} = Q_i h_i
+		\end{equation}
+		\begin{equation}
+			\begin{aligned}
+			\alphai{-2}{i} \eddphi{i-1/2} &+ \alphai{6}{i} \eddphi{i} - 4 \left(
+				\frac{1}{\Sigma_{t,i}h_i} + \frac{1}{\Sigma_{t,i+1}h_{i+1}}\right)\eddphi{i+1/2} \\
+			&+ \alphai{6}{i+1}\eddphi{i+1} - \alphai{2}{i+1}\eddphi{i+3/2} = 0
+			\end{aligned}
+		\end{equation}
+		\begin{equation}
+			\begin{aligned}
+			\alphai{-2}{i-1} \eddphi{i-3/2} &+ \alphai{6}{i-1} \eddphi{i-1} - 4 \left(
+				\frac{1}{\Sigma_{t,i-1}h_{i-1}} + \frac{1}{\Sigma_{t,i}h_{i}}\right)\eddphi{i-1/2} \\
+			&+ \alphai{6}{i}\eddphi{i} - \alphai{2}{i}\eddphi{i+1/2} = 0
+			\end{aligned}
+		\end{equation}
+	\end{subequations}
+
+The Marshak boundary condition is 
+	\begin{equation}
+		\phi(x) - 2J(x) = 0. 
+	\end{equation}
+Applied to the left edge of the domain, the equations for cell $i=1$ are 
+	\begin{equation}
+		\phi_{1/2} - 2\jil = 0
+	\end{equation}
+Apply a reflecting boundary on the right edge 
+	\begin{equation}
+		J(x_{N+1/2}) = J_{N,R} = 0. 
+	\end{equation}
+
+This system is of the form 
+	\begin{equation}
+		\pmb{A} x = b
+	\end{equation}

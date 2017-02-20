@@ -7,6 +7,8 @@ import sn as DD
 
 from mhfem_acc import * 
 
+import Timer 
+
 class LD:
 	''' Linear Discontinuous Galerkin Sn ''' 
 
@@ -74,18 +76,16 @@ class LD:
 			# compute eddington factor 
 			mu2 = self.getEddington(psi)
 
+			# generate boundary eddington for consistency between drift and transport 
 			top = 0 
 			for i in range(self.n):
 
-				top += np.fabs(self.mu[i])*psi[i,-1] * self.w[i] 
+				top += np.fabs(self.mu[i])*psi[i,:] * self.w[i] 
 
-			mu2[-1] = top/self.integratePsi(psi)[-1]
-
-			plt.plot(self.xe, mu2, '-o')
-			plt.show()
+			B = top/self.integratePsi(psi)*2
 
 			# create MHFEM object 
-			sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, BCL=0, BCR=1)
+			sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, B, BCL=0, BCR=1)
 
 			# solve for phi 
 			x, phi = sol.solve(self.q)
@@ -235,6 +235,8 @@ class LD:
 		it = 0 # store number of iterations 
 		phi = np.zeros(self.N+1) # cell centered flux 
 
+		tt = Timer.timer()
+
 		while (True):
 
 			# store old flux 
@@ -250,39 +252,42 @@ class LD:
 			# update iteration count 
 			it += 1 
 
-		print('Number of iterations =', it) 
+		print('Number of iterations =', it, end=', ') 
+		tt.stop()
 
 		# return spatial locations, flux and number of iterations 
 		return self.xe, phi, it 
 
-N = 50
-xb = 2
-x = np.linspace(0, xb, N)
-Sigmaa = lambda x: .1 
-Sigmat = lambda x: .83 
-q = np.ones(N) 
+if __name__ == '__main__':
 
-n = 16
+	N = 40
+	xb = 2
+	x = np.linspace(0, xb, N)
+	Sigmaa = lambda x: .1 
+	Sigmat = lambda x: .83 
+	q = np.ones(N) 
 
-ld = LD(x, n, Sigmaa, Sigmat, q)
+	n = 16
 
-sn = DD.Sn(x, n, Sigmaa, Sigmat, q)
+	ld = LD(x, n, Sigmaa, Sigmat, q)
 
-mu = DD.muAccel(x, n, Sigmaa, Sigmat, q)
+	sn = DD.Sn(x, n, Sigmaa, Sigmat, q)
 
-ld2 = LD(x, n, Sigmaa, Sigmat, q, False)
+	mu = DD.muAccel(x, n, Sigmaa, Sigmat, q)
 
-x, phi, it = ld.sourceIteration(1e-6)
+	ld2 = LD(x, n, Sigmaa, Sigmat, q, False)
 
-# xsn, phisn, itsn = sn.sourceIteration(1e-6)
+	x, phi, it = ld.sourceIteration(1e-6)
 
-# xmu, phimu, itmu = mu.sourceIteration(1e-6)
+	# xsn, phisn, itsn = sn.sourceIteration(1e-6)
 
-x2, phi2, it2 = ld2.sourceIteration(1e-6)
+	# xmu, phimu, itmu = mu.sourceIteration(1e-6)
 
-plt.plot(x, phi, label='LD Edd')
-# plt.plot(xsn, phisn, label='DD')
-# plt.plot(xmu, phimu, '--', label='DD Edd')
-plt.plot(x2, phi2, '--', label='LD')
-plt.legend(loc='best')
-plt.show()
+	x2, phi2, it2 = ld2.sourceIteration(1e-6)
+
+	plt.plot(x, phi, label='LD Edd')
+	# plt.plot(xsn, phisn, label='DD')
+	# plt.plot(xmu, phimu, '--', label='DD Edd')
+	plt.plot(x2, phi2, '--', label='LD')
+	plt.legend(loc='best')
+	plt.show()

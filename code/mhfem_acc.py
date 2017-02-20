@@ -10,13 +10,15 @@ import sys
 
 class MHFEM:
 
-	def __init__(self, xe, mu2, Sigmaa, Sigmat, BCL=0, BCR=1):
+	def __init__(self, xe, mu2, Sigmaa, Sigmat, B, BCL=0, BCR=1):
 		''' solves moment equations with general <mu^2> 
 			Inputs:
 				xe: array of cell edges 
 				mu2: array of <mu^2> values at cell edges (will be interpolated)
 				Sigmaa: absorption XS function 
 				Sigmat: total XS function 
+				B: array of boundary Eddington values for transport consistency 
+					set to 1 for marshak 
 				BCL: left boundary 
 					0: reflecting 
 					1: marshak 
@@ -24,6 +26,8 @@ class MHFEM:
 					0: reflecting 
 					1: marshak 
 		''' 
+
+		self.B = B
 
 		N = np.shape(xe)[0] # number of cell edges 
 
@@ -102,7 +106,7 @@ class MHFEM:
 			alpha = 4/(Sigmat(x[1])*(x[2] - x[0])) 
 
 			# diagonal (phi_1/2)
-			A[2,0] = 1 + 2*alpha*mu2f(x[0])
+			A[2,0] = self.B[0] + 2*alpha*mu2f(x[0])
 
 			# first upper (phi_1)
 			A[1,1] = -3*alpha*mu2f(x[1])
@@ -116,7 +120,7 @@ class MHFEM:
 
 		# right
 		if (BCR == 0): # reflecting 
-		
+
 			# J_NR = 0 
 			# second lower (phi_N-1/2)
 			A[4,-3] = mu2f(x[-3])
@@ -138,7 +142,7 @@ class MHFEM:
 			A[3,-2] = -3*alpha*mu2f(x[-2])
 
 			# diagonal (phi_N+1/2)
-			A[2,-1] = 1 + 2*alpha*mu2f(x[-1])
+			A[2,-1] = self.B[-1] + 2*alpha*mu2f(x[-1])
 
 		else:
 			print('right boundary condition not defined')

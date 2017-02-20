@@ -74,6 +74,16 @@ class LD:
 			# compute eddington factor 
 			mu2 = self.getEddington(psi)
 
+			top = 0 
+			for i in range(self.n):
+
+				top += np.fabs(self.mu[i])*psi[i,-1] * self.w[i] 
+
+			mu2[-1] = top/self.integratePsi(psi)[-1]
+
+			plt.plot(self.xe, mu2, '-o')
+			plt.show()
+
 			# create MHFEM object 
 			sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, BCL=0, BCR=1)
 
@@ -264,15 +274,15 @@ ld2 = LD(x, n, Sigmaa, Sigmat, q, False)
 
 x, phi, it = ld.sourceIteration(1e-6)
 
-xsn, phisn, itsn = sn.sourceIteration(1e-6)
+# xsn, phisn, itsn = sn.sourceIteration(1e-6)
 
-xmu, phimu, itmu = mu.sourceIteration(1e-6)
+# xmu, phimu, itmu = mu.sourceIteration(1e-6)
 
 x2, phi2, it2 = ld2.sourceIteration(1e-6)
 
 plt.plot(x, phi, label='LD Edd')
-plt.plot(xsn, phisn, label='DD')
-plt.plot(xmu, phimu, '--', label='DD Edd')
+# plt.plot(xsn, phisn, label='DD')
+# plt.plot(xmu, phimu, '--', label='DD Edd')
 plt.plot(x2, phi2, '--', label='LD')
 plt.legend(loc='best')
 plt.show()

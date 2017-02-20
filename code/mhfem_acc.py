@@ -116,9 +116,8 @@ class MHFEM:
 
 		# right
 		if (BCR == 0): # reflecting 
+		
 			# J_NR = 0 
-			# A[-1,-3:] = np.array([mu2f(x[-3]), -3*mu2f(x[-2]), 2*mu2f(x[-1])])
-
 			# second lower (phi_N-1/2)
 			A[4,-3] = mu2f(x[-3])
 

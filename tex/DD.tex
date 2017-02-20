@@ -12,12 +12,14 @@
 			\psi_{n,i} = \frac{1}{2} \left(\psi_{n,i+1/2} + \psi_{n,i-1/2}\right).
 		\end{equation}
 	Using this result for the scattering term yields
-		\begin{align}
+		\begin{equation}
+		\begin{aligned}
 			\frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N \psi_{n',i}w_{n'} &= 
 			\frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N 
 				\frac{1}{2} \left(\psi_{n,i+1/2} + \psi_{n,i-1/2}\right) w_{n'} \\
 			&= \frac{\Sigma_{s,i}}{4} \left(\phi_{i-1/2} + \phi_{i+1/2}\right)
-		\end{align}
+		\end{aligned}
+		\end{equation}
 	In SI, the scattering term is lagged: 
 		\begin{equation} \label{eq:DDSN}
 			\frac{\mu_n}{h_i}\left(\psi_{n,i+1/2}^{\ell+1} - \psi_{n,i-1/2}^{\ell+1}\right)
@@ -29,7 +31,7 @@
 	Solving for $\psi_{n,j\pm1/2}^{\ell+1}$ yields  
 		\begin{subequations}
 			\begin{equation} \label{eq:psiplus}
-				\psi_{n,j+1/2}^{\ell+1} = 
+				\psi_{n,i+1/2}^{\ell+1} = 
 				\frac{
 				\frac{\Sigma_s}{2}h_i \left(\phi_{i-1/2}^\ell + \phi_{i+1/2}^\ell\right)
 				+ Q_i h_i - \left(\Sigma_t h_i - 2\mu_n\right) \psi_{n,i-1/2}^{\ell+1}
@@ -39,7 +41,7 @@
 				}, \ \mu_n > 0 
 			\end{equation}
 			\begin{equation} \label{eq:psiminus}
-				\psi_{n,j-1/2}^{\ell+1} = 
+				\psi_{n,i-1/2}^{\ell+1} = 
 				\frac{
 				\frac{\Sigma_s}{2}h_i \left(\phi_{i-1/2}^\ell + \phi_{i+1/2}^\ell\right)
 				+ Q_i h_i - 

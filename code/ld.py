@@ -252,7 +252,7 @@ Sigmaa = lambda x: .1
 Sigmat = lambda x: .83 
 q = np.ones(N) 
 
-n = 8
+n = 16
 
 ld = LD(x, n, Sigmaa, Sigmat, q)
 
@@ -260,14 +260,19 @@ sn = DD.Sn(x, n, Sigmaa, Sigmat, q)
 
 mu = DD.muAccel(x, n, Sigmaa, Sigmat, q)
 
+ld2 = LD(x, n, Sigmaa, Sigmat, q, False)
+
 x, phi, it = ld.sourceIteration(1e-6)
 
 xsn, phisn, itsn = sn.sourceIteration(1e-6)
 
 xmu, phimu, itmu = mu.sourceIteration(1e-6)
 
+x2, phi2, it2 = ld2.sourceIteration(1e-6)
+
 plt.plot(x, phi, label='LD Edd')
 plt.plot(xsn, phisn, label='DD')
-plt.plot(xmu, phimu, label='DD Edd')
+plt.plot(xmu, phimu, '--', label='DD Edd')
+plt.plot(x2, phi2, '--', label='LD')
 plt.legend(loc='best')
 plt.show()

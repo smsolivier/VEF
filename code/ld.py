@@ -105,7 +105,7 @@ class LD:
 		psi = self.edgePsi()
 
 		# get edge flux 
-		phi = self.integratePsi(psi)
+		phi = self.firstMoment(psi)
 
 		return phi 
 
@@ -196,16 +196,48 @@ class LD:
 				self.psiL[i,j] = ans[0] 
 				self.psiR[i,j] = ans[1] 
 
-	def integratePsi(self, psi):
+	def firstMoment(self, psi):
 		''' use guass legendre quadrature points to integrate psi ''' 
 
-		phi = np.zeros(self.N+1)
+		phi = np.zeros(np.shape(psi)[1])
 
 		for i in range(self.n):
 
 			phi += psi[i,:] * self.w[i] 
 
 		return phi 
+
+	def secondMoment(self, psi):
+		''' use guass quadrature to integrate mu psi ''' 
+
+		J = np.zeros(np.shape(psi)[1])
+
+		for i in range(self.n):
+
+			J += self.mu[i] * psi[i,:] * self.w[i] 
+
+		return J 
+
+	def getEddington(self, psi):
+		''' compute <mu^2> ''' 
+
+		phi = np.zeros(np.shape(psi)[1])
+
+		for i in range(self.n):
+
+			phi += psi[i,:] * self.w[i]
+
+		# Eddington factor 
+		mu2 = np.zeros(len(psi)) 
+
+		top = 0 
+		for i in range(self.n):
+
+			top += self.mu[i]**2 * psi[i,:] * self.w[i] 
+
+		mu2 = top/phi 
+
+		return mu2
 
 	def edgePsi(self):
 		''' get celled edge angular flux accounting for up/down winding ''' 
@@ -247,27 +279,6 @@ class LD:
 		self.psi = psi
 
 		return psi 
-
-	def getEddington(self, psi):
-		''' compute <mu^2> ''' 
-
-		phi = np.zeros(self.N + 1) # cell edge flux 
-
-		for i in range(self.n):
-
-			phi += psi[i,:] * self.w[i]
-
-		# Eddington factor 
-		mu2 = np.zeros(self.N+1) 
-
-		top = 0 
-		for i in range(self.n):
-
-			top += self.mu[i]**2 * psi[i,:] * self.w[i] 
-
-		mu2 = top/phi 
-
-		return mu2
 
 	def sourceIteration(self, tol):
 		''' lag RHS of transport equation and iterate until flux converges ''' 
@@ -316,13 +327,13 @@ class Eddington(LD):
 
 			top += np.fabs(self.mu[i])*psi[i,:] * self.w[i] 
 
-		B = top/self.integratePsi(psi)*2
+		B = top/self.firstMoment(psi)*2
 
 		# create MHFEM object 
 		sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, B, BCL=self.BCL, BCR=self.BCR)
 
 		# solve for phi 
-		x, phi = sol.solve(self.integratePsi(self.q)/2)
+		x, phi = sol.solve(self.firstMoment(self.q)/2)
 
 		return phi # return accelerated flux 
 

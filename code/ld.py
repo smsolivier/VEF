@@ -3,8 +3,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import sn as DD
-
 from mhfem_acc import * 
 
 import Timer 
@@ -36,8 +34,8 @@ class LD:
 
 		for i in range(1, self.Ne):
 
-			self.x[i-1] = .5*(xe[i] + xe[i-1])
-			self.h[i-1] = xe[i] - xe[i-1] 
+			self.x[i-1] = .5*(xe[i] + xe[i-1]) # get cell centers 
+			self.h[i-1] = xe[i] - xe[i-1] # get cell widths 
 
 		assert(n%2 == 0) # assert n is even 
 
@@ -333,8 +331,8 @@ if __name__ == '__main__':
 	N = 40
 	xb = 2
 	x = np.linspace(0, xb, N)
-	Sigmaa = lambda x: .01 
-	Sigmat = lambda x: 8
+	Sigmaa = lambda x: .1 
+	Sigmat = lambda x: .83
 
 	n = 16
 

@@ -4,10 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import ld
+import dd 
 
 import mhfem_acc as mh
 
-def getDiff(eps):
+''' compare LD and DD Eddington Acceleration in the Diffusion Limit (epsilon --> 0) ''' 
+
+def getDiff(eps, solver):
 
 	Sigmat = lambda x: 1/eps
 	Sigmaa = lambda X: .1*eps
@@ -18,7 +21,8 @@ def getDiff(eps):
 	xb = 2 
 	x = np.linspace(0, xb, N)
 
-	sn = ld.LD(x, n, Sigmaa, Sigmat, Q)
+	# sn = ld.LD(x, n, Sigmaa, Sigmat, Q)
+	sn = solver(x, n, Sigmaa, Sigmat, Q)
 
 	diff = mh.MHFEM(x, np.ones(N)/3, Sigmaa, Sigmat, np.ones(N), BCL=0, BCR=1)
 
@@ -30,15 +34,19 @@ def getDiff(eps):
 
 	return np.linalg.norm(phid - phi, 2)
 
-N = 20 
-eps = np.logspace(-8, 0, N)
+N = 20
+eps = np.logspace(-6, 0, N)
 
-diff = np.zeros(N)
+DD = np.zeros(N)
+LD = np.zeros(N)
 for i in range(N):
 
-	diff[i] = getDiff(eps[i])
+	DD[i] = getDiff(eps[i], dd.Eddington)
+	LD[i] = getDiff(eps[i], ld.LD)
 
-plt.loglog(1/eps, diff, '-o')
+plt.loglog(1/eps, DD, '-o', label='DD')
+plt.loglog(1/eps, LD, '-o', label='LD')
 plt.xlabel(r'$1/\epsilon$')
 plt.ylabel('|| Sn - Diffusion ||')
+plt.legend(loc='best')
 plt.show()

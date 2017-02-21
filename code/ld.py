@@ -12,25 +12,29 @@ import Timer
 class LD:
 	''' Linear Discontinuous Galerkin Sn ''' 
 
-	def __init__(self, xe, n, Sigmaa, Sigmat, q, ACCEL=True):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
 		''' Inputs:
 				xe: cell edges 
 				n: number of discrete ordinates 
 				Sigmaa: absorption XS (function)
 				Sigmat: total XS (function)
-				q: fixed source (cell edged array)
+				q: fixed source array of mu and cell edge spatial dependence 
 		''' 
 
 		self.N = np.shape(xe)[0] - 1 # number of cell centers 
+		self.Ne = np.shape(xe)[0] # number of cell edges 
 		self.n = n # number of discrete ordinates 
-		self.ACCEL = ACCEL
+		
+		self.BCL = BCL
+		self.BCR = BCR 
 
 		self.x = np.zeros(self.N) # cell centered locations 
 		self.h = np.zeros(self.N) # cell widths at cell center 
 
 		self.xe = xe # cell edge array 
+		self.xb = xe[-1] # end of domain 
 
-		for i in range(1, self.N+1):
+		for i in range(1, self.Ne):
 
 			self.x[i-1] = .5*(xe[i] + xe[i-1])
 			self.h[i-1] = xe[i] - xe[i-1] 
@@ -49,48 +53,63 @@ class LD:
 		self.psiL = np.zeros((self.n, self.N)) # LD left point  
 		self.psiR = np.zeros((self.n, self.N)) # LD right point 
 
-		self.psi = np.zeros((self.n, self.N+1)) # cell edged flux 
+		self.psi = np.zeros((self.n, self.Ne)) # cell edged flux 
 
 		self.phi = np.zeros(self.N) # store flux 
 
 		# generate mu's, mu is arranged negative to positive 
 		self.mu, self.w = np.polynomial.legendre.leggauss(n)
 
+	def setMMS(self):
+		''' setup MMS q 
+			force phi = sin(pi*x/xb)
+		''' 
+
+		# ensure correct BCs 
+		self.BCL = 1 
+		self.BCR = 1 
+
+		# loop through all angles 
+		for i in range(self.n):
+
+			# loop through space 
+			for j in range(self.Ne):
+
+				self.q[i,j] = self.mu[i]*np.pi/self.xb * \
+					np.cos(np.pi*self.xe[j]/self.xb) + (self.Sigmat(self.xe[j]) - 
+						self.Sigmas(self.xe[j]))*np.sin(np.pi*self.xe[j]/self.xb)
+
+	def fullSweep(self, phi):
+		''' sweep left to right or right to left depending on boundary conditions ''' 
+
+		if (self.BCL == 0 and self.BCR == 1): # left reflecting 
+
+			self.sweepRL(phi)
+			self.sweepLR(phi)
+
+		elif (self.BCR == 0 and self.BCL == 1): # right reflecting 
+
+			self.sweepLR(phi)
+			self.sweepRL(phi)
+
+		else:
+
+			self.sweepLR(phi)
+			self.sweepRL(phi)
+
 	def sweep(self, phi):
+		''' unaccelerated sweep ''' 
 
-		# sweep for psi 
-		self.sweepRL(phi)
-		self.sweepLR(phi)
+		# sweep left to right or right to left first depending on BCs 
+		self.fullSweep(phi)
 
+		# convert to edge values 
 		psi = self.edgePsi()
 
-		if (self.ACCEL == False):
+		# get edge flux 
+		phi = self.integratePsi(psi)
 
-			# get flux 
-			phi = self.integratePsi(psi)
-
-			return phi 
-
-		elif (self.ACCEL == True):
-
-			# compute eddington factor 
-			mu2 = self.getEddington(psi)
-
-			# generate boundary eddington for consistency between drift and transport 
-			top = 0 
-			for i in range(self.n):
-
-				top += np.fabs(self.mu[i])*psi[i,:] * self.w[i] 
-
-			B = top/self.integratePsi(psi)*2
-
-			# create MHFEM object 
-			sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, B, BCL=0, BCR=1)
-
-			# solve for phi 
-			x, phi = sol.solve(self.q)
-
-			return phi # return accelerated flux 
+		return phi 
 
 	def sweepLR(self, phi):
 		''' sweep left to right (mu > 0) ''' 
@@ -118,10 +137,14 @@ class LD:
 				b[0] = self.Sigmas(self.x[j])*h/4*phi[j] + self.q[i,j]*h/4 # left 
 				if (j == 0): # boundary condition 
 
-					# reflecting 
-					b[0] += self.mu[i]*self.psiL[self.mu == -self.mu[i],0]
+					# default to vacuum 
+
+					if (self.BCL == 0): # reflecting 
+
+						b[0] += self.mu[i]*self.psiL[self.mu == -self.mu[i],0]
 
 				else: # normal sweep 
+
 					b[0] += self.mu[i]*self.psiR[i,j-1] # upwind term 
 
 				b[1] = self.Sigmas(self.x[j])*h/4*phi[j+1] + self.q[i,j+1]*h/4 # right 
@@ -159,7 +182,12 @@ class LD:
 				b[1] = self.Sigmas(self.x[j])*h/4*phi[j+1] + self.q[i,j+1]*h/4 # right 
 
 				if (j == self.N-1): # boundary condition 
-					b[1] += 0 # vacuum bc 
+					
+					# default to vacuum 
+
+					if (self.BCR == 0): # reflecting 
+
+						b[1] -= self.mu[i]*self.psiR[self.mu == -self.mu[i],-1]
  
 				else: # normal sweep
 					b[1] -= self.mu[i]*self.psiL[i,j+1] # downwind term 
@@ -191,7 +219,13 @@ class LD:
 			if (self.mu[i] > 0): # positive angles 
 
 				# set boundary values 
-				psi[i,0] = self.psiL[self.mu == -self.mu[i],0] # reflecting 
+				if (self.BCL == 0): # reflecting 
+
+					psi[i,0] = self.psiL[self.mu == -self.mu[i],0] 
+
+				elif (self.BCL == 1):
+
+					psi[i,0] = 0 
 
 				for j in range(self.N):
 
@@ -200,11 +234,19 @@ class LD:
 			else: # negative angles 
 
 				# set boundary values 
-				psi[i,-1] = 0 # vacuum 
+				if (self.BCR == 0): # reflecting 
+
+					psi[i,-1] = self.psiR[self.mu == -self.mu[i],-1]
+
+				elif (self.BCR == 1): # vacuum 
+
+					psi[i,-1] = 0 
 
 				for j in range(self.N-1, -1, -1):
 
 					psi[i,j] = self.psiL[i,j] # psi_j-1/2 = psi_i,L
+
+		self.psi = psi
 
 		return psi 
 
@@ -258,36 +300,57 @@ class LD:
 		# return spatial locations, flux and number of iterations 
 		return self.xe, phi, it 
 
+class Eddington(LD):
+	''' Eddington accelerated ''' 
+
+	def sweep(self, phi):
+
+		self.fullSweep(phi)
+
+		psi = self.edgePsi()
+
+		# compute eddington factor 
+		mu2 = self.getEddington(psi)
+
+		# generate boundary eddington for consistency between drift and transport 
+		top = 0 
+		for i in range(self.n):
+
+			top += np.fabs(self.mu[i])*psi[i,:] * self.w[i] 
+
+		B = top/self.integratePsi(psi)*2
+
+		# create MHFEM object 
+		sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, B, BCL=self.BCL, BCR=self.BCR)
+
+		# solve for phi 
+		x, phi = sol.solve(self.integratePsi(self.q)/2)
+
+		return phi # return accelerated flux 
+
 if __name__ == '__main__':
 
 	N = 40
 	xb = 2
 	x = np.linspace(0, xb, N)
-	Sigmaa = lambda x: .1 
-	Sigmat = lambda x: .83 
-	q = np.ones(N) 
+	Sigmaa = lambda x: .01 
+	Sigmat = lambda x: 8
 
 	n = 16
 
-	ld = LD(x, n, Sigmaa, Sigmat, q)
+	q = np.ones((n, N)) 
 
-	sn = DD.Sn(x, n, Sigmaa, Sigmat, q)
+	tol = 1e-6 
 
-	mu = DD.muAccel(x, n, Sigmaa, Sigmat, q)
+	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	# ld.setMMS()
+	# ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 
-	ld2 = LD(x, n, Sigmaa, Sigmat, q, False)
+	x, phi, it = ld.sourceIteration(tol)
 
-	x, phi, it = ld.sourceIteration(1e-6)
+	# xe, phie, ite = ed.sourceIteration(tol)
 
-	# xsn, phisn, itsn = sn.sourceIteration(1e-6)
-
-	# xmu, phimu, itmu = mu.sourceIteration(1e-6)
-
-	x2, phi2, it2 = ld2.sourceIteration(1e-6)
-
-	plt.plot(x, phi, label='LD Edd')
-	# plt.plot(xsn, phisn, label='DD')
-	# plt.plot(xmu, phimu, '--', label='DD Edd')
-	plt.plot(x2, phi2, '--', label='LD')
+	plt.plot(x, phi, label='LD')
+	# plt.plot(xe, phie, label='LD Edd')
 	plt.legend(loc='best')
 	plt.show()

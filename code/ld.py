@@ -115,7 +115,7 @@ class LD:
 				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.x[j])*h/2 + self.mu[i] # psiR 
 
 				# rhs 
-				b[0] = self.Sigmas(self.x[j])*h/4*phi[j] + self.q[j]*h/4 # left 
+				b[0] = self.Sigmas(self.x[j])*h/4*phi[j] + self.q[i,j]*h/4 # left 
 				if (j == 0): # boundary condition 
 
 					# reflecting 
@@ -124,7 +124,7 @@ class LD:
 				else: # normal sweep 
 					b[0] += self.mu[i]*self.psiR[i,j-1] # upwind term 
 
-				b[1] = self.Sigmas(self.x[j])*h/4*phi[j+1] + self.q[j+1]*h/4 # right 
+				b[1] = self.Sigmas(self.x[j])*h/4*phi[j+1] + self.q[i,j+1]*h/4 # right 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
 
@@ -155,8 +155,8 @@ class LD:
 				A[0,1] = self.mu[i]/2 
 
 				# rhs 
-				b[0] = self.Sigmas(self.x[j])*h/4*phi[j] + self.q[j]*h/4 # left 
-				b[1] = self.Sigmas(self.x[j])*h/4*phi[j+1] + self.q[j+1]*h/4 # right 
+				b[0] = self.Sigmas(self.x[j])*h/4*phi[j] + self.q[i,j]*h/4 # left 
+				b[1] = self.Sigmas(self.x[j])*h/4*phi[j+1] + self.q[i,j+1]*h/4 # right 
 
 				if (j == self.N-1): # boundary condition 
 					b[1] += 0 # vacuum bc 

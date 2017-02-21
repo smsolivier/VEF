@@ -353,13 +353,13 @@ if __name__ == '__main__':
 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ld.setMMS()
-	# ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 
 	x, phi, it = ld.sourceIteration(tol)
 
-	# xe, phie, ite = ed.sourceIteration(tol)
+	xe, phie, ite = ed.sourceIteration(tol)
 
 	plt.plot(x, phi, label='LD')
-	# plt.plot(xe, phie, label='LD Edd')
+	plt.plot(xe, phie, label='LD Edd')
 	plt.legend(loc='best')
 	plt.show()

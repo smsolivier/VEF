@@ -166,13 +166,6 @@ class MHFEM:
 
 			ii += 1 
 
-		# set second moment source terms 
-		for i in range(2, N-2, 2):
-
-			alphai = 
-
-			b[i] = ()
-
 		# solve for flux 
 		# solve banded matrix 
 		phi = solve_banded((2,2), self.A, b)

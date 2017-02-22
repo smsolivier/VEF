@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import ld
 import dd 
 
-import mhfem_acc as mh
+from scipy.interpolate import interp1d
 
 ''' compare LD and DD Eddington Acceleration in the Diffusion Limit (epsilon --> 0) ''' 
 
@@ -15,7 +15,7 @@ def getDiff(eps, solver):
 	Sigmat = lambda x: 1/eps
 	Sigmaa = lambda X: .1*eps
 
-	N = 200
+	N = 100
 	n = 8 
 	Q = np.ones((n,N))*eps
 	xb = 2 
@@ -23,18 +23,23 @@ def getDiff(eps, solver):
 
 	sn = solver(x, n, Sigmaa, Sigmat, Q, BCL=0, BCR=1)
 
-	diff = mh.MHFEM(x, np.ones(N)/3, Sigmaa, Sigmat, np.ones(N), BCL=0, BCR=1)
+	x, phi, it = sn.sourceIteration(1e-10)
 
-	x, phi, it = sn.sourceIteration(1e-6)
+	phi_f = interp1d(x, phi)
 
-	xd, phid = diff.solve(np.ones(N)*eps)
+	# diffusion
+	D = 1/(3*Sigmat(0))
+	L = np.sqrt(D/Sigmaa(0))
 
-	assert (x == xd).all()
+	# print(L*xb/N)
+	c2 = -eps/Sigmaa(0)/(np.cosh(xb/L) + 2*D/L*np.sinh(xb/L))
+	diff = lambda x: eps/Sigmaa(0) + c2*np.cosh(x/L)
 
-	return np.linalg.norm(phid - phi, 2), it
+	return np.linalg.norm(diff(x) - phi, 2), it
+	# return np.fabs(phi_f(xb/2) - diff(xb/2)), it
 
 N = 20
-eps = np.logspace(-6, 0, N)
+eps = np.logspace(-8, 0, N)
 
 DD = np.zeros(N)
 LD = np.zeros(N)
@@ -57,5 +62,6 @@ plt.legend(loc='best')
 plt.figure()
 plt.plot(1/eps, itDD, '-o', label='DD')
 plt.plot(1/eps, itLD, '-o', label='LD')
+plt.xscale('log')
 plt.legend(loc='best')
 plt.show()

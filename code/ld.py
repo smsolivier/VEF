@@ -55,6 +55,10 @@ class LD:
 
 		self.phi = np.zeros(self.N) # store flux 
 
+		# store LD flux, cell centered 
+		self.phiL = np.zeros(self.N) 
+		self.phiR = np.zeros(self.N)
+
 		# generate mu's, mu is arranged negative to positive 
 		self.mu, self.w = np.polynomial.legendre.leggauss(n)
 
@@ -77,29 +81,31 @@ class LD:
 					np.cos(np.pi*self.xe[j]/self.xb) + (self.Sigmat(self.xe[j]) - 
 						self.Sigmas(self.xe[j]))*np.sin(np.pi*self.xe[j]/self.xb)
 
-	def fullSweep(self, phi):
+	def fullSweep(self, phiL, phiR):
 		''' sweep left to right or right to left depending on boundary conditions ''' 
 
 		if (self.BCL == 0 and self.BCR == 1): # left reflecting 
 
-			self.sweepRL(phi)
-			self.sweepLR(phi)
+			self.sweepRL(phiL, phiR)
+			self.sweepLR(phiL, phiR)
 
 		elif (self.BCR == 0 and self.BCL == 1): # right reflecting 
 
-			self.sweepLR(phi)
-			self.sweepRL(phi)
+			self.sweepLR(phiL, phiR)
+			self.sweepRL(phiL, phiR)
 
 		else:
 
-			self.sweepLR(phi)
-			self.sweepRL(phi)
+			self.sweepLR(phiL, phiR)
+			self.sweepRL(phiL, phiR)
 
 	def sweep(self, phi):
 		''' unaccelerated sweep ''' 
 
+		phiL, phiR = self.ldRecovery(phi)
+
 		# sweep left to right or right to left first depending on BCs 
-		self.fullSweep(phi)
+		self.fullSweep(phiL, phiR)
 
 		# convert to edge values 
 		psi = self.edgePsi()
@@ -109,7 +115,7 @@ class LD:
 
 		return phi 
 
-	def sweepLR(self, phi):
+	def sweepLR(self, phiL, phiR):
 		''' sweep left to right (mu > 0) ''' 
 
 		A = np.zeros((2,2)) # store psiL, psiR coefficients 
@@ -132,7 +138,7 @@ class LD:
 				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.x[j])*h/2 + self.mu[i] # psiR 
 
 				# rhs 
-				b[0] = self.Sigmas(self.x[j])*h/4*phi[j] + self.q[i,j]*h/4 # left 
+				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
 				if (j == 0): # boundary condition 
 
 					# default to vacuum 
@@ -145,7 +151,7 @@ class LD:
 
 					b[0] += self.mu[i]*self.psiR[i,j-1] # upwind term 
 
-				b[1] = self.Sigmas(self.x[j])*h/4*phi[j+1] + self.q[i,j+1]*h/4 # right 
+				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[i,j+1]*h/4 # right 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
 
@@ -153,7 +159,7 @@ class LD:
 				self.psiL[i,j] = ans[0] 
 				self.psiR[i,j] = ans[1] 
 
-	def sweepRL(self, phi):
+	def sweepRL(self, phiL, phiR):
 		''' sweep right to left (mu < 0) ''' 
 
 		A = np.zeros((2,2)) # store psiL, psiR coefficients 
@@ -176,8 +182,8 @@ class LD:
 				A[0,1] = self.mu[i]/2 
 
 				# rhs 
-				b[0] = self.Sigmas(self.x[j])*h/4*phi[j] + self.q[i,j]*h/4 # left 
-				b[1] = self.Sigmas(self.x[j])*h/4*phi[j+1] + self.q[i,j+1]*h/4 # right 
+				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
+				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[i,j+1]*h/4 # right 
 
 				if (j == self.N-1): # boundary condition 
 					
@@ -195,6 +201,24 @@ class LD:
 				# extract psis 
 				self.psiL[i,j] = ans[0] 
 				self.psiR[i,j] = ans[1] 
+
+	def ldRecovery(self, phi):
+		''' Recover LD left and right values 
+			use edge values for left and right LD values 
+		'''
+
+		phiL = np.zeros(self.N) # left flux 
+		phiR = np.zeros(self.N) # right flux 
+
+		for i in range(self.N):
+
+			phiL[i] = phi[i] 
+
+		for i in range(self.N):
+
+			phiR[i] = phi[i+1] 
+
+		return phiL, phiR 
 
 	def firstMoment(self, psi):
 		''' use guass legendre quadrature points to integrate psi ''' 
@@ -314,9 +338,11 @@ class Eddington(LD):
 
 	def sweep(self, phi):
 
-		self.fullSweep(phi)
+		phiL, phiR = self.ldRecovery(phi)
 
-		psi = self.edgePsi()
+		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
+
+		psi = self.edgePsi() # get edge values of psi 
 
 		# compute eddington factor 
 		mu2 = self.getEddington(psi)

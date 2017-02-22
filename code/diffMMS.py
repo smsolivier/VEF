@@ -20,7 +20,7 @@ def getError(N, solver):
 
 	n = 8 
 	Q = np.ones((n,N))*eps 
-	xb = 2 
+	xb = 2
 	x = np.linspace(0, xb, N)
 
 	ld = solver(x, n, Sigmaa, Sigmat, Q, BCL=0, BCR=1)

@@ -15,10 +15,10 @@ def getDiff(eps, solver):
 	Sigmat = lambda x: 1/eps
 	Sigmaa = lambda X: .1*eps
 
-	N = 100
+	N = 10
 	n = 8 
 	Q = np.ones((n,N))*eps
-	xb = 2 
+	xb = 1
 	x = np.linspace(0, xb, N)
 
 	sn = solver(x, n, Sigmaa, Sigmat, Q, BCL=0, BCR=1)
@@ -30,6 +30,8 @@ def getDiff(eps, solver):
 	# diffusion
 	D = 1/(3*Sigmat(0))
 	L = np.sqrt(D/Sigmaa(0))
+
+	print(L*xb/N)
 
 	# print(L*xb/N)
 	c2 = -eps/Sigmaa(0)/(np.cosh(xb/L) + 2*D/L*np.sinh(xb/L))

@@ -41,12 +41,16 @@
 	Lawrence Livermore National Laboratory (LLNL) is developing a high--order radiation--hydrodynamics code. The hydrodynamics portion is discretized using the Mixed Hybrid Finite Element Method (MHFEM), where values are taken to be constant within a cell with discontinuous jumps at both cell edges \cite{mhfem}. MHFEM is particularly suited for hydrodynamics but not for radiation transport. This work seeks to develop an acceleration scheme capable of robustly reducing the number of iterations in Discrete Ordinates Source Iteration calculations while being compatible with MHFEM multiphysics.   
 
 \section{Background}
-	The steady--state, mono--energetic, isotropically--scattering, fixed--source Linear Boltzmann Equation in planar geometry is: 
+	The steady--state, mono--energetic, isotropically--scattering, fixed--source Linear Boltzmann Equation in slab geometry is: 
 		\begin{equation} \label{eq:bte}
 			\mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
 			\frac{\Sigma_s(x)}{2} \int_{-1}^{1} \psi(x, \mu') d\mu' + \frac{Q(x)}{2}
 		\end{equation}
-	where $\mu = \cos\theta$ is the cosine of the angle of flight $\theta$ relative to the $x$--axis, $\Sigma_t(x)$ and $\Sigma_s(x)$ the total and scattering macroscopic cross sections, $Q(x)$ the isotropic fixed--source and $\psi(x, \mu)$ the angular flux \cite{adams}. This is an integro--differential equation due to the placement of the unknown, $\psi(x,\mu)$, under both a derivative and integral.
+	where $\mu = \cos\theta$ is the cosine of the angle of flight $\theta$ relative to the $x$--axis, $\Sigma_t(x)$ and $\Sigma_s(x)$ the total and scattering macroscopic cross sections, $Q(x)$ the isotropic fixed--source and $\psi(x, \mu)$ the angular flux \cite{adams}. The factors of $\frac{1}{2}$ appear from normalization to 
+		\begin{equation}
+			\int_{-1}^1 \ud \mu = 2. 
+		\end{equation}
+	This is an integro--differential equation due to the placement of the unknown, $\psi(x,\mu)$, under both a derivative and an integral.
 
 	The Discrete Ordinates (\SN) angular discretization sets $\mu$ to discrete values stipulated by an $N$--point Gauss quadrature rule. The scalar flux, $\phi(x)$, is then 
 		\begin{equation} \label{eq:quad}
@@ -99,39 +103,26 @@
 
 	This formulation is beneficial because Eq. \ref{eq:zero} is a conservative balance equation and---if $\edd(x)$ is known---the moment equations' system of two first--order, ordinary differential equations can be solved directly with well--established methods. However, computing $\edd(x)$ requires already knowing the angular flux. 
 
-	The proposed acceleration scheme is: 
+	In Eddington Acceleration, \SN is used to compute the Eddington factor needed to solve the moment equations. Source iteration is then 
 		\begin{enumerate}
-			\item Compute $\psi_n(x)$ with \SN and an arbitrary spatial discretization
-			\item Compute $\edd(x)$ with Eq. \ref{eq:edd_sn}
-			\item Interpolate $\edd(x)$ onto the MHFEM grid 
-			\item Solve the moment equations for $\phi(x)$ with the preconditioned $\edd(x)$ using MHFEM. 
+			\item Compute $\psi_n^{\ell+1/2}(x)$ with \SN 
+			\item Compute $\edd^{\ell+1/2}(x)$ with Eq. \ref{eq:edd_sn}
+			% \item Interpolate $\edd(x)$ onto the MHFEM grid 
+			\item Solve the moment equations for $\phi^{\ell+1}(x)$ with the preconditioned $\edd^{\ell+1/2}(x)$ 
+			% \item Use the moment equations' $\phi(x)$ on the right hand side of Eq. \ref{eq:si}.  
+			\item Use $\phi^{\ell+1}(x)$ on the right hand side of Eq. \ref{eq:si}
+			\item Repeat until the scalar flux converges. 
 		\end{enumerate}
-	This process is one source iteration consisting of an \SN transport step to compute the Eddington factor and an MHFEM acceleration step to compute $\phi(x)$. The scalar flux from the acceleration step is used in the right hand side of Eq. \ref{eq:si} and steps 1--4 are repeated until the acceleration step's $\phi(x)$ converges according to Eq. \ref{eq:converg}.  
+	% This process is one source iteration consisting of an \SN transport step to compute the Eddington factor and an MHFEM acceleration step to compute $\phi(x)$. The scalar flux from the acceleration step is used in the right hand side of Eq. \ref{eq:si} and steps 1--4 are repeated until the acceleration step's $\phi(x)$ converges according to Eq. \ref{eq:converg}.  
 
-	Acceleration occurs because the Eddington factor is a weak function of angular flux. This means that even poor angular flux solutions can accurately approximate the Eddington factor. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the acceleration step is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
+	Acceleration occurs because the Eddington factor is a weak function of angular flux. This means that even poor angular flux solutions can accurately approximate the Eddington factor. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the moment equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
-	In addition to acceleration, this scheme allows the \SN equations and moment equations to be solved with different spatial discretizations. \SN can be spatially discretized using normal methods such as Linear Discontinuous Galerkin or Diamond Differencing while the moment equations can be solved on the same grid as the hydrodynamics. 
-	% operator split iteration, computationally economic to use moment equations 
-
-	% This method differs from DSA in that two solutions are generated: one from \SN and one from the moment equations and that the \SN and acceleration steps do not have to be consistently differenced. The solution of the moment equations will be used because the moment equations are conservative while \SN is not. 
-
-% \section{Diamond Differenced \SN}
-% 	The Diamond Differenced (DD) \SN equations corresponding to Eq. \ref{eq:sn} are 
-% 		\begin{equation} \label{eq:dd}
-% 			\frac{\mu_n}{h_i}\left(\psi_{n,i+1/2} - \psi_{n,i-1/2}\right)
-% 				+ \Sigma_{t,i} \psi_{n,i} = \frac{\Sigma_{s,i}}{2}\sum_{n'=1}^N \psi_{n',i}w_{n'}
-% 				+ \frac{Q_i}{2}
-% 		\end{equation}
-% 	where $\psi_{n,i\pm1/2} = \psi_n(x_{i\pm1/2})$ is the cell edge angular flux and $\Sigma_{t,i} = \Sigma_t(x_i)$, $\Sigma_{s,i} = \Sigma_s(x_i)$ and $Q_i = Q(x_i)$ the cell averaged total cross section, scattering cross section and fixed source. The $x_{i\pm1/2}$ are the cell edge locations of cell $i$ of cell width $h = x_{i+1/2} - x_{i-1/2}$. In DD, the cell centered angular flux is taken to be the average of the adjacent cell edge angular fluxes: 
-% 		\begin{equation} \label{eq:auxDD}
-% 			\psi_{n,i} = \frac{1}{2} \left(\psi_{n,i+1/2} + \psi_{n,i-1/2}\right)
-% 		\end{equation}
-
+	In addition to acceleration, this scheme allows the \SN equations and moment equations to be solved with arbitrarily different spatial discretization methods. \SN can be spatially discretized using normal methods, such as Linear Discontinuous Galerkin or Diamond Difference, while the moment equations can be solved with MHFEM. 
 
 \section{Results}
-	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created along with an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells. 
+	As a proof of concept for Eddington acceleration, a Diamond Differenced \SN code was created along with an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells and a domain length of \SI{20}{cm}.  
 
-	\begin{figure} % replace 't' with 'b' to force it to be on the bottom
+	\begin{figure} 
 		\centering
 		\includegraphics[width=8.5cm]{accel.pdf}
 		\caption{A comparison of the number of iterations until convergence for unaccelerated, Eddington accelerated, and DSA S$_8$ SI. }

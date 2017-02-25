@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sn import * 
+from dd import * 
 
 from hidespines import * 
 
@@ -26,16 +26,18 @@ tol = 1e-6
 n = 8
 
 x = np.linspace(0, xb, N)
-q = np.ones(N)
+q = np.ones((n,N))
+
+print('optical thickness =', xb/(N-1)*Sigmat)
 
 for i in range(len(Sigmaa)):
 
 	# solve Sn
-	sn = Sn(x, n, lambda x: Sigmaa[i], lambda x: Sigmat, q)
+	sn = DD(x, n, lambda x: Sigmaa[i], lambda x: Sigmat, q)
 	x, phi, it[i] = sn.sourceIteration(tol)
 
 	# solve mu 
-	mu = muAccel(x, n, lambda x: Sigmaa[i], lambda x: Sigmat, q)
+	mu = Eddington(x, n, lambda x: Sigmaa[i], lambda x: Sigmat, q)
 	xmu, phimu, itmu[i] = mu.sourceIteration(tol)
 
 	# solve dsa 
@@ -52,7 +54,7 @@ plt.yscale('log')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$\Sigma_s/\Sigma_t$', fontsize=20)
 plt.ylabel('Number of Iterations', fontsize=16)
-plt.savefig('../ans/accel.pdf')
+plt.savefig('../tex/accel.pdf')
 
 plt.figure()
 plt.plot(c, it/itmu)

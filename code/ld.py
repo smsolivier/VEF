@@ -353,7 +353,7 @@ class Eddington(LD):
 
 			top += np.fabs(self.mu[i])*psi[i,:] * self.w[i] 
 
-		B = top/self.firstMoment(psi)*2
+		B = top/self.firstMoment(psi)
 
 		# create MHFEM object 
 		sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, B, BCL=self.BCL, BCR=self.BCR)

@@ -18,7 +18,7 @@ class MHFEM:
 				Sigmaa: absorption XS function 
 				Sigmat: total XS function 
 				B: array of boundary Eddington values for transport consistency 
-					set to 1 for marshak 
+					set to 1/2 for marshak 
 				BCL: left boundary 
 					0: reflecting 
 					1: marshak 
@@ -27,7 +27,7 @@ class MHFEM:
 					1: marshak 
 		''' 
 
-		self.B = B
+		self.B = B # transport consistent boundary 
 
 		N = np.shape(xe)[0] # number of cell edges 
 
@@ -106,13 +106,13 @@ class MHFEM:
 			alpha = 4/(Sigmat(x[1])*(x[2] - x[0])) 
 
 			# diagonal (phi_1/2)
-			A[2,0] = self.B[0] + 2*alpha*mu2f(x[0])
+			A[2,0] = self.B[0] + alpha*mu2f(x[0])
 
 			# first upper (phi_1)
-			A[1,1] = -3*alpha*mu2f(x[1])
+			A[1,1] = -3/2*alpha*mu2f(x[1])
 
 			# second upper (phi_3/2)
-			A[0,2] = alpha*mu2f(x[2])
+			A[0,2] = .5*alpha*mu2f(x[2])
 
 		else:
 			print('left boundary condition not defined')
@@ -136,13 +136,13 @@ class MHFEM:
 			alpha = 4/(Sigmat(x[-2])*(x[-1] - x[-3]))
 
 			# second lower (phi_N-1/2)
-			A[4,-3] = alpha*mu2f(x[-3])
+			A[4,-3] = .5*alpha*mu2f(x[-3])
 
 			# first lower (phi_N)
-			A[3,-2] = -3*alpha*mu2f(x[-2])
+			A[3,-2] = -3/2*alpha*mu2f(x[-2])
 
 			# diagonal (phi_N+1/2)
-			A[2,-1] = self.B[-1] + 2*alpha*mu2f(x[-1])
+			A[2,-1] = self.B[-1] + alpha*mu2f(x[-1])
 
 		else:
 			print('right boundary condition not defined')

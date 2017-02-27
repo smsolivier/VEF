@@ -31,8 +31,6 @@ def getDiff(eps, solver):
 	D = 1/(3*Sigmat(0))
 	L = np.sqrt(D/Sigmaa(0))
 
-	print(L*xb/N)
-
 	# print(L*xb/N)
 	c2 = -eps/Sigmaa(0)/(np.cosh(xb/L) + 2*D/L*np.sinh(xb/L))
 	diff = lambda x: eps/Sigmaa(0) + c2*np.cosh(x/L)

@@ -10,7 +10,7 @@ import sys
 
 class MHFEM:
 
-	def __init__(self, xe, mu2, Sigmaa, Sigmat, B, BCL=0, BCR=1):
+	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1):
 		''' solves moment equations with general <mu^2> 
 			Inputs:
 				xe: array of cell edges 
@@ -27,133 +27,171 @@ class MHFEM:
 					1: marshak 
 		''' 
 
-		self.B = B # transport consistent boundary 
+		self.N = np.shape(xe)[0] # number of cell edges 
 
-		N = np.shape(xe)[0] # number of cell edges 
+		self.n = 2*self.N - 1 # number of rows and columns of A 
 
-		n = 2*N - 1 # number of rows and columns of A 
+		self.xc = np.zeros(self.N-1) # store cell centers 
+		self.xe = xe # cell edges 
 
-		xc = np.zeros(N-1) # store cell centers 
-		for i in range(1, N):
-			xc[i-1] = (xe[i] + xe[i-1])/2 # midpoint between cell edges 
+		# get cell centers 
+		for i in range(self.N-1):
+
+			# midpoint between cell edges 
+			self.xc[i] = (self.xe[i] + self.xe[i+1])/2 
 
 		# combine edge and center points 
-		x = np.sort(np.concatenate((xc, xe)))
+		self.x = np.sort(np.concatenate((self.xc, self.xe)))
 
-		# make <mu^2> function 
-		mu2f = interp1d(xe, mu2) 
+		# material properties 
+		self.Sigmaa = Sigmaa 
+		self.Sigmat = Sigmat 
 
-		# store banded matrix entries  
+		# boundary conditions 
+		self.BCL = BCL 
+		self.BCR = BCR 
+
+		# create banded coefficient matrix, bandwidth 5 
 		# upper diagonals have leading zeros, lower have trailing zeros 
 		# A[0,:] = 2nd upper 
 		# A[1,:] = 1st upper 
 		# A[2,:] = diagonal 
 		# A[3,:] = 1st lower 
 		# A[4,:] = 2nd lower 
-		A = np.zeros((5, n)) # coefficient matrix 
+		self.A = np.zeros((5, self.n)) 
+
+	def discretize(self, mu2, B):
+		''' setup coefficient matrix with MHFEM equations ''' 
+
+		# make <mu^2> function 
+		mu2f = interp1d(self.xe, mu2) 
 
 		# build equations 
-		for i in range(1, n, 2):
+		for i in range(1, self.n, 2):
 
-			hi = x[i+1] - x[i-1] # cell width, x_i+1/2 - x_i-1/2 
+			hi = self.x[i+1] - self.x[i-1] # cell width, x_i+1/2 - x_i-1/2 
 
 			# balance equation 
 			# lower diagonal 
-			A[3,i-1] = -6/(Sigmat(x[i])*hi)*mu2f(x[i-1])
+			self.A[3,i-1] = -6/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i-1])
 
 			# diagonal term 
-			A[2,i] = Sigmaa(x[i])*hi + 12/(Sigmat(x[i])*hi)*mu2f(x[i])
+			self.A[2,i] = self.Sigmaa(self.x[i])*hi + \
+				12/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i])
 
 			# upper diagonal 
-			A[1,i+1] = -6/(Sigmat(x[i])*hi)*mu2f(x[i+1]) 
+			self.A[1,i+1] = -6/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i+1]) 
 
 			# phi_i+1/2 equation
-			if (i != n-2):
+			if (i != self.n-2):
 
-				h1 = x[i+3] - x[i+1] # cell i+1 width, x_i+3/2 - x_i+1/2 
+				# cell i+1 width, x_i+3/2 - x_i+1/2 
+				h1 = self.x[i+3] - self.x[i+1] 
 
 				# second lower (phi_i-1/2)
-				A[4,i-1] = -2/(Sigmat(x[i])*hi)*mu2f(x[i-1])
+				self.A[4,i-1] = -2/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i-1])
 
 				# first lower (phi_i) 
-				A[3,i] = 6/(Sigmat(x[i])*hi)*mu2f(x[i])
+				self.A[3,i] = 6/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i])
 				
 				# diagonal term (phi_i+1/2)
-				A[2,i+1] = -4*(1/(Sigmat(x[i])*hi) + 1/(Sigmat(x[i+2])*h1))*mu2f(x[i+1])
+				self.A[2,i+1] = -4*(1/(self.Sigmat(self.x[i])*hi) + \
+						1/(self.Sigmat(self.x[i+2])*h1))*mu2f(self.x[i+1])
 
 				# first upper (phi_i+1)
-				A[1,i+2] = 6/(Sigmat(x[i+2])*h1)*mu2f(x[i+2])
+				self.A[1,i+2] = 6/(self.Sigmat(self.x[i+2])*h1)*mu2f(self.x[i+2])
 
 				# second upper (phi_i+3/2)
-				A[0,i+3] = -2/(Sigmat(x[i+2])*h1)*mu2f(x[i+3])
+				self.A[0,i+3] = -2/(self.Sigmat(self.x[i+2])*h1)*mu2f(self.x[i+3])
 
 		# boundary conditions 
 		# left 
-		if (BCL == 0): # reflecting 
+		if (self.BCL == 0): # reflecting 
 
 			# J_1L = 0 
 			# diagonal (phi_1/2)
-			A[2,0] = -2*mu2f(x[0])
+			self.A[2,0] = -2*mu2f(self.x[0])
 
 			# first upper (phi_1)
-			A[1,1] = 3*mu2f(x[1])
+			self.A[1,1] = 3*mu2f(self.x[1])
 
 			# second upper (phi_3/2)
-			A[0,2] = -1*mu2f(x[2])
+			self.A[0,2] = -1*mu2f(self.x[2])
 
-		elif (BCL == 1): # marshak 
+		elif (self.BCL == 1): # marshak 
 
-			alpha = 4/(Sigmat(x[1])*(x[2] - x[0])) 
+			alpha = 4/(self.Sigmat(self.x[1])*(self.x[2] - self.x[0])) 
 
 			# diagonal (phi_1/2)
-			A[2,0] = self.B[0] + alpha*mu2f(x[0])
+			self.A[2,0] = B[0] + alpha*mu2f(self.x[0])
 
 			# first upper (phi_1)
-			A[1,1] = -3/2*alpha*mu2f(x[1])
+			self.A[1,1] = -3/2*alpha*mu2f(self.x[1])
 
 			# second upper (phi_3/2)
-			A[0,2] = .5*alpha*mu2f(x[2])
+			self.A[0,2] = .5*alpha*mu2f(self.x[2])
 
 		else:
 			print('left boundary condition not defined')
 			sys.exit()
 
 		# right
-		if (BCR == 0): # reflecting 
+		if (self.BCR == 0): # reflecting 
 
 			# J_NR = 0 
 			# second lower (phi_N-1/2)
-			A[4,-3] = mu2f(x[-3])
+			self.A[4,-3] = mu2f(self.x[-3])
 
 			# first lower (phi_N)
-			A[3,-2] = -3*mu2f(x[-2])
+			self.A[3,-2] = -3*mu2f(self.x[-2])
 
 			# diagonal (phi_N+1/2)
-			A[2,-1] = 2*mu2f(x[-1])
+			self.A[2,-1] = 2*mu2f(self.x[-1])
 
-		elif (BCR == 1): # marshak 
+		elif (self.BCR == 1): # marshak 
 
-			alpha = 4/(Sigmat(x[-2])*(x[-1] - x[-3]))
+			alpha = 4/(self.Sigmat(self.x[-2])*(self.x[-1] - self.x[-3]))
 
 			# second lower (phi_N-1/2)
-			A[4,-3] = .5*alpha*mu2f(x[-3])
+			self.A[4,-3] = .5*alpha*mu2f(self.x[-3])
 
 			# first lower (phi_N)
-			A[3,-2] = -3/2*alpha*mu2f(x[-2])
+			self.A[3,-2] = -3/2*alpha*mu2f(self.x[-2])
 
 			# diagonal (phi_N+1/2)
-			A[2,-1] = self.B[-1] + alpha*mu2f(x[-1])
+			self.A[2,-1] = B[-1] + alpha*mu2f(self.x[-1])
 
 		else:
 			print('right boundary condition not defined')
 			sys.exit()
 
-		# make variables public 
-		self.A = A 
-		self.n = n 
-		self.N = N 
-		self.x = x 
-		self.xe = xe 
+	def getEdges(self, phi):
+
+		# get edge values 
+		phiEdge = np.zeros(self.N)
+
+		ii = 0 
+		for i in range(0, self.n, 2):
+
+			phiEdge[ii] = phi[i]
+
+			ii += 1 
+
+		return phiEdge
+
+	def getCenters(self, phi):
+
+		# get center values 
+		phiCent = np.zeros(self.N-1) 
+
+		ii = 0
+		for i in range(1, self.N, 2):
+
+			phiCent[ii] = phi[i]
+
+			ii += 1 
+
+		return phiCent
 
 	def solve(self, q, CENT=0):
 		''' Compute phi = A^-1 q with banded solver 
@@ -179,33 +217,13 @@ class MHFEM:
 		# solve banded matrix 
 		phi = solve_banded((2,2), self.A, b)
 
-		# get edge values 
-		phiEdge = np.zeros(self.N)
-
-		ii = 0 
-		for i in range(0, self.n, 2):
-
-			phiEdge[ii] = phi[i]
-
-			ii += 1 
-
-		# get center values 
-		phiCent = np.zeros(self.N-1) 
-
-		ii = 0
-		for i in range(1, self.N, 2):
-
-			phiCent[ii] = phi[i]
-
-			ii += 1 
-
 		if (CENT == 0): # return edges only 
 
-			return self.xe, phiEdge
+			return self.xe, self.getEdges(phi)
 
 		elif (CENT == 1): # return centers only 
 
-			return self.xc, phiCent 
+			return self.xc, self.getCenters(phi)
 
 		else: # return edges and centers 
 
@@ -220,10 +238,11 @@ if __name__ == '__main__':
 
 	Q = 1 
 
-	N = 10 # number of cells 
-	xe = np.linspace(0, xb, N+1)
-	mu2 = np.ones(N+1)/3 
-	mhfem = MHFEM(xe, mu2, lambda x: Sigmaa, lambda x: Sigmat, BCL=0, BCR=1)
+	N = 50 # number of edges 
+	xe = np.linspace(0, xb, N)
+	mu2 = np.ones(N)/3 
+	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL=0, BCR=1)
+	mhfem.discretize(mu2, np.ones(N)/2)
 	x, phi = mhfem.solve(np.ones(N)*Q)
 
 	# exact solution 
@@ -241,27 +260,28 @@ if __name__ == '__main__':
 
 	# check order of convergence 
 	N = np.array([20, 40, 80, 160])
-	mh = [MHFEM(np.linspace(0, xb, x), np.ones(x)/3, 
-		lambda x: Sigmaa, lambda x: Sigmat) for x in N]
 
 	err = np.zeros(len(N))
 	for i in range(len(N)):
 
-		x, phi = mh[i].solve(np.ones(N[i])*Q)
+		mh = MHFEM(np.linspace(0, xb, N[i]), lambda x: Sigmaa, 
+			lambda x: Sigmat, BCL=0, BCR=1)
 
-		err[i] = np.linalg.norm(phi - phi_ex(x), 2)
+		mh.discretize(np.ones(N[i])/3, np.ones(N[i])/2)
 
-		plt.plot(x, np.fabs(phi - phi_ex(x)))
+		x, phi = mh.solve(np.ones(N[i])*Q)
 
-	plt.yscale('log')
-	plt.show()
+		phif = interp1d(x, phi)
 
-	fit = np.polyfit(np.log(1/(N-1)), np.log(err), 1)
+		# err[i] = np.linalg.norm(phi - phi_ex(x), 2)
+		err[i] = np.fabs(phif(xb/2) - phi_ex(xb/2))
+
+	fit = np.polyfit(np.log(1/(N)), np.log(err), 1)
 
 	print(fit[0])
 
-	plt.loglog(1/(N-1), np.exp(fit[1]) * (1/(N-1))**fit[0], '-o')
-	plt.loglog(1/(N-1), err, '-o')
+	plt.loglog(1/(N), np.exp(fit[1]) * (1/(N))**fit[0], '-o')
+	plt.loglog(1/(N), err, '-o')
 	plt.show()
 
 

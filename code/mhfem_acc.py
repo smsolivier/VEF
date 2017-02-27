@@ -155,7 +155,16 @@ class MHFEM:
 		self.x = x 
 		self.xe = xe 
 
-	def solve(self, q):
+	def solve(self, q, CENT=0):
+		''' Compute phi = A^-1 q with banded solver 
+			Inputs:
+				q: cell edged array of source terms 
+					uses cell average 
+				CENT: return phi on cell edges or edges and centers 
+					0: edges only 
+					1: centers only 
+					2: edges and centers
+		''' 
 
 		ii = 0 # store iterations of q 
 		b = np.zeros(self.n) # store source vector 
@@ -180,7 +189,27 @@ class MHFEM:
 
 			ii += 1 
 
-		return self.xe, phiEdge
+		# get center values 
+		phiCent = np.zeros(self.N-1) 
+
+		ii = 0
+		for i in range(1, self.N, 2):
+
+			phiCent[ii] = phi[i]
+
+			ii += 1 
+
+		if (CENT == 0): # return edges only 
+
+			return self.xe, phiEdge
+
+		elif (CENT == 1): # return centers only 
+
+			return self.xc, phiCent 
+
+		else: # return edges and centers 
+
+			return self.x, phi 
 
 if __name__ == '__main__':
 

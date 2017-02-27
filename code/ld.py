@@ -336,6 +336,24 @@ class LD:
 class Eddington(LD):
 	''' Eddington accelerated ''' 
 
+	def ldRecovery(self, phi):
+		''' Recover LD left and right values 
+			use edge values for left and right LD values 
+		'''
+
+		phiL = np.zeros(self.N) # left flux 
+		phiR = np.zeros(self.N) # right flux 
+
+		# separate edges and centers 
+
+		for i in range(self.N):
+
+			# phi_i+1/2 - phi_i-1/2 
+			diff = .5*(phi[i+1] - phi[i]) 
+
+			phiL[i] = 
+
+
 	def sweep(self, phi):
 
 		phiL, phiR = self.ldRecovery(phi)
@@ -358,8 +376,8 @@ class Eddington(LD):
 		# create MHFEM object 
 		sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, B, BCL=self.BCL, BCR=self.BCR)
 
-		# solve for phi 
-		x, phi = sol.solve(self.firstMoment(self.q)/2)
+		# solve for phi, get edges and centers 
+		x, phi = sol.solve(self.firstMoment(self.q)/2, CENT=2)
 
 		return phi # return accelerated flux 
 

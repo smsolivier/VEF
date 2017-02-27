@@ -242,7 +242,7 @@ class Eddington(DD):
 
 			top += np.fabs(self.mu[i])*self.psi[i,:] * self.w[i]
 
-		B = top/self.integrate(self.psi)*2
+		B = top/self.integrate(self.psi)
 
 		# create MHFEM object 
 		sol = mh.MHFEM(self.x, mu2, self.Sigmaa, self.Sigmat, B, BCL=self.BCL, BCR=self.BCR)
@@ -291,16 +291,16 @@ if __name__ == '__main__':
 	q = np.ones((n,N))
 
 	dd = DD(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
-	dd.setMMS()
-	# ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
+	# dd.setMMS()
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
 	# dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
 
 	x, phi, it = dd.sourceIteration(1e-6)
-	# xe, phie, ite = ed.sourceIteration(1e-6)
+	xe, phie, ite = ed.sourceIteration(1e-6)
 	# xd, phid, itd = dsa.sourceIteration(1e-6)
 
 	plt.plot(x, phi, label='DD')
-	# plt.plot(xe, phie, label='Edd')
+	plt.plot(xe, phie, label='Edd')
 	# plt.plot(xd, phid, label='DSA')
 	plt.legend(loc='best')
 	plt.show()

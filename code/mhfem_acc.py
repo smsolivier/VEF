@@ -231,11 +231,11 @@ class MHFEM:
 
 if __name__ == '__main__':
 
-	eps = 1e-9
+	eps = 1e-8
 	Sigmaa = .1*eps 
 	Sigmat = .83/eps
 
-	xb = 10
+	xb = 1
 
 	Q = 1 * eps 
 
@@ -270,9 +270,10 @@ if __name__ == '__main__':
 	print(np.linalg.norm(phiEdge - phi_ex(xEdge), 2))
 	print(np.linalg.norm(phiCent - phi_ex(xCent), 2))
 
-	plt.semilogy(xEdge, np.fabs(phiEdge - phi_ex(xEdge)), '-o')
-	plt.semilogy(xCent, np.fabs(phiCent - phi_ex(xCent)), '-o')
+	plt.semilogy(xEdge, np.fabs(phiEdge - phi_ex(xEdge)), '-o', label='Edge')
+	plt.semilogy(xCent, np.fabs(phiCent - phi_ex(xCent)), '-o', label='Center')
 	# plt.semilogy(x, np.fabs(phi - phi_ex(x)), '-o')
+	plt.legend(loc='best')
 	plt.show()
 
 	# plt.plot(x_ex, phi_ex(x_ex), '--')

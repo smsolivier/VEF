@@ -7,7 +7,7 @@ from dd import *
 
 from hidespines import * 
 
-''' compare the number of iterations for S_2 with DSA and without ''' 
+''' compare the number of iterations for unaccelerated, Eddington, and DSA S8 ''' 
 
 N = 101 # number of edges 
 Sigmat = 1 

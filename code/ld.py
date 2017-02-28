@@ -3,83 +3,28 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from mhfem_acc import * 
+from transport import * # general transport class 
 
-import Timer 
-
-class LD:
-	''' Linear Discontinuous Galerkin Sn ''' 
+class LD(Transport):
+	''' Linear Discontinuous Galerkin spatial discretization of Sn 
+		Inherits functions from transport.py 
+	''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
-		''' Inputs:
-				xe: cell edges 
-				n: number of discrete ordinates 
-				Sigmaa: absorption XS (function)
-				Sigmat: total XS (function)
-				q: fixed source array of mu and cell edge spatial dependence 
-		''' 
 
-		self.N = np.shape(xe)[0] - 1 # number of cell centers 
-		self.Ne = np.shape(xe)[0] # number of cell edges 
-		self.n = n # number of discrete ordinates 
-		
-		self.BCL = BCL
-		self.BCR = BCR 
+		# call transport initialization 
+		Transport.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
 
-		self.x = np.zeros(self.N) # cell centered locations 
-		self.h = np.zeros(self.N) # cell widths at cell center 
-
-		self.xe = xe # cell edge array 
-		self.xb = xe[-1] # end of domain 
-
-		for i in range(1, self.Ne):
-
-			self.x[i-1] = .5*(xe[i] + xe[i-1]) # get cell centers 
-			self.h[i-1] = xe[i] - xe[i-1] # get cell widths 
-
-		assert(n%2 == 0) # assert n is even 
-
-		# make material properties public 
-		self.Sigmaa = Sigmaa 
-		self.Sigmat = Sigmat 
-		self.Sigmas = lambda x: Sigmat(x) - Sigmaa(x)
-		self.q = q 
-
+		# create LD specific variables 
 		# store LD left and right discontinuous points 
 		# psi = .5*(psiL + psiR) 
 		# store for all mu and each cell center 
 		self.psiL = np.zeros((self.n, self.N)) # LD left point  
 		self.psiR = np.zeros((self.n, self.N)) # LD right point 
 
-		self.psi = np.zeros((self.n, self.Ne)) # cell edged flux 
-
-		self.phi = np.zeros(self.N) # store flux 
-
 		# store LD flux, cell centered 
 		self.phiL = np.zeros(self.N) 
 		self.phiR = np.zeros(self.N)
-
-		# generate mu's, mu is arranged negative to positive 
-		self.mu, self.w = np.polynomial.legendre.leggauss(n)
-
-	def setMMS(self):
-		''' setup MMS q 
-			force phi = sin(pi*x/xb)
-		''' 
-
-		# ensure correct BCs 
-		self.BCL = 1 
-		self.BCR = 1 
-
-		# loop through all angles 
-		for i in range(self.n):
-
-			# loop through space 
-			for j in range(self.Ne):
-
-				self.q[i,j] = self.mu[i]*np.pi/self.xb * \
-					np.cos(np.pi*self.xe[j]/self.xb) + (self.Sigmat(self.xe[j]) - 
-						self.Sigmas(self.xe[j]))*np.sin(np.pi*self.xe[j]/self.xb)
 
 	def fullSweep(self, phiL, phiR):
 		''' sweep left to right or right to left depending on boundary conditions ''' 
@@ -111,7 +56,7 @@ class LD:
 		psi = self.edgePsi()
 
 		# get edge flux 
-		phi = self.firstMoment(psi)
+		phi = self.zeroMoment(psi)
 
 		return phi 
 
@@ -130,15 +75,15 @@ class LD:
 				h = self.h[j] # cell width 
 
 				# left equation 
-				A[0,0] = self.mu[i]/2 + self.Sigmat(self.x[j])*h/2 # psiL 
+				A[0,0] = self.mu[i]/2 + self.Sigmat(self.xc[j])*h/2 # psiL 
 				A[0,1] = self.mu[i]/2 # psiR 
 
 				# right equation 
 				A[1,0] = -self.mu[i]/2 # psiL
-				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.x[j])*h/2 + self.mu[i] # psiR 
+				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.xc[j])*h/2 + self.mu[i] # psiR 
 
 				# rhs 
-				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
+				b[0] = self.Sigmas(self.xc[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
 				if (j == 0): # boundary condition 
 
 					# default to vacuum 
@@ -151,7 +96,7 @@ class LD:
 
 					b[0] += self.mu[i]*self.psiR[i,j-1] # upwind term 
 
-				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[i,j+1]*h/4 # right 
+				b[1] = self.Sigmas(self.xc[j])*h/4*phiR[j] + self.q[i,j+1]*h/4 # right 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
 
@@ -175,15 +120,15 @@ class LD:
 
 				# left equation 
 				A[1,0] = -self.mu[i]/2 # psiL
-				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.x[j])*h/2 # psiR 
+				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.xc[j])*h/2 # psiR 
 
 				# right equation 
-				A[0,0] = self.mu[i]/2 + self.Sigmat(self.x[j])*h/2 - self.mu[i] # psiL 
+				A[0,0] = self.mu[i]/2 + self.Sigmat(self.xc[j])*h/2 - self.mu[i] # psiL 
 				A[0,1] = self.mu[i]/2 
 
 				# rhs 
-				b[0] = self.Sigmas(self.x[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
-				b[1] = self.Sigmas(self.x[j])*h/4*phiR[j] + self.q[i,j+1]*h/4 # right 
+				b[0] = self.Sigmas(self.xc[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
+				b[1] = self.Sigmas(self.xc[j])*h/4*phiR[j] + self.q[i,j+1]*h/4 # right 
 
 				if (j == self.N-1): # boundary condition 
 					
@@ -192,7 +137,7 @@ class LD:
 					if (self.BCR == 0): # reflecting 
 
 						b[1] -= self.mu[i]*self.psiR[self.mu == -self.mu[i],-1]
- 
+	
 				else: # normal sweep
 					b[1] -= self.mu[i]*self.psiL[i,j+1] # downwind term 
 
@@ -219,49 +164,6 @@ class LD:
 			phiR[i] = phi[i+1] 
 
 		return phiL, phiR 
-
-	def firstMoment(self, psi):
-		''' use guass legendre quadrature points to integrate psi ''' 
-
-		phi = np.zeros(np.shape(psi)[1])
-
-		for i in range(self.n):
-
-			phi += psi[i,:] * self.w[i] 
-
-		return phi 
-
-	def secondMoment(self, psi):
-		''' use guass quadrature to integrate mu psi ''' 
-
-		J = np.zeros(np.shape(psi)[1])
-
-		for i in range(self.n):
-
-			J += self.mu[i] * psi[i,:] * self.w[i] 
-
-		return J 
-
-	def getEddington(self, psi):
-		''' compute <mu^2> ''' 
-
-		phi = np.zeros(np.shape(psi)[1])
-
-		for i in range(self.n):
-
-			phi += psi[i,:] * self.w[i]
-
-		# Eddington factor 
-		mu2 = np.zeros(len(psi)) 
-
-		top = 0 
-		for i in range(self.n):
-
-			top += self.mu[i]**2 * psi[i,:] * self.w[i] 
-
-		mu2 = top/phi 
-
-		return mu2
 
 	def edgePsi(self):
 		''' get celled edge angular flux accounting for up/down winding ''' 
@@ -304,59 +206,80 @@ class LD:
 
 		return psi 
 
-	def sourceIteration(self, tol):
-		''' lag RHS of transport equation and iterate until flux converges ''' 
-
-		it = 0 # store number of iterations 
-		phi = np.zeros(self.N+1) # cell centered flux 
-
-		tt = Timer.timer()
-
-		while (True):
-
-			# store old flux 
-			phi_old = np.copy(phi) 
-
-			phi = self.sweep(phi_old) # update flux 
-
-			# check for convergence 
-			if (np.linalg.norm(phi - phi_old, 2)/np.linalg.norm(phi, 2) < tol):
-
-				break 
-
-			# update iteration count 
-			it += 1 
-
-		print('Number of iterations =', it, end=', ') 
-		tt.stop()
-
-		# return spatial locations, flux and number of iterations 
-		return self.xe, phi, it 
-
 class Eddington(LD):
-	''' Eddington accelerated ''' 
 
-	def ldRecovery(self, phi):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+
+		# call LD initialization 
+		LD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
+
+		# redefine phi to be on cell edges and centers 
+		self.phi = np.zeros(2*self.Ne - 1) 
+
+		# redefine x to be all points 
+		self.x = np.sort(np.concatenate((self.xc, self.xe)))
+
+		# create MHFEM object 
+		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, self.BCL, self.BCR)
+
+	def ldRecovery(self, phi, OPT=1):
 		''' Recover LD left and right values 
-			use edge values for left and right LD values 
+			OPT: determine which recovery scheme to use 
+				0: use edges (calls useHalf)
+				1: maintain average and slope (calls maintainSlopes)
 		'''
+
+		if (OPT == 0):
+
+			phiL, phiR = self.useHalf(phi)
+
+		elif (OPT == 1):
+
+			phiL, phiR = self.maintainSlopes(phi) 
+
+		return phiL, phiR 
+
+	def maintainSlopes(self, phi):
+		''' maintain cell center value and slopes ''' 
 
 		phiL = np.zeros(self.N) # left flux 
 		phiR = np.zeros(self.N) # right flux 
 
 		# separate edges and centers 
+		phiEdge = self.mhfem.getEdges(phi) # get edges from MHFEM object utility 
+		phiCent = self.mhfem.getCenters(phi) # get centers from MHFEM object utility 
 
 		for i in range(self.N):
 
 			# phi_i+1/2 - phi_i-1/2 
-			diff = .5*(phi[i+1] - phi[i]) 
+			diff = .5*(phiEdge[i+1] - phiEdge[i]) 
 
-			phiL[i] = 
+			# recover left and right 
+			phiL[i] = phiCent[i] - diff 
 
+			phiR[i] = phiCent[i] + diff
+
+		return phiL, phiR 
+
+	def useHalf(self, phi):
+		''' use phi_iL = phi_i-1/2, phi_iR = phi_i+1/2 ''' 
+
+		phiL = np.zeros(self.N)
+		phiR = np.zeros(self.N) 
+
+		phiEdge = self.mhfem.getEdges(phi) # get edges from MHFEM object utility 
+
+		for i in range(self.N):
+
+			phiL[i] = phiEdge[i] 
+			phiR[i] = phiEdge[i+1] 
+
+		return phiL, phiR 
 
 	def sweep(self, phi):
 
-		phiL, phiR = self.ldRecovery(phi)
+		# get LD left and right fluxes 
+		phiL, phiR = self.ldRecovery(phi, OPT=0)
 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
 
@@ -371,15 +294,21 @@ class Eddington(LD):
 
 			top += np.fabs(self.mu[i])*psi[i,:] * self.w[i] 
 
-		B = top/self.firstMoment(psi)
+		B = top/self.zeroMoment(psi)
 
-		# create MHFEM object 
-		sol = MHFEM(self.xe, mu2, self.Sigmaa, self.Sigmat, B, BCL=self.BCL, BCR=self.BCR)
+		# discretize MHFEM with mu^2 and B 
+		self.mhfem.discretize(mu2, B)
 
 		# solve for phi, get edges and centers 
-		x, phi = sol.solve(self.firstMoment(self.q)/2, CENT=2)
+		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, CENT=2)
 
 		return phi # return accelerated flux 
+
+	def sourceIteration(self, tol):
+
+		x, phi, it = LD.sourceIteration(self, tol)
+
+		return self.xe, self.mhfem.getEdges(phi), it 
 
 if __name__ == '__main__':
 
@@ -393,7 +322,7 @@ if __name__ == '__main__':
 
 	q = np.ones((n, N)) 
 
-	tol = 1e-6 
+	tol = 1e-10
 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ld.setMMS()

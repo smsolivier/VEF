@@ -150,16 +150,16 @@ class MHFEM:
 
 		elif (self.BCR == 1): # marshak 
 
-			alpha = 4/(self.Sigmat(self.x[-2])*(self.x[-1] - self.x[-3]))
+			alpha = 2/(self.Sigmat(self.x[-2])*(self.x[-1] - self.x[-3]))
 
 			# second lower (phi_N-1/2)
-			self.A[4,-3] = .5*alpha*mu2f(self.x[-3])
+			self.A[4,-3] = alpha*mu2f(self.x[-3])
 
 			# first lower (phi_N)
-			self.A[3,-2] = -3/2*alpha*mu2f(self.x[-2])
+			self.A[3,-2] = -3*alpha*mu2f(self.x[-2])
 
 			# diagonal (phi_N+1/2)
-			self.A[2,-1] = B[-1] + alpha*mu2f(self.x[-1])
+			self.A[2,-1] = B[-1] + 2*alpha*mu2f(self.x[-1])
 
 		else:
 			print('right boundary condition not defined')
@@ -185,7 +185,7 @@ class MHFEM:
 		phiCent = np.zeros(self.N-1) 
 
 		ii = 0
-		for i in range(1, self.N, 2):
+		for i in range(1, self.n, 2):
 
 			phiCent[ii] = phi[i]
 
@@ -231,19 +231,34 @@ class MHFEM:
 
 if __name__ == '__main__':
 
-	Sigmaa = .1 
-	Sigmat = .83 
+	eps = 1e-9
+	Sigmaa = .1*eps 
+	Sigmat = .83/eps
 
-	xb = 1
+	xb = 10
 
-	Q = 1 
+	Q = 1 * eps 
 
 	N = 50 # number of edges 
 	xe = np.linspace(0, xb, N)
 	mu2 = np.ones(N)/3 
 	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL=0, BCR=1)
 	mhfem.discretize(mu2, np.ones(N)/2)
-	x, phi = mhfem.solve(np.ones(N)*Q)
+	x, phi = mhfem.solve(np.ones(N)*Q, CENT=2)
+
+	phiEdge = mhfem.getEdges(phi)
+	phiCent = mhfem.getCenters(phi)
+
+	xEdge = mhfem.getEdges(x)
+	xCent = mhfem.getCenters(x)
+
+	phiAvg = np.zeros(len(phiCent))
+
+	for i in range(1, len(phiEdge)):
+
+		phiAvg[i-1] = .5*(phiEdge[i] + phiEdge[i-1])
+
+	print(phiCent/phiAvg)
 
 	# exact solution 
 	D = 1/(3*Sigmat) 
@@ -252,37 +267,45 @@ if __name__ == '__main__':
 	phi_ex = lambda x: c1*np.cosh(x/L) + Q/Sigmaa 
 	x_ex = np.linspace(0, xb, 100)
 
-	plt.plot(x_ex, phi_ex(x_ex), '--')
-	plt.plot(x, phi)
-	# plt.plot(x, np.fabs(phi - phi_ex(x)), '-o')
-	# plt.yscale('log')
+	print(np.linalg.norm(phiEdge - phi_ex(xEdge), 2))
+	print(np.linalg.norm(phiCent - phi_ex(xCent), 2))
+
+	plt.semilogy(xEdge, np.fabs(phiEdge - phi_ex(xEdge)), '-o')
+	plt.semilogy(xCent, np.fabs(phiCent - phi_ex(xCent)), '-o')
+	# plt.semilogy(x, np.fabs(phi - phi_ex(x)), '-o')
 	plt.show()
+
+	# plt.plot(x_ex, phi_ex(x_ex), '--')
+	# plt.plot(x, phi, '-o')
+	# # plt.plot(x, np.fabs(phi - phi_ex(x)), '-o')
+	# # plt.yscale('log')
+	# plt.show()
 
 	# check order of convergence 
-	N = np.array([20, 40, 80, 160])
+	# N = np.array([20, 40, 80, 160])
 
-	err = np.zeros(len(N))
-	for i in range(len(N)):
+	# err = np.zeros(len(N))
+	# for i in range(len(N)):
 
-		mh = MHFEM(np.linspace(0, xb, N[i]), lambda x: Sigmaa, 
-			lambda x: Sigmat, BCL=0, BCR=1)
+	# 	mh = MHFEM(np.linspace(0, xb, N[i]), lambda x: Sigmaa, 
+	# 		lambda x: Sigmat, BCL=0, BCR=1)
 
-		mh.discretize(np.ones(N[i])/3, np.ones(N[i])/2)
+	# 	mh.discretize(np.ones(N[i])/3, np.ones(N[i])/2)
 
-		x, phi = mh.solve(np.ones(N[i])*Q)
+	# 	x, phi = mh.solve(np.ones(N[i])*Q, CENT=1)
 
-		phif = interp1d(x, phi)
+	# 	phif = interp1d(x, phi)
 
-		# err[i] = np.linalg.norm(phi - phi_ex(x), 2)
-		err[i] = np.fabs(phif(xb/2) - phi_ex(xb/2))
+	# 	# err[i] = np.linalg.norm(phi - phi_ex(x), 2)
+	# 	err[i] = np.fabs(phif(xb/2) - phi_ex(xb/2))
 
-	fit = np.polyfit(np.log(1/(N)), np.log(err), 1)
+	# fit = np.polyfit(np.log(1/(N)), np.log(err), 1)
 
-	print(fit[0])
+	# print(fit[0])
 
-	plt.loglog(1/(N), np.exp(fit[1]) * (1/(N))**fit[0], '-o')
-	plt.loglog(1/(N), err, '-o')
-	plt.show()
+	# plt.loglog(1/(N), np.exp(fit[1]) * (1/(N))**fit[0], '-o')
+	# plt.loglog(1/(N), err, '-o')
+	# plt.show()
 
 
 

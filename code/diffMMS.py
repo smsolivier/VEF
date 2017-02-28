@@ -13,7 +13,7 @@ from scipy.interpolate import interp1d
 
 def getError(N, solver):
 
-	eps = 1e-9
+	eps = 1e-3
 
 	Sigmat = lambda x: 1/eps 
 	Sigmaa = lambda x: .1*eps 

@@ -3,73 +3,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import mhfem_acc as mh
+from transport import * # general transport class 
 
-import Timer 
-
-class DD:
-	''' Diamond (Crank Nicolson) differenced transport 
-		mu dpsi/dx + sigmat psi = sigmas/2 phi + Q/2 
-		parent class containing:
-			left to right sweeping 
-			right to left sweeping 
-			gauss legendre psi integrator 
-			source iteration 
-			<mu^2> generator 
-	'''  
-
-	def __init__(self, x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
-		''' Inputs:
-				x: locations of cell edges 
-				n: number of discrete ordinates 
-				Sigmaa: absorption XS function  
-				Sigmat: total XS function  
-				q: source array (2D array of mu and x values)
-		''' 
-
-		self.N = np.shape(x)[0] # number of cell edges 
-		self.n = n # number of discrete ordinates 
-
-		self.BCL = BCL
-		self.BCR = BCR
-
-		self.x = x # cell edge locations 
-		self.xb = x[-1] # length of domain 
-
-		assert(n%2 == 0) # assert n is even 
-
-		# make material properties public 
-		self.Sigmaa = Sigmaa # absorption XS function 
-		self.Sigmat = Sigmat # total XS function 
-		self.Sigmas = lambda x: Sigmat(x) - Sigmaa(x) # scattering XS function 
-		self.q = q # fixed source array, cell edged 
-
-		# angular flux for all mu_n and all x locations 
-		self.psi = np.zeros((n, self.N)) 
-
-		self.phi = np.zeros(self.N) # store flux 
-
-		# generate mu's, mu arranged negative to positive 
-		self.mu, self.w = np.polynomial.legendre.leggauss(n)
-
-	def setMMS(self):
-		''' setup MMS q 
-			Force phi = sin(pi*x/xb)
-		''' 
-
-		# ensure correct BCs 
-		self.BCL = 1
-		self.BCR = 1 
-
-		# loop through all angles 
-		for i in range(self.n):
-
-			# loop through space 
-			for j in range(self.N):
-
-				self.q[i,j] = self.mu[i]*np.pi/self.xb * \
-					np.cos(np.pi*self.x[j]/self.xb) + (self.Sigmat(self.x[j]) - 
-						self.Sigmas(self.x[j]))*np.sin(np.pi*self.x[j]/self.xb)
+class DD(Transport):
+	''' Diamond Difference spatial discretization of Sn 
+		Inherits functions from transport.py 
+	''' 
 
 	def fullSweep(self, phi):
 		''' set sweep order based on boundary conditions ''' 
@@ -111,9 +50,11 @@ class DD:
 	def sweep(self, phi):
 		''' unaccelerated sweep with reflecting left and vacuum right boundary ''' 
 
+		phi = self.getCenter(phi)
+
 		self.fullSweep(phi)
 
-		return self.integrate(self.psi)
+		return self.zeroMoment(self.psi) # return flux 
 
 	def sweepRL(self, phi):
 		''' sweep right to left (mu < 0) ''' 
@@ -122,13 +63,13 @@ class DD:
 		for i in range(int(self.n/2)):
 
 			# spatial loop from right to left 
-			for j in range(self.N-2, -1, -1):
+			for j in range(self.Ne-2, -1, -1):
 
-				midpoint = (self.x[j] + self.x[j+1])/2 # location of cell center 
-				h = self.x[j+1] - self.x[j] # cell width 
+				midpoint = self.xc[j] # location of cell center 
+				h = self.h[j] # cell width 
 
 				# rhs 
-				b = self.Sigmas(midpoint)/4*(phi[j] + phi[j+1]) + .25*(
+				b = self.Sigmas(midpoint)/2*phi[j] + .25*(
 					self.q[i,j] + self.q[i,j+1])
 
 				self.psi[i,j] = b*h - (.5*self.Sigmat(midpoint)*h - 
@@ -143,13 +84,13 @@ class DD:
 		for i in range(int(self.n/2), self.n):
 
 			# spatial loop from left to right 
-			for j in range(1, self.N):
+			for j in range(1, self.Ne):
 
-				midpoint = (self.x[j] + self.x[j-1])/2 # cell center 
-				h = self.x[j] - self.x[j-1] # cell width 
+				h = self.h[j-1] # cell width 
+				midpoint = self.xc[j-1] # cell center 
 
 				# rhs 
-				b = self.Sigmas(midpoint)/4*(phi[j] + phi[j-1]) + .25*(
+				b = self.Sigmas(midpoint)/2*phi[j-1] + .25*(
 					self.q[i,j] + self.q[i,j-1])
 
 				self.psi[i,j] = b*h - (.5*self.Sigmat(midpoint)*h - 
@@ -157,79 +98,40 @@ class DD:
 
 				self.psi[i,j] /= .5*self.Sigmat(midpoint)*h + self.mu[i] 
 
-	def integrate(self, psi):
-		''' use Gauss quadrature to integrate psi ''' 
+	def getCenter(self, phi):
+		''' convert cell edged flux to cell center by taking average of cell edge values ''' 
 
-		phi = np.zeros(self.N) # store flux 
+		phiA = np.zeros(self.N) # cell centered flux 
 
-		# loop through angles 
-		for i in range(self.n):
+		for i in range(1, self.Ne):
 
-			phi += psi[i,:] * self.w[i] 
+			phiA[i-1] = .5*(phi[i] + phi[i-1])
 
-		return phi 
-
-	def getEddington(self, psi):
-		''' use Gauss quadrature to integrate mu**2 psi ''' 
-
-		top = 0 # int mu**2 psi dmu 
-		for i in range(self.n): # loop through angles 
-
-			top += self.mu[i]**2 * psi[i,:] * self.w[i]
-
-		mu2 = top/self.integrate(psi)
-
-		return mu2 
-
-	def sourceIteration(self, tol, PLOT=False):
-		''' lag RHS of transport equation and iterate until flux converges ''' 
-
-		it = 0 # store number of iterations 
-		phi = np.zeros(self.N) # store flux at each spatial location  
-		edd = np.zeros(self.N) # store eddington factor 
-
-		self.phiCon = [] 
-		self.eddCon = [] 
-
-		tt = Timer.timer() # time source iteration convergence 
-
-		while (True):
-
-			phi_old = np.copy(phi) # store old flux 
-			edd_old = np.copy(edd) # store old edd 
-
-			phi = self.sweep(phi) # update flux 
-			edd = self.getEddington(self.psi)
-
-			self.phiCon.append(np.linalg.norm(phi - phi_old, 2)/np.linalg.norm(phi, 2))
-			self.eddCon.append(np.linalg.norm(edd - edd_old, 2)/np.linalg.norm(edd, 2))
-
-			# check for convergence 
-			if (np.linalg.norm(phi - phi_old, 2)/np.linalg.norm(phi, 2) < tol):
-
-				break 
-
-			# update iteration count 
-			it += 1 
-
-		print('Number of iterations =', it, end=', ') 
-		tt.stop()
-
-		if (PLOT):
-			for i in range(int(self.n/2)):
-				plt.plot(self.x, self.psiL[i,:], label=str(self.muL[i]))
-				plt.plot(self.x, self.psiR[i,:], label=str(self.muR[i]))
-
-			plt.legend(loc='best')
-			plt.show()
-
-		# return spatial locations, flux and number of iterations 
-		return self.x, phi, it 
+		return phiA 
 
 class Eddington(DD):
-	''' Eddington Acceleration ''' 
+
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=1):
+
+		# call DD initialization 
+		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
+
+		# create MHFEM solver 
+		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, self.BCL, self.BCR)
+
+		self.CENT = CENT 
+
+		if (CENT == 1):
+
+			self.phi = np.zeros(self.N)
+
+			self.x = self.xc
 
 	def sweep(self, phi):
+
+		if (self.CENT == 0):
+
+			phi = self.getCenter(phi)
 
 		self.fullSweep(phi)
 
@@ -240,67 +142,81 @@ class Eddington(DD):
 		top = 0 
 		for i in range(self.n):
 
-			top += np.fabs(self.mu[i])*self.psi[i,:] * self.w[i]
+			top += np.fabs(self.mu[i]) * self.psi[i,:] * self.w[i]
 
-		B = top/self.integrate(self.psi)
+		B = top/self.zeroMoment(self.psi)
 
-		# create MHFEM object 
-		sol = mh.MHFEM(self.x, mu2, self.Sigmaa, self.Sigmat, B, BCL=self.BCL, BCR=self.BCR)
+		# discretize MHFEM with mu2 and B 
+		self.mhfem.discretize(mu2, B)
 
 		# solve for drift diffusion flux 
-		x, phi = sol.solve(self.integrate(self.q)/2)
+		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, CENT=self.CENT)
 
 		return phi # return MHFEM flux 
 
 class DSA(DD):
-	''' Diffusion Synthetic Acceleration ''' 
+	''' Inconsistent Diffusion Synthetic Acceleration ''' 
 
-	# override DD initialization 
-	def __init__(self, x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
 
 		# call DD initialization 
-		DD.__init__(self, x, n, Sigmaa, Sigmat, q, BCL, BCR)
+		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
 
-		# create fem object on top of standard Transport initialization 
-		self.fem = mh.MHFEM(self.x, np.ones(self.N)/3, self.Sigmaa, 
-			self.Sigmat, B=np.ones(self.N), BCL=0, BCR=1)
+		# create MHFEM object 
+		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, BCL, BCR)
+
+		# discretize MHFEM 
+		self.mhfem.discretize(np.ones(self.Ne)/3, np.ones(self.Ne)/2)
+
 
 	def sweep(self, phi):
 
-		self.fullSweep(phi)
+		phiC = self.getCenter(phi)
+
+		self.fullSweep(phiC)
 
 		# compute phi^(l+1/2)
-		phihalf = self.integrate(self.psi)
+		phihalf = self.zeroMoment(self.psi)
 
 		# DSA step 
-		x, f = self.fem.solve(self.Sigmas(self.x)*(phihalf - phi))
+		x, f = self.mhfem.solve(self.Sigmas(self.xe)*(phihalf - phi))
 
 		# return updated flux 
 		return phihalf + f 
 
 if __name__ == '__main__':
 
-	N = 50
+	N = 20
 	n = 8
 	xb = 2 
 	x = np.linspace(0, xb, N)
 
-	Sigmaa = lambda x: .1 
-	Sigmat = lambda x: .83 
+	eps = 1e-1
 
-	q = np.ones((n,N))
+	Sigmaa = lambda x: .1 * eps
+	Sigmat = lambda x: .83 / eps 
 
-	dd = DD(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
+	q = np.ones((n,N)) * eps 
+
+	BCL = 0
+
+	tol = 1e-3
+
+	dd = DD(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 	# dd.setMMS()
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
-	# dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1, CENT=0)
+	ed2 = Eddington(np.linspace(0, xb, N+1), n, Sigmaa, Sigmat, 
+		np.ones((n,N+1))*eps, BCL=BCL, BCR=1, CENT=1)
+	dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 
-	x, phi, it = dd.sourceIteration(1e-6)
-	xe, phie, ite = ed.sourceIteration(1e-6)
-	# xd, phid, itd = dsa.sourceIteration(1e-6)
+	# x, phi, it = dd.sourceIteration(tol)
+	xe, phie, ite = ed.sourceIteration(tol)
+	xe2, phie2, ite2 = ed2.sourceIteration(tol)
+	# xd, phid, itd = dsa.sourceIteration(tol)
 
-	plt.plot(x, phi, label='DD')
-	plt.plot(xe, phie, label='Edd')
+	# plt.plot(x, phi, label='DD')
+	plt.plot(xe, phie, '-o', label='Edd')
+	plt.plot(xe2, phie2, '-o', label='Edd2')
 	# plt.plot(xd, phid, label='DSA')
 	plt.legend(loc='best')
 	plt.show()

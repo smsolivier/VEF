@@ -15,15 +15,17 @@ def getDiff(eps, solver):
 	Sigmat = lambda x: 1/eps
 	Sigmaa = lambda X: .1*eps
 
-	N = 10
+	N = 50
 	n = 8 
 	Q = np.ones((n,N))*eps
 	xb = 1
 	x = np.linspace(0, xb, N)
 
+	tol = 1e-8
+
 	sn = solver(x, n, Sigmaa, Sigmat, Q, BCL=0, BCR=1)
 
-	x, phi, it = sn.sourceIteration(1e-10)
+	x, phi, it = sn.sourceIteration(tol)
 
 	phi_f = interp1d(x, phi)
 
@@ -39,7 +41,7 @@ def getDiff(eps, solver):
 	# return np.fabs(phi_f(xb/2) - diff(xb/2)), it
 
 N = 20
-eps = np.logspace(-8, 0, N)
+eps = np.logspace(-6, 0, N)
 
 DD = np.zeros(N)
 LD = np.zeros(N)

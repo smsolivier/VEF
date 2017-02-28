@@ -300,7 +300,8 @@ class Eddington(LD):
 		self.mhfem.discretize(mu2, B)
 
 		# solve for phi, get edges and centers 
-		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, CENT=2)
+		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
+			self.firstMoment(self.q)/2, CENT=2)
 
 		return phi # return accelerated flux 
 
@@ -322,11 +323,16 @@ if __name__ == '__main__':
 
 	q = np.ones((n, N)) 
 
-	tol = 1e-10
+	# for i in range(n):
+
+	# 	q[i,:] = 1 - i/n
+
+	tol = 1e-6
 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ld.setMMS()
 	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	# ed.setMMS()
 
 	x, phi, it = ld.sourceIteration(tol)
 

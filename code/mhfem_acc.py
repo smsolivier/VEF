@@ -72,53 +72,56 @@ class MHFEM:
 		for i in range(1, self.n, 2):
 
 			hi = self.x[i+1] - self.x[i-1] # cell width, x_i+1/2 - x_i-1/2 
+			beta = 2/(self.Sigmat(self.x[i])*hi)
 
 			# balance equation 
 			# lower diagonal 
-			self.A[3,i-1] = -6/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i-1])
+			self.A[3,i-1] = -3 * beta * mu2f(self.x[i-1])
 
 			# diagonal term 
-			self.A[2,i] = self.Sigmaa(self.x[i])*hi + \
-				12/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i])
+			self.A[2,i] = 6*beta*mu2f(self.x[i]) + self.Sigmaa(self.x[i])*hi 
 
 			# upper diagonal 
-			self.A[1,i+1] = -6/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i+1]) 
+			self.A[1,i+1] = -3*beta*mu2f(self.x[i+1])
 
 			# phi_i+1/2 equation
 			if (i != self.n-2):
 
 				# cell i+1 width, x_i+3/2 - x_i+1/2 
 				h1 = self.x[i+3] - self.x[i+1] 
+				beta1 = 2/(self.Sigmat(self.x[i+2])*h1) 
 
 				# second lower (phi_i-1/2)
-				self.A[4,i-1] = -2/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i-1])
+				self.A[4,i-1] = -beta*mu2f(self.x[i-1])
 
 				# first lower (phi_i) 
-				self.A[3,i] = 6/(self.Sigmat(self.x[i])*hi)*mu2f(self.x[i])
+				self.A[3,i] = 3*beta*mu2f(self.x[i])
 				
 				# diagonal term (phi_i+1/2)
-				self.A[2,i+1] = -4*(1/(self.Sigmat(self.x[i])*hi) + \
-						1/(self.Sigmat(self.x[i+2])*h1))*mu2f(self.x[i+1])
+				self.A[2,i+1] = -2*(beta + beta1)*mu2f(self.x[i+1])
 
 				# first upper (phi_i+1)
-				self.A[1,i+2] = 6/(self.Sigmat(self.x[i+2])*h1)*mu2f(self.x[i+2])
+				self.A[1,i+2] = 3*beta*mu2f(self.x[i+2])
 
 				# second upper (phi_i+3/2)
-				self.A[0,i+3] = -2/(self.Sigmat(self.x[i+2])*h1)*mu2f(self.x[i+3])
+				self.A[0,i+3] = -beta*mu2f(self.x[i+3])
 
 		# boundary conditions 
 		# left 
 		if (self.BCL == 0): # reflecting 
 
+			h1 = self.x[2] - self.x[0] 
+			beta1 = 2/(self.Sigmat(self.x[1])*h1) 
+
 			# J_1L = 0 
 			# diagonal (phi_1/2)
-			self.A[2,0] = -2*mu2f(self.x[0])
+			self.A[2,0] = -2*beta1*mu2f(self.x[0])
 
 			# first upper (phi_1)
-			self.A[1,1] = 3*mu2f(self.x[1])
+			self.A[1,1] = 3*beta1*mu2f(self.x[1])
 
 			# second upper (phi_3/2)
-			self.A[0,2] = -1*mu2f(self.x[2])
+			self.A[0,2] = -beta1*mu2f(self.x[2])
 
 		elif (self.BCL == 1): # marshak 
 
@@ -153,16 +156,16 @@ class MHFEM:
 		elif (self.BCR == 1): # marshak 
 
 			hN = self.x[-1] - self.x[-3] # cell N width 
-			alpha = 2/(self.Sigmat(self.x[-2])*hN)
+			betaN = 2/(self.Sigmat(self.x[-2])*hN)
 
 			# second lower (phi_N-1/2)
-			self.A[4,-3] = alpha*mu2f(self.x[-3])
+			self.A[4,-3] = betaN*mu2f(self.x[-3])
 
 			# first lower (phi_N)
-			self.A[3,-2] = -3*alpha*mu2f(self.x[-2])
+			self.A[3,-2] = -3*betaN*mu2f(self.x[-2])
 
 			# diagonal (phi_N+1/2)
-			self.A[2,-1] = B[-1] + 2*alpha*mu2f(self.x[-1])
+			self.A[2,-1] = B[-1] + 2*betaN*mu2f(self.x[-1]) 
 
 		else:
 			print('right boundary condition not defined')
@@ -196,11 +199,12 @@ class MHFEM:
 
 		return phiCent
 
-	def solve(self, q, CENT=0):
+	def solve(self, q, qq, CENT=0):
 		''' Compute phi = A^-1 q with banded solver 
 			Inputs:
 				q: cell edged array of source terms 
 					uses cell average 
+				qq: cell edged array of first moment of source 
 				CENT: return phi on cell edges or edges and centers 
 					0: edges only 
 					1: centers only 
@@ -215,6 +219,32 @@ class MHFEM:
 			b[i] = (q[ii] + q[ii+1])/2 * (self.x[i+1] - self.x[i-1])
 
 			ii += 1 
+
+		# set even equations to use first moment of q 
+		ii = 0 
+		for i in range(1, self.n-2, 2):
+
+			# alpha = 2/(self.Sigmat(self.x[i]) * (self.x[i+1] - self.x[i-1]))
+			# alpha1 = 2/(self.Sigmat(self.x[i+2]) * (self.x[i+3] - self.x[i+1]))
+
+			# b[i+1] = .5*(.5*alpha*(qq[ii] + qq[ii+1]) - .5*alpha1*(qq[ii+1] + qq[ii+2]))
+
+			beta = 2/(self.Sigmat(self.x[i]))
+			beta1 = 2/(self.Sigmat(self.x[i+2])) 
+
+			b[i+1] = .5*(beta1*(qq[ii+2] + qq[ii + 1])/2 - beta*(qq[ii+1] + qq[ii])/2)
+
+			ii += 1 
+
+		# set boundary b 
+		beta1 = 2/(self.Sigmat(self.x[1]))
+		b[0] = beta1/2*(qq[1] + qq[0])/2 
+
+		betaN = 2/(self.Sigmat(self.x[-2]))
+		b[-1] = betaN/2*(qq[-1] + qq[-2])/2 
+
+		# plt.plot(b)
+		# plt.show()
 
 		# solve for flux 
 		# solve banded matrix 
@@ -234,7 +264,7 @@ class MHFEM:
 
 if __name__ == '__main__':
 
-	eps = 1e-3
+	eps = 1
 	Sigmaa = .1*eps 
 	Sigmat = .83/eps
 
@@ -245,12 +275,12 @@ if __name__ == '__main__':
 	BCL = 0 
 	BCR = 1 
 
-	N = 25 # number of edges 
+	N = 10 # number of edges 
 	xe = np.linspace(0, xb, N)
 	mu2 = np.ones(N)/3 
 	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL, BCR)
 	mhfem.discretize(mu2, np.ones(N)/2)
-	x, phi = mhfem.solve(np.ones(N)*Q, CENT=2)
+	x, phi = mhfem.solve(np.ones(N)*Q, np.zeros(N), CENT=2)
 
 	phiEdge = mhfem.getEdges(phi)
 	phiCent = mhfem.getCenters(phi)

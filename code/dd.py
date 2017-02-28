@@ -150,7 +150,8 @@ class Eddington(DD):
 		self.mhfem.discretize(mu2, B)
 
 		# solve for drift diffusion flux 
-		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, CENT=self.CENT)
+		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
+			self.firstMoment(self.q)/2, CENT=self.CENT)
 
 		return phi # return MHFEM flux 
 

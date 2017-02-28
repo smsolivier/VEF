@@ -3,8 +3,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ld import *
-from dd import *
+import ld as LD
+import dd as DD 
 
 from scipy.interpolate import interp1d 
 
@@ -22,7 +22,7 @@ def getOrder(sol, N):
 
 	N = np.array([20, 40, 80])
 	mms = [sol(np.linspace(0, xb, x), n, Sigmaa, 
-		Sigmat, np.ones((n,x)), BCL=1, BCR=1) for x in N]
+		Sigmat, np.ones((n,x)), BCL=0, BCR=1) for x in N]
 
 	phi_mms = lambda x: np.sin(np.pi*x/xb)
 
@@ -34,7 +34,7 @@ def getOrder(sol, N):
 
 		phi_int = interp1d(x, phi)
 
-		err[i] = np.fabs(phi_mms(xb/2) - phi_int(xb/2))
+		err[i] = np.fabs(phi_mms(xb/2) - phi_int(xb/2))/phi_mms(xb/2)
 
 	fit = np.polyfit(np.log(1/N), np.log(err), 1)
 
@@ -44,10 +44,12 @@ def getOrder(sol, N):
 
 N = np.array([20, 40, 80])
 
-errDD = getOrder(DD, N)
-errLD = getOrder(LD, N)
+errDD = getOrder(DD.DD, N)
+errLD = getOrder(LD.LD, N)
+errEd = getOrder(DD.Eddington, N)
 
 plt.loglog(1/N, errDD, '-o', label='DD')
 plt.loglog(1/N, errLD, '-o', label='LD')
+plt.loglog(1/N, errEd, '-o', label='Ed')
 plt.legend(loc='best')
 plt.show()

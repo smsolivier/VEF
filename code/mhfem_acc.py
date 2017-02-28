@@ -8,6 +8,8 @@ from scipy.linalg import solve_banded
 
 import sys 
 
+from exactDiff import * 
+
 class MHFEM:
 
 	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1):
@@ -63,8 +65,8 @@ class MHFEM:
 	def discretize(self, mu2, B):
 		''' setup coefficient matrix with MHFEM equations ''' 
 
-		# make <mu^2> function 
-		mu2f = interp1d(self.xe, mu2) 
+		# make <mu^2> function, cubic spline interpolation 
+		mu2f = interp1d(self.xe, mu2, kind='cubic') 
 
 		# build equations 
 		for i in range(1, self.n, 2):
@@ -150,7 +152,8 @@ class MHFEM:
 
 		elif (self.BCR == 1): # marshak 
 
-			alpha = 2/(self.Sigmat(self.x[-2])*(self.x[-1] - self.x[-3]))
+			hN = self.x[-1] - self.x[-3] # cell N width 
+			alpha = 2/(self.Sigmat(self.x[-2])*hN)
 
 			# second lower (phi_N-1/2)
 			self.A[4,-3] = alpha*mu2f(self.x[-3])
@@ -207,7 +210,7 @@ class MHFEM:
 		ii = 0 # store iterations of q 
 		b = np.zeros(self.n) # store source vector 
 		# set odd equations to the source, leave even as zero 
-		for i in range(1, self.n-1, 2):
+		for i in range(1, self.n, 2):
 
 			b[i] = (q[ii] + q[ii+1])/2 * (self.x[i+1] - self.x[i-1])
 
@@ -231,7 +234,7 @@ class MHFEM:
 
 if __name__ == '__main__':
 
-	eps = 1e-8
+	eps = 1e-3
 	Sigmaa = .1*eps 
 	Sigmat = .83/eps
 
@@ -239,10 +242,13 @@ if __name__ == '__main__':
 
 	Q = 1 * eps 
 
-	N = 50 # number of edges 
+	BCL = 0 
+	BCR = 1 
+
+	N = 25 # number of edges 
 	xe = np.linspace(0, xb, N)
 	mu2 = np.ones(N)/3 
-	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL=0, BCR=1)
+	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL, BCR)
 	mhfem.discretize(mu2, np.ones(N)/2)
 	x, phi = mhfem.solve(np.ones(N)*Q, CENT=2)
 
@@ -260,19 +266,24 @@ if __name__ == '__main__':
 
 	print(phiCent/phiAvg)
 
-	# exact solution 
-	D = 1/(3*Sigmat) 
-	L = np.sqrt(D/Sigmaa)
-	c1 = -Q/Sigmaa/(np.cosh(xb/L) + 2*D/L*np.sinh(xb/L))
-	phi_ex = lambda x: c1*np.cosh(x/L) + Q/Sigmaa 
-	x_ex = np.linspace(0, xb, 100)
+	phi_ex = exactDiff(Sigmaa, Sigmat, Q, xb, BCL, BCR)
 
 	print(np.linalg.norm(phiEdge - phi_ex(xEdge), 2))
 	print(np.linalg.norm(phiCent - phi_ex(xCent), 2))
 
-	plt.semilogy(xEdge, np.fabs(phiEdge - phi_ex(xEdge)), '-o', label='Edge')
-	plt.semilogy(xCent, np.fabs(phiCent - phi_ex(xCent)), '-o', label='Center')
+	plt.subplot(1,2,1)
+	plt.plot(x, phi, '-o', label='MHFEM')
+	plt.plot(x, phi_ex(x), label='Exact')
+	plt.xlabel('x')
+	plt.ylabel(r'$\phi$')
+	plt.legend(loc='best')
+
+	plt.subplot(1,2,2)
+	plt.semilogy(xEdge, np.fabs(phiEdge - phi_ex(xEdge))/phi_ex(xEdge), '-o', label='Edge')
+	plt.semilogy(xCent, np.fabs(phiCent - phi_ex(xCent))/phi_ex(xCent), '-o', label='Center')
 	# plt.semilogy(x, np.fabs(phi - phi_ex(x)), '-o')
+	plt.xlabel('x')
+	plt.ylabel('| MHFEM - Exact | / Exact ')
 	plt.legend(loc='best')
 	plt.show()
 

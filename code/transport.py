@@ -19,6 +19,8 @@ class Transport:
 				q: fixed source array of mu and cell edge spatial dependence 
 		''' 
 
+		self.name = None # store name of methods
+
 		self.N = np.shape(xe)[0] - 1 # number of cell centers 
 		self.Ne = np.shape(xe)[0] # number of cell edges 
 		self.n = n # number of discrete ordinates 

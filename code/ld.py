@@ -15,6 +15,8 @@ class LD(Transport):
 		# call transport initialization 
 		Transport.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
 
+		self.name = 'LD' # name of method 
+
 		# create LD specific variables 
 		# store LD left and right discontinuous points 
 		# psi = .5*(psiL + psiR) 
@@ -207,11 +209,14 @@ class LD(Transport):
 		return psi 
 
 class Eddington(LD):
+	''' Eddington Acceleration ''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
 
 		# call LD initialization 
 		LD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
+
+		self.name = 'LD Edd' # name of method 
 
 		# redefine phi to be on cell edges and centers 
 		self.phi = np.zeros(2*self.Ne - 1) 
@@ -277,6 +282,7 @@ class Eddington(LD):
 		return phiL, phiR 
 
 	def sweep(self, phi):
+		''' one source iteration ''' 
 
 		# get LD left and right fluxes 
 		phiL, phiR = self.ldRecovery(phi, OPT=0)
@@ -306,9 +312,12 @@ class Eddington(LD):
 		return phi # return accelerated flux 
 
 	def sourceIteration(self, tol):
+		''' overwrite transport source iteration function ''' 
 
+		# do normal source iteration 
 		x, phi, it = LD.sourceIteration(self, tol)
 
+		# return edge values only 
 		return self.xe, self.mhfem.getEdges(phi), it 
 
 if __name__ == '__main__':

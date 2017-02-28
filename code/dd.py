@@ -10,6 +10,13 @@ class DD(Transport):
 		Inherits functions from transport.py 
 	''' 
 
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+
+		# call transport initialization 
+		Transport.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
+
+		self.name = 'DD' # name of method 
+
 	def fullSweep(self, phi):
 		''' set sweep order based on boundary conditions ''' 
 
@@ -110,11 +117,14 @@ class DD(Transport):
 		return phiA 
 
 class Eddington(DD):
+	''' Eddington Acceleration ''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=0):
 
 		# call DD initialization 
 		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
+
+		self.name = 'DD Edd' # name of method 
 
 		# create MHFEM solver 
 		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, self.BCL, self.BCR)
@@ -163,12 +173,13 @@ class DSA(DD):
 		# call DD initialization 
 		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
 
+		self.name = 'DD DSA' # name of method 
+
 		# create MHFEM object 
 		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, BCL, BCR)
 
 		# discretize MHFEM 
 		self.mhfem.discretize(np.ones(self.Ne)/3, np.ones(self.Ne)/2)
-
 
 	def sweep(self, phi):
 
@@ -180,7 +191,7 @@ class DSA(DD):
 		phihalf = self.zeroMoment(self.psi)
 
 		# DSA step 
-		x, f = self.mhfem.solve(self.Sigmas(self.xe)*(phihalf - phi))
+		x, f = self.mhfem.solve(self.Sigmas(self.xe)*(phihalf - phi), np.zeros(self.Ne))
 
 		# return updated flux 
 		return phihalf + f 

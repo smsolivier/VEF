@@ -320,9 +320,11 @@ class Eddington(LD):
 		# return edge values only 
 		return self.xe, self.mhfem.getEdges(phi), it 
 
+		# return self.xc, self.mhfem.getCenters(phi), it
+
 if __name__ == '__main__':
 
-	N = 40
+	N = 10
 	xb = 2
 	x = np.linspace(0, xb, N)
 	Sigmaa = lambda x: .1 

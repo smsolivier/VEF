@@ -125,16 +125,17 @@ class MHFEM:
 
 		elif (self.BCL == 1): # marshak 
 
-			alpha = 4/(self.Sigmat(self.x[1])*(self.x[2] - self.x[0])) 
+			h1 = self.x[2] - self.x[0] 
+			beta1 = 2/(self.Sigmat(self.x[1])*h1) 
 
 			# diagonal (phi_1/2)
-			self.A[2,0] = B[0] + alpha*mu2f(self.x[0])
+			self.A[2,0] = -B[0] - 2*beta1*mu2f(self.x[0]) 
 
 			# first upper (phi_1)
-			self.A[1,1] = -3/2*alpha*mu2f(self.x[1])
+			self.A[1,1] = 3*beta1*mu2f(self.x[1])
 
 			# second upper (phi_3/2)
-			self.A[0,2] = .5*alpha*mu2f(self.x[2])
+			self.A[0,2] = -beta1*mu2f(self.x[2])
 
 		else:
 			print('left boundary condition not defined')
@@ -143,15 +144,18 @@ class MHFEM:
 		# right
 		if (self.BCR == 0): # reflecting 
 
+			hN = self.x[-1] - self.x[-3] # cell N width 
+			betaN = 2/(self.Sigmat(self.x[-2])*hN)
+
 			# J_NR = 0 
 			# second lower (phi_N-1/2)
-			self.A[4,-3] = mu2f(self.x[-3])
+			self.A[4,-3] = betaN*mu2f(self.x[-3])
 
 			# first lower (phi_N)
-			self.A[3,-2] = -3*mu2f(self.x[-2])
+			self.A[3,-2] = -3*betaN*mu2f(self.x[-2])
 
 			# diagonal (phi_N+1/2)
-			self.A[2,-1] = 2*mu2f(self.x[-1])
+			self.A[2,-1] = 2*betaN*mu2f(self.x[-1])
 
 		elif (self.BCR == 1): # marshak 
 
@@ -272,11 +276,11 @@ if __name__ == '__main__':
 
 	Q = 1 * eps 
 
-	BCL = 0 
+	BCL = 1
 	BCR = 1 
 
 	N = 10 # number of edges 
-	xe = np.linspace(0, xb, N)
+	xe = np.linspace(-xb, xb, N)
 	mu2 = np.ones(N)/3 
 	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL, BCR)
 	mhfem.discretize(mu2, np.ones(N)/2)

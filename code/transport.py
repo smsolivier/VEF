@@ -7,6 +7,9 @@ from mhfem_acc import *
 
 import Timer 
 
+import os 
+import shutil 
+
 class Transport:
 	''' general transport initialization ''' 
 
@@ -117,12 +120,22 @@ class Transport:
 
 		return mu2
 
-	def sourceIteration(self, tol, maxIter=10000):
+	def sourceIteration(self, tol, maxIter=200, PLOT=False):
 		''' lag RHS of transport equation and iterate until flux converges ''' 
 
 		it = 0 # store number of iterations 
 
 		tt = Timer.timer()
+
+		self.phiConv = [] # store convergence criterion for flux 
+
+		if (PLOT):
+
+			if (os.path.isdir('phi')):
+
+				shutil.rmtree('phi')
+
+			os.makedirs('phi')
 
 		while (True):
 
@@ -135,15 +148,29 @@ class Transport:
 			# store old flux 
 			phi_old = np.copy(self.phi) 
 
+			if (PLOT):
+				
+				plt.figure()
+				plt.plot(self.x, self.phi, '-o')
+				plt.ylim(0, 1.2)
+				plt.title('Number of Iterations = ' + str(it))
+				plt.savefig('phi/' + str(it) + '.png')
+				plt.close()
+
 			self.phi = self.sweep(phi_old) # update flux 
 
+			self.phiConv.append(np.linalg.norm(self.phi - phi_old, 2)/
+				np.linalg.norm(self.phi, 2))
+
 			# check for convergence 
-			if (np.linalg.norm(self.phi - phi_old, 2)/np.linalg.norm(self.phi, 2) < tol):
+			if (self.phiConv[-1] < tol):
 
 				break 
 
 			# update iteration count 
 			it += 1
+
+			print(it, end='\r')
 
 		print('Number of iterations =', it, end=', ') 
 		tt.stop()

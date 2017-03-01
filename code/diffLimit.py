@@ -15,7 +15,9 @@ def getDiff(eps, solver):
 	Sigmat = lambda x: 1/eps
 	Sigmaa = lambda X: .1*eps
 
-	N = 50
+	print('{:.6e}'.format(eps))
+
+	N = 25
 	n = 8 
 	Q = np.ones((n,N))*eps
 	xb = 1

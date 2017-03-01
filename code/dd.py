@@ -119,7 +119,7 @@ class DD(Transport):
 class Eddington(DD):
 	''' Eddington Acceleration ''' 
 
-	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=1):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=0):
 
 		# call DD initialization 
 		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)

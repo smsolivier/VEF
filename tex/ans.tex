@@ -1,6 +1,6 @@
 \documentclass{anstrans}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\title{Mixed Hybrid Finite Element Eddington Acceleration of Discrete Ordinates Source Iteration}
+\title{Mixed Hybrid Finite Element Method Eddington Acceleration of Discrete Ordinates Source Iteration}
 \author{Samuel S. Olivier*, Jim E. Morel}
 
 \institute{Department of Nuclear Engineering, Texas A\&M University, College Station, TX 77843}
@@ -62,7 +62,7 @@
 			\mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
 			\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, 
 		\end{equation}
-	where $n = 1, 2, \dots, N$ and $\phi(x)$ is defined by Eq. \ref{eq:quad}. This is now a system of $N$, coupled, ordinary differential equations. 
+	where $n = 1, 2, \dots, N$ and $\phi(x)$ is defined by Eq. \ref{eq:quad}. This is now a system of $N$ coupled, ordinary differential equations. 
 
 	The Source Iteration (SI) solution method decouples the \SN equations by lagging the right hand side of Eq. \ref{eq:si}. In other words, 
 		\begin{equation} \label{eq:si}
@@ -72,7 +72,7 @@
 	where the superscripts indicate the iteration index. 
 	Equation \ref{eq:si} represents $N$ independent, first-order, ordinary differential equations each of which is easily solved by the well-known sweeping process. 
 
-	The iteration process begins with an initial guess for the scalar flux, $\phi^0(x)$. Equation \ref{eq:si} is solved, using $\phi^0(x)$ on the right hand side, for the $\psi_n^1(x)$. $\phi^1(x)$ is then computed using Eq. \ref{eq:quad} and used to update the right hand side of Eq. \ref{eq:si}. 
+	The iteration process begins with an initial guess for the scalar flux, $\phi^0(x)$. Equation \ref{eq:si} is solved, using $\phi^0(x)$ on the right side, for $\psi_n^1(x)$. $\phi^1(x)$ is then computed using Eq. \ref{eq:quad} and is used to update the right side of Eq. \ref{eq:si}. 
 	This process is repeated until 
 		\begin{equation} \label{eq:converg}
 			\frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon \,,

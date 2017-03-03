@@ -38,7 +38,7 @@
 
 	% Radiation transport and hydrodynamics can be combined using operator splitting, where the radiation transport and hydrodynamics 
 
-	A national lab with whom we work has plans to develop a high-order radiation-hydrodynamics code. The hydrodynamics portion is discretized using the Mixed Hybrid Finite Element Method (MHFEM), where values are taken to be constant within a cell with discontinuous jumps at both cell edges \cite{mhfem}. MHFEM is particularly suited for hydrodynamics but not for radiation transport. This work seeks to develop an acceleration scheme capable of robustly reducing the number of iterations in Discrete Ordinates Source Iteration calculations while being compatible with MHFEM multiphysics.   
+	A national lab with whom we work has plans to develop a high-order radiation-hydrodynamics code. The hydrodynamics portion is discretized using the Mixed Hybrid Finite Element Method (MHFEM) where values are taken to be constant within a cell with discontinuous jumps at both cell edges \cite{mhfem}. MHFEM is particularly suited for hydrodynamics but not for radiation transport. This work seeks to develop an acceleration scheme capable of robustly reducing the number of iterations in Discrete Ordinates Source Iteration calculations while being compatible with MHFEM multiphysics.   
 
 \section{Background}
 	The steady-state, mono-energetic, isotropically-scattering, fixed-source Linear Boltzmann Equation in slab geometry is: 
@@ -64,7 +64,7 @@
 		\end{equation}
 	where $n = 1, 2, \dots, N$ and $\phi(x)$ is defined by Eq. \ref{eq:quad}. This is now a system of $N$ coupled, ordinary differential equations. 
 
-	The Source Iteration (SI) solution method decouples the \SN equations by lagging the right hand side of Eq. \ref{eq:si}. In other words, 
+	The Source Iteration (SI) solution method decouples the \SN equations by lagging the right side of Eq. \ref{eq:si}. In other words, 
 		\begin{equation} \label{eq:si}
 			\mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
 			\frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N \,,
@@ -129,7 +129,7 @@
 		\label{fig:comparison}
 	\end{figure}
 
-	As a proof of concept for Eddington Acceleration, a Diamond Differenced \SN code was created along with an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady-state, one-group, isotropically-scattering, fixed-source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells and a domain length of \SI{20}{cm}. The total macroscopic cross section was set to \SI{1}{cm^{-1}} leading to a total optical thickness of 20 and an optical thickness per cell of 0.2. 
+	As a proof of concept for Eddington Acceleration, a Diamond Differenced \SN code was created along with an MHFEM solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady-state, one-group, isotropically-scattering, fixed-source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI. The slab had a thickness of \SI{20}{cm} and was discretized into 100 spatial cells. The total macroscopic cross section was set to \SI{1}{cm^{-1}} leading to a total optical thickness of 20 and an optical thickness per cell of 0.2. 
 
 	Figure \ref{fig:comparison} shows the number of iterations until the convergence criterion in  Eq. \ref{eq:converg} was met with $\epsilon = \num{1e-6}$ for varying ratios of $\Sigma_s$ to $\Sigma_t$. Aside from $\Sigma_s/\Sigma_t = 0$ where acceleration is not possible, the ratio of unaccelerated to Eddington accelerated iterations ranged between 2.5 and 750. This suggests that acceleration is occurring and that Eddington Acceleration does not just do twice the amount of work in each iteration. 
 

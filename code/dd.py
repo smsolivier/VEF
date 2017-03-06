@@ -174,6 +174,10 @@ class Eddington(DD):
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
 			self.firstMoment(self.q)/2, CENT=self.CENT)
 
+		# x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
+		# 	np.zeros(self.Ne), CENT=self.CENT)
+
+
 		return phi # return MHFEM flux 
 
 class DSA(DD):
@@ -226,20 +230,20 @@ if __name__ == '__main__':
 
 	tol = 1e-6
 
-	dd = DD(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
+	# dd = DD(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 	# dd.setMMS()
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1, CENT=0)
+	# ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1, CENT=0)
 	ed2 = Eddington(np.linspace(0, xb, N), n, Sigmaa, Sigmat, 
 		np.ones((n,N))*eps, BCL=BCL, BCR=1, CENT=1)
-	dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
+	# dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 
 	# x, phi, it = dd.sourceIteration(tol, PLOT=False)
-	xe, phie, ite = ed.sourceIteration(tol, PLOT=False)
-	xe2, phie2, ite2 = ed2.sourceIteration(tol, PLOT=False)
+	# xe, phie, ite = ed.sourceIteration(tol, PLOT=None)
+	xe2, phie2, ite2 = ed2.sourceIteration(tol)
 	# xd, phid, itd = dsa.sourceIteration(tol)
 
 	# plt.plot(x, phi, label='DD')
-	plt.plot(xe, phie, '-o', label='Edd')
+	# plt.plot(xe, phie, '-o', label='Edd')
 	plt.plot(xe2, phie2, '-o', label='Edd2')
 	# plt.plot(xd, phid, label='DSA')
 	plt.legend(loc='best')

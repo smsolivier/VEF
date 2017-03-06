@@ -229,11 +229,6 @@ class MHFEM:
 		ii = 0 
 		for i in range(1, self.n-2, 2):
 
-			# alpha = 2/(self.Sigmat(self.x[i]) * (self.x[i+1] - self.x[i-1]))
-			# alpha1 = 2/(self.Sigmat(self.x[i+2]) * (self.x[i+3] - self.x[i+1]))
-
-			# b[i+1] = .5*(.5*alpha*(qq[ii] + qq[ii+1]) - .5*alpha1*(qq[ii+1] + qq[ii+2]))
-
 			beta = 2/(self.Sigmat(self.x[i]))
 			beta1 = 2/(self.Sigmat(self.x[i+2])) 
 
@@ -256,7 +251,7 @@ class MHFEM:
 		phi = solve_banded((2,2), self.A, b)
 
 		# check solution 
-		# self.checkSolution(phi, self.mu2f(self.x), q)
+		self.checkSolution(phi, self.mu2f(self.x), q)
 
 		if (CENT == 0): # return edges only 
 
@@ -296,18 +291,11 @@ class MHFEM:
 			Jl[i] = -2/(self.Sigmat(self.xc[i])*h) * (
 				-2*Fedge[i] + 3*Fcent[i] - Fedge[i+1])
 
-		# check boundary 
-		print(Jl[0]/phiEdge[0])
-		print(Jr[-1]/phiEdge[-1])
-
 		cont = np.zeros(self.N - 2)
 
 		for i in range(1, self.N - 1):
 
 			cont[i-1] = np.fabs((Jl[i] - Jr[i-1])/Jr[i-1])
-
-		plt.figure()
-		plt.semilogy(self.xe[1:-1], cont, '-o')
 
 		# conservation 
 		balance = np.zeros(self.N-1)
@@ -317,13 +305,20 @@ class MHFEM:
 
 			qq = .5*(q[i] + q[i+1]) * h
 
-			balance[i] = Jr[i] - Jl[i] + self.Sigmaa(self.xc[i])*phiCent[i]*h - qq
+			balance[i] = np.fabs(Jr[i] - Jl[i] + 
+				self.Sigmaa(self.xc[i])*phiCent[i]*h - qq)
 
 			balance[i] /= qq
 
-		plt.figure()
-		plt.semilogy(self.xc, np.fabs(balance), '-o')
-		plt.show()
+		tol = 1e-10
+
+		if (np.max(cont) > tol):
+
+			print('\n--- WARNING: MHFEM continuity of current broken ---\n')
+
+		if (np.max(balance) > tol):
+
+			print('\n--- WARNING: MHFEM conservation broken ---\n')
 
 
 if __name__ == '__main__':

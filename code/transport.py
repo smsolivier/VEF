@@ -152,7 +152,7 @@ class Transport:
 				
 				plt.figure()
 				plt.plot(self.x, self.phi, '-o')
-				plt.ylim(0, 1.2)
+				# plt.ylim(0, 1.2)
 				plt.title('Number of Iterations = ' + str(it))
 				plt.savefig('phi/' + str(it) + '.png')
 				plt.close()

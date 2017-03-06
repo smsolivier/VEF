@@ -57,7 +57,7 @@ class DD(Transport):
 	def sweep(self, phi):
 		''' unaccelerated sweep with reflecting left and vacuum right boundary ''' 
 
-		phi = self.getCenter(phi)
+		phi = self.getCenter(phi) # convert cell edges to cell centers 
 
 		self.fullSweep(phi)
 
@@ -120,6 +120,10 @@ class Eddington(DD):
 	''' Eddington Acceleration ''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=0):
+		''' CENT: controls whether to get edges or centers from MHFEM
+				0: edges 
+				1: centers 
+		''' 
 
 		# call DD initialization 
 		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
@@ -221,12 +225,12 @@ if __name__ == '__main__':
 		np.ones((n,N))*eps, BCL=BCL, BCR=1, CENT=1)
 	dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 
-	x, phi, it = dd.sourceIteration(tol, PLOT=True)
+	# x, phi, it = dd.sourceIteration(tol, PLOT=False)
 	xe, phie, ite = ed.sourceIteration(tol, PLOT=False)
-	# xe2, phie2, ite2 = ed2.sourceIteration(tol, PLOT=False)
+	xe2, phie2, ite2 = ed2.sourceIteration(tol, PLOT=False)
 	# xd, phid, itd = dsa.sourceIteration(tol)
 
-	plt.plot(x, phi, label='DD')
+	# plt.plot(x, phi, label='DD')
 	plt.plot(xe, phie, '-o', label='Edd')
 	plt.plot(xe2, phie2, '-o', label='Edd2')
 	# plt.plot(xd, phid, label='DSA')

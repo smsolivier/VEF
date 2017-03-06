@@ -44,7 +44,7 @@ for i in range(len(eps)):
 	mhfem = MHFEM(xe, lambda x: Sigmaa[i], lambda x: Sigmat[i], BCL, BCR)
 	mhfem.discretize(mu2, B)
 
-	x, phi = mhfem.solve(np.ones(N)*Q[i], CENT=2)
+	x, phi = mhfem.solve(np.ones(N)*Q[i], np.zeros(N), CENT=2)
 
 	phiEdge = mhfem.getEdges(phi)
 	phiCent = mhfem.getCenters(phi) 

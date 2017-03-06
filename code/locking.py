@@ -5,52 +5,43 @@ import matplotlib.pyplot as plt
 
 import dd 
 
-Neps = 20 
+Neps = 30
 
-c = np.linspace(0, 1, Neps)
+eps = np.logspace(-6, 0, Neps)
 
-Sigmat = np.logspace(0, 6, Neps)
-Sigmaa = 0 
-Q = 100
+Sigmat = 1/eps
+Sigmaa = eps 
+Q = eps
 
 xb = 1
 
 tol = 1e-6
 
-N = 50
+N = np.array([50, 100, 200])
 n = 8 
 
-PLOT = np.zeros(Neps)
-PLOT[11] = 1 
+for j in range(len(N)):
 
-xe = np.linspace(0, xb, N)
+	xe = np.linspace(0, xb, N[j])
 
-maxIter = 50
+	maxIter = 50
 
-it = np.zeros(Neps)
+	it = np.zeros(Neps)
 
-for i in range(Neps):
+	for i in range(Neps):
 
-	print('{:.6e} {}'.format(Sigmat[i], Sigmat[i]*xb/N))
+		print('{:.6e} {}'.format(Sigmat[i], Sigmat[i]*xb/N[j]))
 
-	sol = dd.Eddington(xe, n, lambda x: Sigmaa, lambda x: Sigmat[i], 
-		np.ones((n,N))*Q, BCL=0, BCR=1, CENT=1)
+		sol = dd.Eddington(xe, n, lambda x: Sigmaa[i], lambda x: Sigmat[i], 
+			np.ones((n,N[j]))*Q[i], BCL=0, BCR=1, CENT=1)
 
-	# sol.setMMS()
+		# sol.setMMS()
 
-	x, phi, it[i] = sol.sourceIteration(tol, maxIter=maxIter, PLOT=PLOT[i]) 
+		x, phi, it[i] = sol.sourceIteration(tol, maxIter=maxIter) 
 
-	if (it[i] == maxIter):
+	othick = Sigmat*xb/N[j]
 
-		plt.plot(x, phi, label=str(Sigmat[i]))
-
-	# else:
-
-	# 	plt.plot(x, phi, '-o', color='b')
-
-othick = Sigmat*xb/N
+	plt.loglog(othick, it, '-o', label=str(N[j]))
 
 plt.legend(loc='best')
-plt.show()
-plt.loglog(othick, it, '-o')
 plt.show()

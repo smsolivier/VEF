@@ -67,6 +67,7 @@ class MHFEM:
 
 		# make <mu^2> function, cubic spline interpolation 
 		mu2f = interp1d(self.xe, mu2, kind='cubic') 
+		self.mu2f = mu2f 
 
 		# build equations 
 		for i in range(1, self.n, 2):
@@ -254,6 +255,9 @@ class MHFEM:
 		# solve banded matrix 
 		phi = solve_banded((2,2), self.A, b)
 
+		# check solution 
+		# self.checkSolution(phi, self.mu2f(self.x), q)
+
 		if (CENT == 0): # return edges only 
 
 			return self.xe, self.getEdges(phi)
@@ -266,9 +270,65 @@ class MHFEM:
 
 			return self.x, phi 
 
+	def checkSolution(self, phi, mu2, q):
+
+		# continuity 
+		Jl = np.zeros(self.N - 1) 
+		Jr = np.zeros(self.N - 1)
+
+		phiEdge = self.getEdges(phi)
+		muEdge = self.getEdges(mu2)
+
+		Fedge = phiEdge * muEdge
+
+		phiCent = self.getCenters(phi)
+		muCent = self.getCenters(mu2) 
+
+		Fcent = phiCent * muCent 
+
+		for i in range(self.N-1):
+
+			h = self.xe[i+1] - self.xe[i]
+
+			Jr[i] = -2/(self.Sigmat(self.xc[i])*h) * (
+				Fedge[i] - 3*Fcent[i] + 2*Fedge[i+1])
+
+			Jl[i] = -2/(self.Sigmat(self.xc[i])*h) * (
+				-2*Fedge[i] + 3*Fcent[i] - Fedge[i+1])
+
+		# check boundary 
+		print(Jl[0]/phiEdge[0])
+		print(Jr[-1]/phiEdge[-1])
+
+		cont = np.zeros(self.N - 2)
+
+		for i in range(1, self.N - 1):
+
+			cont[i-1] = np.fabs((Jl[i] - Jr[i-1])/Jr[i-1])
+
+		plt.figure()
+		plt.semilogy(self.xe[1:-1], cont, '-o')
+
+		# conservation 
+		balance = np.zeros(self.N-1)
+		for i in range(self.N-1):
+
+			h = self.xe[i+1] - self.xe[i] 
+
+			qq = .5*(q[i] + q[i+1]) * h
+
+			balance[i] = Jr[i] - Jl[i] + self.Sigmaa(self.xc[i])*phiCent[i]*h - qq
+
+			balance[i] /= qq
+
+		plt.figure()
+		plt.semilogy(self.xc, np.fabs(balance), '-o')
+		plt.show()
+
+
 if __name__ == '__main__':
 
-	eps = 1
+	eps = 1e-3
 	Sigmaa = .1*eps 
 	Sigmat = .83/eps
 
@@ -279,7 +339,7 @@ if __name__ == '__main__':
 	BCL = 1
 	BCR = 1 
 
-	N = 10 # number of edges 
+	N = 100 # number of edges 
 	xe = np.linspace(-xb, xb, N)
 	mu2 = np.ones(N)/3 
 	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL, BCR)

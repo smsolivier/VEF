@@ -211,12 +211,18 @@ class LD(Transport):
 class Eddington(LD):
 	''' Eddington Acceleration ''' 
 
-	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=0):
+		''' CENT:
+				0: edges 
+				1: centers 
+		''' 
 
 		# call LD initialization 
 		LD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
 
 		self.name = 'LD Edd' # name of method 
+
+		self.CENT = CENT 
 
 		# redefine phi to be on cell edges and centers 
 		self.phi = np.zeros(2*self.Ne - 1) 
@@ -285,7 +291,7 @@ class Eddington(LD):
 		''' one source iteration ''' 
 
 		# get LD left and right fluxes 
-		phiL, phiR = self.ldRecovery(phi, OPT=0)
+		phiL, phiR = self.ldRecovery(phi, OPT=self.CENT)
 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
 

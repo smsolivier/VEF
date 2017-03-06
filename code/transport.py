@@ -120,7 +120,7 @@ class Transport:
 
 		return mu2
 
-	def sourceIteration(self, tol, maxIter=200, PLOT=False):
+	def sourceIteration(self, tol, maxIter=50, PLOT=None):
 		''' lag RHS of transport equation and iterate until flux converges ''' 
 
 		it = 0 # store number of iterations 
@@ -129,13 +129,17 @@ class Transport:
 
 		self.phiConv = [] # store convergence criterion for flux 
 
-		if (PLOT):
+		if (PLOT != None):
 
-			if (os.path.isdir('phi')):
+			if (os.path.isdir(PLOT)):
 
-				shutil.rmtree('phi')
+				shutil.rmtree(PLOT)
 
-			os.makedirs('phi')
+			os.makedirs(PLOT)
+
+			if (os.path.isfile(PLOT + '.mp4')):
+
+				os.remove(PLOT + '.mp4')
 
 		while (True):
 
@@ -148,13 +152,13 @@ class Transport:
 			# store old flux 
 			phi_old = np.copy(self.phi) 
 
-			if (PLOT):
+			if (PLOT != None):
 				
 				plt.figure()
 				plt.plot(self.x, self.phi, '-o')
 				# plt.ylim(0, 1.2)
 				plt.title('Number of Iterations = ' + str(it))
-				plt.savefig('phi/' + str(it) + '.png')
+				plt.savefig(PLOT + '/' + str(it) + '.png')
 				plt.close()
 
 			self.phi = self.sweep(phi_old) # update flux 
@@ -174,6 +178,11 @@ class Transport:
 
 		print('Number of iterations =', it, end=', ') 
 		tt.stop()
+
+		if (PLOT != None):
+
+			# make video 
+			os.system('ffmpeg -f image2 -r 2 -i ' + PLOT + '/%d.png -b 320000k ' + PLOT + '.mp4')
 
 		# return spatial locations, flux and number of iterations 
 		return self.x, self.phi, it 

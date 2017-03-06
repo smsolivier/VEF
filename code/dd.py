@@ -106,7 +106,9 @@ class DD(Transport):
 				self.psi[i,j] /= .5*self.Sigmat(midpoint)*h + self.mu[i] 
 
 	def getCenter(self, phi):
-		''' convert cell edged flux to cell center by taking average of cell edge values ''' 
+		''' convert cell edged flux to cell center by taking 
+			average of cell edge values 
+		''' 
 
 		phiA = np.zeros(self.N) # cell centered flux 
 
@@ -131,22 +133,27 @@ class Eddington(DD):
 		self.name = 'DD Edd' # name of method 
 
 		# create MHFEM solver 
-		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, self.BCL, self.BCR)
+		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, 
+			self.BCL, self.BCR)
 
 		self.CENT = CENT 
 
 		if (CENT == 1):
 
+			# cell edged flux 
 			self.phi = np.zeros(self.N)
 
+			# use cell centers in SI 
 			self.x = self.xc
 
 	def sweep(self, phi):
 
 		if (self.CENT == 0):
 
+			# average edges to get center value 
 			phi = self.getCenter(phi)
 
+		# sweep with BCs 
 		self.fullSweep(phi)
 
 		# get eddington factor 
@@ -195,7 +202,8 @@ class DSA(DD):
 		phihalf = self.zeroMoment(self.psi)
 
 		# DSA step 
-		x, f = self.mhfem.solve(self.Sigmas(self.xe)*(phihalf - phi), np.zeros(self.Ne))
+		x, f = self.mhfem.solve(self.Sigmas(self.xe)*(phihalf - phi), 
+			np.zeros(self.Ne))
 
 		# return updated flux 
 		return phihalf + f 

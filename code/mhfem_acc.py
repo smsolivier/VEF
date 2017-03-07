@@ -12,7 +12,7 @@ from exactDiff import *
 
 class MHFEM:
 
-	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1):
+	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1, CENT=0):
 		''' solves moment equations with general <mu^2> 
 			Inputs:
 				xe: array of cell edges 
@@ -53,6 +53,8 @@ class MHFEM:
 		self.BCL = BCL 
 		self.BCR = BCR 
 
+		self.CENT = CENT 
+
 		# create banded coefficient matrix, bandwidth 5 
 		# upper diagonals have leading zeros, lower have trailing zeros 
 		# A[0,:] = 2nd upper 
@@ -66,7 +68,18 @@ class MHFEM:
 		''' setup coefficient matrix with MHFEM equations ''' 
 
 		# make <mu^2> function, cubic spline interpolation 
-		mu2f = interp1d(self.xe, mu2, kind='cubic') 
+		if (self.CENT == 1):
+
+			mu2f = interp1d(self.xc, mu2, fill_value='extrapolate') 
+
+		elif (self.CENT == 0):
+
+			mu2f = interp1d(self.xe, mu2)
+
+		elif (self.CENT == 2):
+
+			mu2f = interp1d(self.xc, mu2, fill_value='extrapolate')
+
 		self.mu2f = mu2f 
 
 		# build equations 
@@ -204,7 +217,7 @@ class MHFEM:
 
 		return phiCent
 
-	def solve(self, q, qq, CENT=0):
+	def solve(self, q, qq):
 		''' Compute phi = A^-1 q with banded solver 
 			Inputs:
 				q: cell edged array of source terms 
@@ -253,11 +266,11 @@ class MHFEM:
 		# check solution 
 		self.checkSolution(phi, self.mu2f(self.x), q)
 
-		if (CENT == 0): # return edges only 
+		if (self.CENT == 0): # return edges only 
 
 			return self.xe, self.getEdges(phi)
 
-		elif (CENT == 1): # return centers only 
+		elif (self.CENT == 1): # return centers only 
 
 			return self.xc, self.getCenters(phi)
 
@@ -310,7 +323,7 @@ class MHFEM:
 
 			balance[i] /= qq
 
-		tol = 1e-10
+		tol = 1e-6
 
 		if (np.max(cont) > tol):
 

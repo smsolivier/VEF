@@ -167,6 +167,12 @@ class LD(Transport):
 
 		return phiL, phiR 
 
+	def centPsi(self):
+
+		psi = .5 * (self.psiL + self.psiR) 
+
+		return psi 
+
 	def edgePsi(self):
 		''' get celled edge angular flux accounting for up/down winding ''' 
 
@@ -211,7 +217,7 @@ class LD(Transport):
 class Eddington(LD):
 	''' Eddington Acceleration ''' 
 
-	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=0):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=1):
 		''' CENT:
 				0: edges 
 				1: centers 
@@ -230,8 +236,9 @@ class Eddington(LD):
 		# redefine x to be all points 
 		self.x = np.sort(np.concatenate((self.xc, self.xe)))
 
-		# create MHFEM object 
-		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, self.BCL, self.BCR)
+		# create MHFEM object, return edge and center values 
+		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, 
+			self.BCL, self.BCR, CENT=2)
 
 	def ldRecovery(self, phi, OPT=1):
 		''' Recover LD left and right values 
@@ -295,33 +302,34 @@ class Eddington(LD):
 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
 
-		psi = self.edgePsi() # get edge values of psi 
+		psiEdge = self.edgePsi() # get edge values of psi 
+		psiCent = self.centPsi() # get center values of psi 
 
 		# compute eddington factor 
-		mu2 = self.getEddington(psi)
+		mu2 = self.getEddington(psiCent)
 
 		# generate boundary eddington for consistency between drift and transport 
 		top = 0 
 		for i in range(self.n):
 
-			top += np.fabs(self.mu[i])*psi[i,:] * self.w[i] 
+			top += np.fabs(self.mu[i])*psiEdge[i,:] * self.w[i] 
 
-		B = top/self.zeroMoment(psi)
+		B = top/self.zeroMoment(psiEdge)
 
 		# discretize MHFEM with mu^2 and B 
 		self.mhfem.discretize(mu2, B)
 
 		# solve for phi, get edges and centers 
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
-			self.firstMoment(self.q)/2, CENT=2)
+			self.firstMoment(self.q)/2)
 
 		return phi # return accelerated flux 
 
-	def sourceIteration(self, tol):
+	def sourceIteration(self, tol, maxIter=50, PLOT=None):
 		''' overwrite transport source iteration function ''' 
 
 		# do normal source iteration 
-		x, phi, it = LD.sourceIteration(self, tol)
+		x, phi, it = LD.sourceIteration(self, tol, maxIter, PLOT)
 
 		# return edge values only 
 		return self.xe, self.mhfem.getEdges(phi), it 
@@ -330,19 +338,17 @@ class Eddington(LD):
 
 if __name__ == '__main__':
 
-	N = 10
-	xb = 2
+	N = 50
+	n = 8
+	xb = 2 
 	x = np.linspace(0, xb, N)
-	Sigmaa = lambda x: .1 
-	Sigmat = lambda x: .83
 
-	n = 16
+	eps = 1e-1
 
-	q = np.ones((n, N)) 
+	Sigmaa = lambda x: .1 * eps
+	Sigmat = lambda x: .83 / eps 
 
-	# for i in range(n):
-
-	# 	q[i,:] = 1 - i/n
+	q = np.ones((n,N)) * eps 
 
 	tol = 1e-6
 
@@ -351,11 +357,11 @@ if __name__ == '__main__':
 	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ed.setMMS()
 
-	x, phi, it = ld.sourceIteration(tol)
+	# x, phi, it = ld.sourceIteration(tol)
 
 	xe, phie, ite = ed.sourceIteration(tol)
 
-	plt.plot(x, phi, label='LD')
+	# plt.plot(x, phi, label='LD')
 	plt.plot(xe, phie, label='LD Edd')
 	plt.legend(loc='best')
 	plt.show()

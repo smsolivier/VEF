@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import dd 
+import ld 
 
 Neps = 30
 
@@ -32,7 +32,7 @@ for j in range(len(N)):
 
 		print('{:.6e} {}'.format(Sigmat[i], Sigmat[i]*xb/N[j]))
 
-		sol = dd.Eddington(xe, n, lambda x: Sigmaa[i], lambda x: Sigmat[i], 
+		sol = ld.Eddington(xe, n, lambda x: Sigmaa[i], lambda x: Sigmat[i], 
 			np.ones((n,N[j]))*Q[i], BCL=0, BCR=1, CENT=1)
 
 		# sol.setMMS()

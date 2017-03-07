@@ -121,7 +121,7 @@ class DD(Transport):
 class Eddington(DD):
 	''' Eddington Acceleration ''' 
 
-	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=0):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
 		''' CENT: controls whether to get edges or centers from MHFEM
 				0: edges 
 				1: centers 
@@ -134,30 +134,28 @@ class Eddington(DD):
 
 		# create MHFEM solver 
 		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, 
-			self.BCL, self.BCR)
+			self.BCL, self.BCR, CENT=1)
 
-		self.CENT = CENT 
+		# cell edged flux 
+		self.phi = np.zeros(self.N)
 
-		if (CENT == 1):
-
-			# cell edged flux 
-			self.phi = np.zeros(self.N)
-
-			# use cell centers in SI 
-			self.x = self.xc
+		# use cell centers in SI 
+		self.x = self.xc
 
 	def sweep(self, phi):
-
-		if (self.CENT == 0):
-
-			# average edges to get center value 
-			phi = self.getCenter(phi)
 
 		# sweep with BCs 
 		self.fullSweep(phi)
 
+		# cell centered psi 
+		psi = np.zeros((self.n, self.N))
+
+		for i in range(self.n):
+
+			psi[i,:] = self.getCenter(self.psi[i,:])
+
 		# get eddington factor 
-		mu2 = self.getEddington(self.psi)
+		mu2 = self.getEddington(psi)
 
 		# generate boundary eddington for transport consistency 
 		top = 0 
@@ -172,11 +170,7 @@ class Eddington(DD):
 
 		# solve for drift diffusion flux 
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
-			self.firstMoment(self.q)/2, CENT=self.CENT)
-
-		# x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
-		# 	np.zeros(self.Ne), CENT=self.CENT)
-
+			self.firstMoment(self.q)/2)
 
 		return phi # return MHFEM flux 
 
@@ -191,7 +185,7 @@ class DSA(DD):
 		self.name = 'DD DSA' # name of method 
 
 		# create MHFEM object 
-		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, BCL, BCR)
+		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, BCL, BCR, CENT=0)
 
 		# discretize MHFEM 
 		self.mhfem.discretize(np.ones(self.Ne)/3, np.ones(self.Ne)/2)
@@ -219,7 +213,7 @@ if __name__ == '__main__':
 	xb = 2 
 	x = np.linspace(0, xb, N)
 
-	eps = 1.438450e-03
+	eps = 1
 
 	Sigmaa = lambda x: .1 * eps
 	Sigmat = lambda x: .83 / eps 
@@ -230,21 +224,18 @@ if __name__ == '__main__':
 
 	tol = 1e-6
 
-	# dd = DD(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
+	dd = DD(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 	# dd.setMMS()
-	# ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1, CENT=0)
-	ed2 = Eddington(np.linspace(0, xb, N), n, Sigmaa, Sigmat, 
-		np.ones((n,N))*eps, BCL=BCL, BCR=1, CENT=1)
-	# dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
+	# ed.setMMS()
+	dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 
-	# x, phi, it = dd.sourceIteration(tol, PLOT=False)
-	# xe, phie, ite = ed.sourceIteration(tol, PLOT=None)
-	xe2, phie2, ite2 = ed2.sourceIteration(tol)
+	x, phi, it = dd.sourceIteration(tol, PLOT=None)
+	xe, phie, ite = ed.sourceIteration(tol, PLOT=None)
 	# xd, phid, itd = dsa.sourceIteration(tol)
 
-	# plt.plot(x, phi, label='DD')
-	# plt.plot(xe, phie, '-o', label='Edd')
-	plt.plot(xe2, phie2, '-o', label='Edd2')
+	plt.plot(x, phi, label=dd.name)
+	plt.plot(xe, phie, '-o', label=ed.__name__)
 	# plt.plot(xd, phid, label='DSA')
 	plt.legend(loc='best')
 	plt.show()

@@ -264,7 +264,7 @@ class MHFEM:
 		phi = solve_banded((2,2), self.A, b)
 
 		# check solution 
-		self.checkSolution(phi, self.mu2f(self.x), q)
+		# self.checkSolution(phi, self.mu2f(self.x), q)
 
 		if (self.CENT == 0): # return edges only 
 
@@ -323,15 +323,15 @@ class MHFEM:
 
 			balance[i] /= qq
 
-		tol = 1e-6
+		tol = 1e-3
 
 		if (np.max(cont) > tol):
 
-			print('\n--- WARNING: MHFEM continuity of current broken ---\n')
+			print('--- WARNING: MHFEM continuity of current broken ---')
 
 		if (np.max(balance) > tol):
 
-			print('\n--- WARNING: MHFEM conservation broken ---\n')
+			print('--- WARNING: MHFEM conservation broken ---')
 
 
 if __name__ == '__main__':

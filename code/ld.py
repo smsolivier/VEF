@@ -28,6 +28,9 @@ class LD(Transport):
 		self.phiL = np.zeros(self.N) 
 		self.phiR = np.zeros(self.N)
 
+		# use cell centers in source iteration 
+		self.x = self.xc
+
 	def fullSweep(self, phiL, phiR):
 		''' sweep left to right or right to left depending on boundary conditions ''' 
 
@@ -46,21 +49,20 @@ class LD(Transport):
 			self.sweepLR(phiL, phiR)
 			self.sweepRL(phiL, phiR)
 
-	def sweep(self, phi):
+	def sweep(self, phiL, phiR):
 		''' unaccelerated sweep ''' 
 
-		phiL, phiR = self.ldRecovery(phi)
-
 		# sweep left to right or right to left first depending on BCs 
+		# get psiL, psiR (stored as object variables)
 		self.fullSweep(phiL, phiR)
 
-		# convert to edge values 
-		psi = self.edgePsi()
+		# get left flux (cell centered left value) 
+		phiL = self.zeroMoment(self.psiL)
 
-		# get edge flux 
-		phi = self.zeroMoment(psi)
+		# right flux (cell centered LD right value)
+		phiR = self.zeroMoment(self.psiR)
 
-		return phi 
+		return phiL, phiR 
 
 	def sweepLR(self, phiL, phiR):
 		''' sweep left to right (mu > 0) ''' 
@@ -149,23 +151,23 @@ class LD(Transport):
 				self.psiL[i,j] = ans[0] 
 				self.psiR[i,j] = ans[1] 
 
-	def ldRecovery(self, phi):
-		''' Recover LD left and right values 
-			use edge values for left and right LD values 
-		'''
+	# def ldRecovery(self, phi):
+	# 	''' Recover LD left and right values 
+	# 		use edge values for left and right LD values 
+	# 	'''
 
-		phiL = np.zeros(self.N) # left flux 
-		phiR = np.zeros(self.N) # right flux 
+	# 	phiL = np.zeros(self.N) # left flux 
+	# 	phiR = np.zeros(self.N) # right flux 
 
-		for i in range(self.N):
+	# 	for i in range(self.N):
 
-			phiL[i] = phi[i] 
+	# 		phiL[i] = phi[i] 
 
-		for i in range(self.N):
+	# 	for i in range(self.N):
 
-			phiR[i] = phi[i+1] 
+	# 		phiR[i] = phi[i+1] 
 
-		return phiL, phiR 
+	# 	return phiL, phiR 
 
 	def centPsi(self):
 
@@ -214,6 +216,52 @@ class LD(Transport):
 
 		return psi 
 
+	def sourceIteration(self, tol, maxIter=200):
+		''' LD source iteration 
+			converges phiL and phiR 
+		''' 
+
+		it = 0 # store number of iterations 
+
+		tt = Timer.timer() # start timer 
+
+		# lambda function to compute convergence criterion 
+		conv_f = lambda new, old: np.linalg.norm(new - old, 2)/np.linalg.norm(new, 2)
+
+		while (True):
+
+			# check if max reached 
+			if (it == maxIter):
+
+				print('\n--- WARNING: maximum number of source iterations reached ---\n')
+				break 
+
+			# store old flux 
+			phiL_old = np.copy(self.phiL)
+			phiR_old = np.copy(self.phiR)
+
+			# sweep to update flux 
+			self.phiL, self.phiR = self.sweep(phiL_old, phiR_old)
+
+			# compute convergence 
+			convL = conv_f(self.phiL, phiL_old) # left convergence 
+			convR = conv_f(self.phiR, phiR_old) # right convergence 
+
+			if (convL < tol and convR < tol):
+
+				break # exit loop if converged 
+
+			# update iteration count 
+			it += 1 
+
+		print('Number of Iterations =', it, end=', ')
+		tt.stop() # end timer 
+
+		# combine phiL and phiR 
+		phi = .5*(self.phiL + self.phiR) # average of left and right 
+
+		return self.x, phi, it 
+
 class Eddington(LD):
 	''' Eddington Acceleration ''' 
 
@@ -230,11 +278,8 @@ class Eddington(LD):
 
 		self.CENT = CENT 
 
-		# redefine phi to be on cell edges and centers 
-		self.phi = np.zeros(2*self.Ne - 1) 
-
-		# redefine x to be all points 
-		self.x = np.sort(np.concatenate((self.xc, self.xe)))
+		# use cell centers in source iteration 
+		self.x = self.xc 
 
 		# create MHFEM object, return edge and center values 
 		self.mhfem = MHFEM(self.xe, self.Sigmaa, self.Sigmat, 
@@ -294,18 +339,15 @@ class Eddington(LD):
 
 		return phiL, phiR 
 
-	def sweep(self, phi):
+	def sweep(self, phiL, phiR):
 		''' one source iteration ''' 
-
-		# get LD left and right fluxes 
-		phiL, phiR = self.ldRecovery(phi, OPT=self.CENT)
 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
 
 		psiEdge = self.edgePsi() # get edge values of psi 
 		psiCent = self.centPsi() # get center values of psi 
 
-		# compute eddington factor 
+		# compute eddington factor with cell CENTERS 
 		mu2 = self.getEddington(psiCent)
 
 		# generate boundary eddington for consistency between drift and transport 
@@ -323,18 +365,10 @@ class Eddington(LD):
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
 			self.firstMoment(self.q)/2)
 
-		return phi # return accelerated flux 
+		# get LD left and right fluxes 
+		phiL, phiR = self.ldRecovery(phi, OPT=self.CENT)
 
-	def sourceIteration(self, tol, maxIter=50, PLOT=None):
-		''' overwrite transport source iteration function ''' 
-
-		# do normal source iteration 
-		x, phi, it = LD.sourceIteration(self, tol, maxIter, PLOT)
-
-		# return edge values only 
-		return self.xe, self.mhfem.getEdges(phi), it 
-
-		# return self.xc, self.mhfem.getCenters(phi), it
+		return phiL, phiR # return accelerated flux 
 
 if __name__ == '__main__':
 
@@ -343,13 +377,13 @@ if __name__ == '__main__':
 	xb = 2 
 	x = np.linspace(0, xb, N)
 
-	eps = 1e-1
+	eps = 1e-3
 
 	Sigmaa = lambda x: .1 * eps
 	Sigmat = lambda x: .83 / eps 
 
 	q = np.ones((n,N)) * eps 
-
+# 
 	tol = 1e-6
 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)

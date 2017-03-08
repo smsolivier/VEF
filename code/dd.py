@@ -206,6 +206,16 @@ class DSA(DD):
 		# return updated flux 
 		return phihalf + f 
 
+# class S2SA(DD):
+# 	''' S2 Synthetic Acceleration ''' 
+
+# 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+
+# 		# call DD initialization 
+# 		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
+
+# 		self.name = 'DD S2SA' # name of method 
+
 if __name__ == '__main__':
 
 	N = 50
@@ -232,10 +242,10 @@ if __name__ == '__main__':
 
 	x, phi, it = dd.sourceIteration(tol, PLOT=None)
 	xe, phie, ite = ed.sourceIteration(tol, PLOT=None)
-	# xd, phid, itd = dsa.sourceIteration(tol)
+	xd, phid, itd = dsa.sourceIteration(tol)
 
 	plt.plot(x, phi, label=dd.name)
-	plt.plot(xe, phie, '-o', label=ed.__name__)
-	# plt.plot(xd, phid, label='DSA')
+	plt.plot(xe, phie, label=ed.name)
+	plt.plot(xd, phid, label=dsa.name)
 	plt.legend(loc='best')
 	plt.show()

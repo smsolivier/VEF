@@ -3,9 +3,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys 
+
 class Direct:
 
-	def __init__(self, xe, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1):
 
 		self.N = np.shape(xe)[0] - 1 # number of cell centers 
 		self.Ne = np.shape(xe)[0] # number of cell edges 
@@ -21,7 +23,6 @@ class Direct:
 		# get cell centers and cell widths 
 		for i in range(1, self.Ne):
 
-
 			self.xc[i-1] = .5*(xe[i] + xe[i-1]) # get cell centers 
 			self.h[i-1] = xe[i] - xe[i-1] # cell widths 
 
@@ -29,78 +30,149 @@ class Direct:
 		self.Sigmaa = Sigmaa 
 		self.Sigmat = Sigmat 
 		self.Sigmas = lambda x: Sigmat(x) - Sigmaa(x) 
-		self.q = q 
 
 		# angles for S2 
 		self.mu, self.w = np.polynomial.legendre.leggauss(2) 
-
-	def discretize(self):
 
 		# initialize matrix 
 		A = np.zeros((2*self.Ne, 2*self.Ne))
 
 		# interior cells 
 		# psi_+ 
-
 		ii = 0 # track which cell center 
-		for i in range(2, 2*self.Ne - 2, 2):
+		for i in range(2, 2*self.Ne, 2):
 
 			# cell centered properties 
-			Sigmat = self.Sigmat(self.xc[ii])
-			Sigmas = self.Sigmas(self.xc[ii])
+			Sigmati = self.Sigmat(self.xc[ii])
+			Sigmasi = self.Sigmas(self.xc[ii])
 			h = self.h[ii] 
 
 			# psi_+,i-1/2 
-			A[i,i-2] = -self.mu[1] + Sigmat*h/2 - Sigmas*h/4 
+			A[i,i-2] = -self.mu[1] + Sigmati*h/2 - Sigmasi*h/4 
 
 			# psi_-,i-1/2 
-			A[i,i-1] = -Sigmas*h/4 
+			A[i,i-1] = -Sigmasi*h/4 
 
 			# psi_+,i+1/2 
-			A[i,i] = self.mu[1] + Sigmat*h/2 - Sigmas*h/4 
+			A[i,i] = self.mu[1] + Sigmati*h/2 - Sigmasi*h/4 
 
 			# psi_-,i+1/2 
-			A[i,i+1] = -Sigmas*h/4 
+			A[i,i+1] = -Sigmasi*h/4 
 
 			ii += 1
 
 		# psi_- 
-
 		ii = 0 
-		for i in range(3, 2*self.Ne-1, 2):
+		for i in range(1, 2*self.Ne-1, 2):
 
-			Sigmat = self.Sigmat(self.xc[ii]) 
-			Sigmas = self.Sigmas(self.xc[ii])
+			Sigmati = self.Sigmat(self.xc[ii]) 
+			Sigmasi = self.Sigmas(self.xc[ii])
 			h = self.h[ii] 
 
 			# psi_+,i-1/2 
-			A[i,i-3] = -Sigmas*h/4 
+			A[i,i-1] = -Sigmasi*h/4 
 
 			# psi_-,i-1/2 
-			A[i,i-2] = np.fabs(self.mu[0]) + .5*Sigmat*h - Sigmas*h/4 
+			A[i,i] = np.fabs(self.mu[0]) + .5*Sigmati*h - Sigmasi*h/4 
 
 			# psi_+,i+1/2 
-			A[i,i-1] = -Sigmas*h/4 
+			A[i,i+1] = -Sigmasi*h/4 
 
 			# psi_-,i+1/2 
-			A[i,i] = -np.fabs(self.mu[0]) + Sigmat*h/2 - Sigmas*h/4 
+			A[i,i+2] = -np.fabs(self.mu[0]) + Sigmati*h/2 - Sigmasi*h/4 
 
 			ii += 1 
 
-		plt.imshow(A, interpolation='none')
-		plt.colorbar()
-		plt.show()
+		# boundary conditions 
+		# left
+		if (self.BCL == 0 and self.BCR == 1): # left reflecting, right vacuum 
 
-N = 10 
-xb = 10 
+			# left reflecting 
+			A[0,0] = 1 
+			A[0,1] = -1 
 
-Sigmaa = lambda x: .1 
-Sigmat = lambda x: .83 
+			# right vacuum 
+			A[-1,-1] = 1 
 
-q = np.ones(N)
+		elif (self.BCL == 1 and self.BCR == 1): # right/left vacuum 
 
-x = np.linspace(0, xb, N)
+			# left vacuum 
+			A[0,0] = 1 
 
-direct = Direct(x, Sigmaa, Sigmat, q)
+			# right vacuum 
+			A[-1,-1] = 1 
 
-direct.discretize()	
+		else:
+
+			print('\n--- WARNING: BC not supported in direct.py ---\n')
+			sys.exit()
+
+		self.A = A 
+
+	def solve(self, q):
+
+		# make b 
+		b = np.zeros(2*self.Ne) 
+		ii = 0 
+		for i in range(1, 2*self.Ne-1, 2):
+
+			b[i] = q[0,ii] * self.h[ii] / 2 
+			b[i+1] = q[1,ii]* self.h[ii] / 2 
+
+			ii += 1 
+
+		# solve for psi (order +, -)
+		psi = np.linalg.solve(self.A, b)
+
+		# store left and right psi 
+		psiR = np.zeros(self.Ne)
+		psiL = np.zeros(self.Ne)
+
+		# extract left and right 
+		ii = 0 
+		for i in range(0, 2*self.Ne, 2):
+
+			psiR[ii] = psi[i] 
+
+			ii += 1 
+
+		ii = 0 
+		for i in range(1, 2*self.Ne, 2):
+
+			psiL[ii] = psi[i] 
+
+			ii += 1 
+
+		# compute flux 
+		phi = psiL + psiR 
+
+		return self.xe, phi 
+
+if __name__ == '__main__':
+
+	import dd as DD 
+	
+	N = 50
+	xb = 2
+
+	Sigmaa = lambda x: .1 
+	Sigmat = lambda x: .83 
+
+	q = np.ones((2, N-1))
+
+	x = np.linspace(0, xb, N)
+
+	direct = Direct(x, Sigmaa, Sigmat, BCL=1, BCR=1)
+
+	xd, phid = direct.solve(q)
+
+	dd = DD.DD(x, 2, Sigmaa, Sigmat, np.ones((2,N)), BCL=1, BCR=1)
+
+	x, phi, it = dd.sourceIteration(1e-6)
+
+	plt.plot(xd, phid, label='direct')
+	plt.plot(x, phi, label='SI')
+
+	plt.legend(loc='best')
+	plt.show()
+

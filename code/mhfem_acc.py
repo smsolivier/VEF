@@ -336,23 +336,23 @@ class MHFEM:
 
 if __name__ == '__main__':
 
-	eps = 1e-3
+	eps = 1
 	Sigmaa = .1*eps 
 	Sigmat = .83/eps
 
-	xb = 1
+	xb = 10
 
 	Q = 1 * eps 
 
 	BCL = 1
 	BCR = 1 
 
-	N = 100 # number of edges 
+	N = 25 # number of edges 
 	xe = np.linspace(-xb, xb, N)
-	mu2 = np.ones(N)/3 
-	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL, BCR)
+	mu2 = np.ones(N-1)/3 
+	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL, BCR, CENT=2)
 	mhfem.discretize(mu2, np.ones(N)/2)
-	x, phi = mhfem.solve(np.ones(N)*Q, np.zeros(N), CENT=2)
+	x, phi = mhfem.solve(np.ones(N)*Q, np.zeros(N))
 
 	phiEdge = mhfem.getEdges(phi)
 	phiCent = mhfem.getCenters(phi)

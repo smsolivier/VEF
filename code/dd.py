@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 from transport import * # general transport class 
 
+from direct import * # direct S2 solver 
+
 class DD(Transport):
 	''' Diamond Difference spatial discretization of Sn 
 		Inherits functions from transport.py 
@@ -206,15 +208,46 @@ class DSA(DD):
 		# return updated flux 
 		return phihalf + f 
 
-# class S2SA(DD):
-# 	''' S2 Synthetic Acceleration ''' 
+class S2SA(DD):
+	''' S2 Synthetic Acceleration ''' 
 
-# 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
 
-# 		# call DD initialization 
-# 		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
+		# call DD initialization 
+		DD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
 
-# 		self.name = 'DD S2SA' # name of method 
+		self.name = 'DD S2SA' # name of method 
+
+		# create DD direct solver 
+		self.direct = Direct(self.xe, self.Sigmaa, self.Sigmat, BCL, BCR)
+
+		# use cell centered flux 
+		self.phi = np.zeros(self.N)
+		self.x = self.xc
+
+	def sweep(self, phi):
+
+		# sweep 
+		self.fullSweep(phi)
+
+		# edge flux half step 
+		phihalf = self.zeroMoment(self.psi) 
+
+		# switch to centers
+		phihalf = self.getCenter(phihalf)
+
+		# create S2SA source 
+		q = np.zeros((2, self.N))
+		q[0,:] = self.Sigmas(self.xc)*(phihalf - phi)
+		q[1,:] = q[0,:]
+
+		# solve for update factor 
+		x, f = self.direct.solve(q)
+
+		# switch to centers
+		f = self.getCenter(f)
+
+		return phihalf + f 
 
 if __name__ == '__main__':
 
@@ -223,7 +256,7 @@ if __name__ == '__main__':
 	xb = 2 
 	x = np.linspace(0, xb, N)
 
-	eps = 1
+	eps = 1e-6
 
 	Sigmaa = lambda x: .1 * eps
 	Sigmat = lambda x: .83 / eps 
@@ -232,20 +265,23 @@ if __name__ == '__main__':
 
 	BCL = 1
 
-	tol = 1e-6
+	tol = 1e-8
 
 	dd = DD(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 	# dd.setMMS()
 	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 	# ed.setMMS()
 	dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
+	s2sa = S2SA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 
-	x, phi, it = dd.sourceIteration(tol, PLOT=None)
+	# x, phi, it = dd.sourceIteration(tol, PLOT=None)
 	xe, phie, ite = ed.sourceIteration(tol, PLOT=None)
-	xd, phid, itd = dsa.sourceIteration(tol)
+	# xd, phid, itd = dsa.sourceIteration(tol)
+	xs, phis, its = s2sa.sourceIteration(tol, PLOT=None)
 
-	plt.plot(x, phi, label=dd.name)
+	# plt.plot(x, phi, label=dd.name)
 	plt.plot(xe, phie, label=ed.name)
-	plt.plot(xd, phid, label=dsa.name)
+	# plt.plot(xd, phid, label=dsa.name)
+	plt.plot(xs, phis, label=s2sa.name)
 	plt.legend(loc='best')
 	plt.show()

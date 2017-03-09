@@ -65,17 +65,17 @@ ld_edd = [LD.Eddington(np.linspace(0, xb, x), n, Sigmaa,
 ld_edd2 = [LD.Eddington(np.linspace(0, xb, x), n, Sigmaa, 
 	Sigmat, np.ones((n,x)), BCL=0, BCR=1, CENT=1) for x in N]
 
-errDD = getOrder(dd, N)
-errDD_edd = getOrder(dd_edd, N)
+# errDD = getOrder(dd, N)
+# errDD_edd = getOrder(dd_edd, N)
 
 # errLD = getOrder(ld, N)
-# errLD_edd = getOrder(ld_edd, N)
-# errLD_edd2 = getOrder(ld_edd2, N)
+errLD_edd = getOrder(ld_edd, N)
+errLD_edd2 = getOrder(ld_edd2, N)
 
-plt.loglog(1/N, errDD, '-o', label='DD')
-plt.loglog(1/N, errDD_edd, '-o', label='DD Edd')
+# plt.loglog(1/N, errDD, '-o', label='DD')
+# plt.loglog(1/N, errDD_edd, '-o', label='DD Edd')
 # plt.loglog(1/N, errLD, '-o', label='LD')
-# plt.loglog(1/N, errLD_edd, '-o', label='LD Edd')
-# plt.loglog(1/N, errLD_edd2, '-o', label='LD Edd2')
+plt.loglog(1/N, errLD_edd, '-o', label='LD Edd')
+plt.loglog(1/N, errLD_edd2, '-o', label='LD Edd2')
 plt.legend(loc='best')
 plt.show()

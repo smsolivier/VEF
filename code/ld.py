@@ -377,7 +377,7 @@ if __name__ == '__main__':
 	xb = 2 
 	x = np.linspace(0, xb, N)
 
-	eps = 1e-3
+	eps = 1
 
 	Sigmaa = lambda x: .1 * eps
 	Sigmat = lambda x: .83 / eps 
@@ -386,9 +386,9 @@ if __name__ == '__main__':
 # 
 	tol = 1e-6
 
-	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
 	# ld.setMMS()
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
 	# ed.setMMS()
 
 	# x, phi, it = ld.sourceIteration(tol)

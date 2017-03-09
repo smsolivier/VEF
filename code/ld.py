@@ -153,24 +153,6 @@ class LD(Transport):
 				self.psiL[i,j] = ans[0] 
 				self.psiR[i,j] = ans[1] 
 
-	# def ldRecovery(self, phi):
-	# 	''' Recover LD left and right values 
-	# 		use edge values for left and right LD values 
-	# 	'''
-
-	# 	phiL = np.zeros(self.N) # left flux 
-	# 	phiR = np.zeros(self.N) # right flux 
-
-	# 	for i in range(self.N):
-
-	# 		phiL[i] = phi[i] 
-
-	# 	for i in range(self.N):
-
-	# 		phiR[i] = phi[i+1] 
-
-	# 	return phiL, phiR 
-
 	def centPsi(self):
 
 		psi = .5 * (self.psiL + self.psiR) 

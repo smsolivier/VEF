@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import sys 
 
 class Direct:
+	''' initialize direct S2 solver ''' 
 
 	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1):
 
@@ -36,6 +37,7 @@ class Direct:
 		self.mu, self.w = np.polynomial.legendre.leggauss(2) 
 
 class DD:
+	''' Direct Diamond Differenced S2 solver ''' 
 
 	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1):
 
@@ -143,6 +145,9 @@ class DD:
 		return x, phi 
 
 	def solve(self, q):
+		''' solve for flux 
+			q must be cell centered 
+		''' 
 
 		# make b 
 		b = np.zeros(2*self.Ne) 

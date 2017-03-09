@@ -152,7 +152,7 @@ class MHFEM:
 			self.A[0,2] = -beta1*mu2f(self.x[2])
 
 		else:
-			print('left boundary condition not defined')
+			print('\n--- FATAL ERROR: MHFEM left boundary condition not defined ---\n')
 			sys.exit()
 
 		# right
@@ -186,7 +186,7 @@ class MHFEM:
 			self.A[2,-1] = B[-1] + 2*betaN*mu2f(self.x[-1]) 
 
 		else:
-			print('right boundary condition not defined')
+			print('\n --- FATAL ERROR: MHFEM right boundary condition not defined ---\n')
 			sys.exit()
 
 	def getEdges(self, phi):
@@ -220,21 +220,31 @@ class MHFEM:
 	def solve(self, q, qq):
 		''' Compute phi = A^-1 q with banded solver 
 			Inputs:
-				q: cell edged array of source terms 
-					uses cell average 
-				qq: cell edged array of first moment of source 
+				q: cell centered array of source terms 
+				qq: cell centered array of first moment of source 
 				CENT: return phi on cell edges or edges and centers 
 					0: edges only 
 					1: centers only 
 					2: edges and centers
 		''' 
 
+		# check q and qq are cell centered 
+		if (np.shape(q)[0] != self.N-1):
+
+			print('\n--- FATAL ERROR: MHFEM q must be cell centered ---\n')
+			sys.exit()
+
+		if (np.shape(qq)[0] != self.N-1):
+
+			print('\n--- FATAL ERROR: MHFEM qq must be cell centered ---\n') 
+			sys.exit()
+
 		ii = 0 # store iterations of q 
 		b = np.zeros(self.n) # store source vector 
 		# set odd equations to the source, leave even as zero 
 		for i in range(1, self.n, 2):
 
-			b[i] = (q[ii] + q[ii+1])/2 * (self.x[i+1] - self.x[i-1])
+			b[i] = q[ii] * (self.x[i+1] - self.x[i-1])
 
 			ii += 1 
 
@@ -245,16 +255,16 @@ class MHFEM:
 			beta = 2/(self.Sigmat(self.x[i]))
 			beta1 = 2/(self.Sigmat(self.x[i+2])) 
 
-			b[i+1] = .5*(beta1*(qq[ii+2] + qq[ii + 1])/2 - beta*(qq[ii+1] + qq[ii])/2)
+			b[i+1] = .5*(beta1*qq[ii+1] - beta*qq[ii])
 
 			ii += 1 
 
 		# set boundary b 
 		beta1 = 2/(self.Sigmat(self.x[1]))
-		b[0] = beta1/2*(qq[1] + qq[0])/2 
+		b[0] = beta1/2*qq[0] 
 
 		betaN = 2/(self.Sigmat(self.x[-2]))
-		b[-1] = betaN/2*(qq[-1] + qq[-2])/2 
+		b[-1] = betaN/2*qq[-1]
 
 		# plt.plot(b)
 		# plt.show()
@@ -352,7 +362,7 @@ if __name__ == '__main__':
 	mu2 = np.ones(N-1)/3 
 	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL, BCR, CENT=2)
 	mhfem.discretize(mu2, np.ones(N)/2)
-	x, phi = mhfem.solve(np.ones(N)*Q, np.zeros(N))
+	x, phi = mhfem.solve(np.ones(N-1)*Q, np.zeros(N-1))
 
 	phiEdge = mhfem.getEdges(phi)
 	phiCent = mhfem.getCenters(phi)
@@ -365,8 +375,6 @@ if __name__ == '__main__':
 	for i in range(1, len(phiEdge)):
 
 		phiAvg[i-1] = .5*(phiEdge[i] + phiEdge[i-1])
-
-	print(phiCent/phiAvg)
 
 	phi_ex = exactDiff(Sigmaa, Sigmat, Q, xb, BCL, BCR)
 

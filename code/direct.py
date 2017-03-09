@@ -19,6 +19,7 @@ class Direct:
 		self.h = np.zeros(self.N) # cell widths at cell center 
 		self.xc = np.zeros(self.N) # cell centered locations 
 		self.xe = xe # cell edged locations 
+		self.xb = xe[-1] # edge of domain 
 
 		# get cell centers and cell widths 
 		for i in range(1, self.Ne):
@@ -33,6 +34,13 @@ class Direct:
 
 		# angles for S2 
 		self.mu, self.w = np.polynomial.legendre.leggauss(2) 
+
+class DD:
+
+	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1):
+
+		# call direct initialization 
+		Direct.__init__(self, xe, Sigmaa, Sigmat, BCL, BCR)
 
 		# initialize matrix 
 		A = np.zeros((2*self.Ne, 2*self.Ne))
@@ -109,6 +117,31 @@ class Direct:
 
 		self.A = A 
 
+	def MMS(self):
+		''' setup MMS q 
+			force phi = sin(pi*x/xb)
+		''' 
+
+		assert (self.BCL == 1)
+		assert (self.BCR == 1)
+
+		q = np.zeros((2, self.N))
+
+		# loop through all angles 
+		for i in range(2):
+
+			# loop through space 
+			for j in range(self.N):
+
+				q[i,j] = self.mu[i]*np.pi/self.xb * \
+					np.cos(np.pi*self.xc[j]/self.xb) + (self.Sigmat(self.xc[j]) - 
+						self.Sigmas(self.xc[j]))*np.sin(np.pi*self.xc[j]/self.xb)
+
+		# solve 
+		x, phi = self.solve(q)
+
+		return x, phi 
+
 	def solve(self, q):
 
 		# make b 
@@ -150,29 +183,33 @@ class Direct:
 
 if __name__ == '__main__':
 
-	import dd as DD 
+	from scipy.interpolate import interp1d 
 	
-	N = 50
 	xb = 2
 
 	Sigmaa = lambda x: .1 
 	Sigmat = lambda x: .83 
 
-	q = np.ones((2, N-1))
+	N = np.array([40, 80, 160])
 
-	x = np.linspace(0, xb, N)
+	direct = [DD(np.linspace(0, xb, n), Sigmaa, Sigmat, 
+		BCL=1, BCR=1) for n in N]
 
-	direct = Direct(x, Sigmaa, Sigmat, BCL=1, BCR=1)
+	err = np.zeros(len(N))
 
-	xd, phid = direct.solve(q)
+	phi_mms = lambda x: np.sin(np.pi*x/xb) # exact solution 
 
-	dd = DD.DD(x, 2, Sigmaa, Sigmat, np.ones((2,N)), BCL=1, BCR=1)
+	for i in range(len(N)):
 
-	x, phi, it = dd.sourceIteration(1e-6)
+		x, phi = direct[i].MMS() 
 
-	plt.plot(xd, phid, label='direct')
-	plt.plot(x, phi, label='SI')
+		phif = interp1d(x, phi)
 
-	plt.legend(loc='best')
+		err[i] = np.fabs(phif(xb/2) - phi_mms(xb/2))/phi_mms(xb/2)
+
+	fit = np.polyfit(np.log(1/N), np.log(err), 1)
+
+	print(fit[0])
+
+	plt.loglog(1/N, err, '-o')
 	plt.show()
-

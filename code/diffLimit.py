@@ -19,7 +19,7 @@ def getDiff(eps, solver):
 
 	N = 25
 	n = 8 
-	Q = np.ones((n,N))*eps
+	Q = np.ones((n,N-1))*eps
 	xb = 1
 	x = np.linspace(0, xb, N)
 

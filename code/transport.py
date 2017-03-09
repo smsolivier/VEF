@@ -3,8 +3,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from mhfem_acc import * 
-
 import Timer 
 
 import os 
@@ -19,7 +17,7 @@ class Transport:
 				n: number of discrete ordinates 
 				Sigmaa: absorption XS (function)
 				Sigmat: total XS (function)
-				q: fixed source array of mu and cell edge spatial dependence 
+				q: fixed source array of mu and cell center spatial dependence 
 		''' 
 
 		self.name = None # store name of methods
@@ -55,6 +53,17 @@ class Transport:
 		self.Sigmas = lambda x: Sigmat(x) - Sigmaa(x)
 		self.q = q 
 
+		# ensure q is correct shape 
+		if (np.shape(self.q)[0] != self.n):
+
+			print('\n--- FATAL ERROR: Transport q must have correct angular dependence ---\n')
+			sys.exit()
+
+		if (np.shape(self.q)[1] != self.N):
+
+			print('\n--- FATAL ERROR: Transport q must be cell centered ---')
+			sys.exit()
+
 		# initialize psi and phi 
 		self.psi = np.zeros((self.n, self.Ne)) # cell edged flux 
 		self.phi = np.zeros(self.Ne) # store flux 
@@ -75,11 +84,11 @@ class Transport:
 		for i in range(self.n):
 
 			# loop through space 
-			for j in range(self.Ne):
+			for j in range(self.N):
 
 				self.q[i,j] = self.mu[i]*np.pi/self.xb * \
-					np.cos(np.pi*self.xe[j]/self.xb) + (self.Sigmat(self.xe[j]) - 
-						self.Sigmas(self.xe[j]))*np.sin(np.pi*self.xe[j]/self.xb)
+					np.cos(np.pi*self.xc[j]/self.xb) + (self.Sigmat(self.xc[j]) - 
+						self.Sigmas(self.xc[j]))*np.sin(np.pi*self.xc[j]/self.xb)
 
 	def zeroMoment(self, psi):
 		''' use guass legendre quadrature points to integrate psi ''' 

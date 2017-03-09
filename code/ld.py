@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 from transport import * # general transport class 
 
+from mhfem_acc import * 
+
 class LD(Transport):
 	''' Linear Discontinuous Galerkin spatial discretization of Sn 
 		Inherits functions from transport.py 
@@ -100,7 +102,7 @@ class LD(Transport):
 
 					b[0] += self.mu[i]*self.psiR[i,j-1] # upwind term 
 
-				b[1] = self.Sigmas(self.xc[j])*h/4*phiR[j] + self.q[i,j+1]*h/4 # right 
+				b[1] = self.Sigmas(self.xc[j])*h/4*phiR[j] + self.q[i,j]*h/4 # right 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
 
@@ -132,7 +134,7 @@ class LD(Transport):
 
 				# rhs 
 				b[0] = self.Sigmas(self.xc[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
-				b[1] = self.Sigmas(self.xc[j])*h/4*phiR[j] + self.q[i,j+1]*h/4 # right 
+				b[1] = self.Sigmas(self.xc[j])*h/4*phiR[j] + self.q[i,j]*h/4 # right 
 
 				if (j == self.N-1): # boundary condition 
 					
@@ -382,20 +384,26 @@ if __name__ == '__main__':
 	Sigmaa = lambda x: .1 * eps
 	Sigmat = lambda x: .83 / eps 
 
-	q = np.ones((n,N)) * eps 
+	qf = lambda x: (x > xb/2)
+
+	q = np.ones((n,N-1)) * eps
+
+	for i in range(n):
+
+		q[i,:] = qf(np.linspace(xb/N/2, xb - xb/N/2, N-1))
 # 
 	tol = 1e-6
 
-	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
+	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ld.setMMS()
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ed.setMMS()
 
-	# x, phi, it = ld.sourceIteration(tol)
+	x, phi, it = ld.sourceIteration(tol)
 
 	xe, phie, ite = ed.sourceIteration(tol)
 
-	# plt.plot(x, phi, label='LD')
+	plt.plot(x, phi, label='LD')
 	plt.plot(xe, phie, label='LD Edd')
 	plt.legend(loc='best')
 	plt.show()

@@ -16,7 +16,7 @@ def getOrder(sol, N):
 
 	print('Method =', sol[0].name)
 
-	phi_mms = lambda x: np.sin(np.pi*x/xb)
+	phi_mms = lambda x: np.sin(np.pi*x/xb) # exact solution 
 
 	err = np.zeros(len(sol))
 	for i in range(len(sol)):
@@ -50,20 +50,20 @@ Sigmat = lambda x: 1
 xb = 2
 
 dd = [DD.DD(np.linspace(0, xb, x), n, Sigmaa, 
-	Sigmat, np.ones((n,x)), BCL=0, BCR=1) for x in N]
+	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1) for x in N]
 
 dd_edd = [DD.Eddington(np.linspace(0, xb, x), n, Sigmaa, 
-	Sigmat, np.ones((n,x)), BCL=0, BCR=1) for x in N]
+	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1) for x in N]
 
 ld = [LD.LD(np.linspace(0, xb, x), n, Sigmaa, 
-	Sigmat, np.ones((n,x)), BCL=0, BCR=1) for x in N] 
+	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1) for x in N] 
 
 ld_edd = [LD.Eddington(np.linspace(0, xb, x), n, Sigmaa, 
-	Sigmat, np.ones((n,x)), BCL=0, BCR=1, CENT=0) for x in N] 
+	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1, CENT=0) for x in N] 
 
 # eddington using centers 
 ld_edd2 = [LD.Eddington(np.linspace(0, xb, x), n, Sigmaa, 
-	Sigmat, np.ones((n,x)), BCL=0, BCR=1, CENT=1) for x in N]
+	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1, CENT=1) for x in N]
 
 # errDD = getOrder(dd, N)
 # errDD_edd = getOrder(dd_edd, N)

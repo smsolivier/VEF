@@ -1,5 +1,17 @@
 %!TEX root = ./pres.tex
 
+\def\calloutsym{%
+  \ensurestackMath{%
+  \scalebox{1.7}{\stackunder[5pt]{}{\downarrow}}}%
+}
+\newcommand\callouttext[1]{%
+  \def\stacktype{S}\renewcommand\useanchorwidth{T}\stackText%
+  \stackunder{\calloutsym}{\scriptsize\Longstack{#1}}\stackMath%
+}
+\newcommand\callout[3][1.5pt]{%
+  \def\stacktype{L}\stackMath\stackunder[#1]{#2}{\callouttext{#3}}%
+}
+
 \begin{frame}{First Angular Moment}
     
 	\only<+>{
@@ -31,6 +43,7 @@
 	    \end{equation*}
 	}
 
+	\normalsize
 	\only<+>{
 	\begin{equation*}
 	        \int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu %\ + 
@@ -53,6 +66,18 @@
 	\begin{equation*}
 	        	\dderiv{}{x} \frac{
 	        		\int_{-1}^{1} \psi(x,\mu) \ud \mu
+	        	}{
+	        		\int_{-1}^{1} \psi(x,\mu) \ud \mu 
+	        	} \int_{-1}^{1} \mu^2\psi(x, \mu) \ud \mu 
+	        % \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \\ &=   
+	        % \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu + 
+	        % \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	    \end{equation*}
+	}
+
+	\only<+>{
+	\begin{equation*}
+	        	\dderiv{}{x} \int_{-1}^{1} \psi(x,\mu) \ud \mu \frac{
 	        		\int_{-1}^{1} \mu^2\psi(x, \mu) \ud \mu 
 	        	}{
 	        		\int_{-1}^{1} \psi(x,\mu) \ud \mu 
@@ -65,12 +90,45 @@
 
 	\only<+>{
 	\begin{equation*}
+	        	\dderiv{}{x} \underbrace{\vphantom{
+	        		\frac{
+	        		\int_{-1}^{1} \mu^2\psi(x, \mu) \ud \mu 
+	        	}{
+	        		\int_{-1}^{1} \psi(x,\mu) \ud \mu 
+	        	}
+	        	}
+	        		\int_{-1}^{1} \psi(x,\mu) \ud \mu}_{\phi(x)}
+	        	\underbrace{\frac{
+	        		\int_{-1}^{1} \mu^2\psi(x, \mu) \ud \mu 
+	        	}{
+	        		\int_{-1}^{1} \psi(x,\mu) \ud \mu 
+	        	}}_{\edd(x)}
+	        % \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \\ &=   
+	        % \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu + 
+	        % \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	    \end{equation*}
+	}
+
+	\only<+>{
+	\begin{equation*}
+	        \int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu 
+	        \rightarrow
 	        \dderiv{}{x} \edd(x) \phi(x) %\ + 
 	        % \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
 	        % \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
 	        % \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
 	    \end{equation*}
 	}
+
+	% \only<+>{
+	% \begin{equation*}
+	% 		\renewcommand\useanchorwidth{F}
+	%         \dderiv{}{x} \callout{\edd(x)}{Eddington Factor} \phi(x) %\ + 
+	%         % \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
+	%         % \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+	%         % \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	%     \end{equation*}
+	% }
 
 	% \only<+>{
 	% \begin{equation*}
@@ -125,10 +183,10 @@
 	% }
 
 	\normalsize
-	\only<+>{
+	\only<+->{
 	\begin{equation*}
-	        \dderiv{}{x} \edd(x) \phi(x) \ + 
-	        \Sigma_t(x) J(x) \ = 0
+	        \dderiv{}{x} \edd(x) \phi(x) + 
+	        \Sigma_t(x) J(x) = 0
 	    \end{equation*}
 	}
 
@@ -136,5 +194,10 @@
     % \begin{equation*}
     %     \frac{\ud}{\ud x} \edd(x) \phi(x) + \Sigma_t(x) J(x) = 0 
     % \end{equation*}
+
+    \only<+>{
+    \begin{equation*}
+    	\Rightarrow J(x) = -\frac{1}{\Sigma_t(x)} \dderiv{}{x} \edd(x) \phi(x)
+    \end{equation*}}
 
 \end{frame}

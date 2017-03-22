@@ -4,23 +4,28 @@
 
     % *** make replace at same spot *** 
 
-    \only<+>{
+    % \setbeamercovered{transparent}
+
+    % \only<+>{
+    \onslide<+->
     \begin{equation*}
             \mu \dderiv{\psi}{x}(x, \mu) + 
             \Sigma_t(x) \psi(x,\mu) = 
             \frac{\Sigma_s(x)}{2} \phi(x) + 
             \frac{Q(x)}{2} 
         \end{equation*}
-    }
+    % }
 
-    \only<+>{
+    \small
+    % \only<+>{
+    \onslide<+->
     \begin{equation*}
         \int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
         \int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
         \int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
         \int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
     \end{equation*}
-    }
+    % }
 
     % \only<+>{
     % \begin{equation*}
@@ -164,10 +169,12 @@
     % \end{equation*}
     % }
 
-    \only<+>{
+    \normalsize
+    % \only<+>{
+    \onslide<+>
     \begin{equation*}
         \dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
     \end{equation*}
-    }
+    % }
 
 \end{frame}

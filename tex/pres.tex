@@ -21,6 +21,8 @@
 \usepackage{siunitx}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 
+\usepackage[usestackEOL]{stackengine}
+
 \title{Mixed Hybrid Finite Element Method Eddington Acceleration of Discrete Ordinates Source Iteration}
 \subtitle{\normalsize ANS Student Conference \\ Mathematics and Computation}
 % \date{\today}
@@ -56,12 +58,12 @@
 
 \maketitle
 
-\begin{frame}{Table of contents}
+\begin{frame}{Overview }
   \setbeamertemplate{section in toc}[sections numbered]
   \tableofcontents[hideallsubsections]
 \end{frame}
 
-\section{Introduction}
+\section{Motivation}
 
 \begin{frame}{Motivation}
     
@@ -84,14 +86,14 @@
             \begin{enumerate}
                 \item Robustly reduces the number of source iterations in Discrete Ordinates calculations 
 
-                \item Remains compatible with MHFEM multiphysics 
+                \item Increases compatibility with MHFEM multiphysics 
             \end{enumerate}
         Test in 1D slab geometry case
     \end{block}
 
 \end{frame}
 
-\section{Background}
+\section{Source Iteration Background}
 
 \begin{frame}{Boltzmann Equation}
     Steady-state, mono-energetic, istropically-scattering, fixed-source Linear Boltzmann Equation in 1D slab geometry:
@@ -108,33 +110,37 @@
 
     $\psi(x,\mu)$ the angular flux 
 
-    Factors of 1/2 come from 
-        \begin{equation*}
-            \phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu
-        \end{equation*}
+    % Factors of 1/2 come from 
+    %     \begin{equation*}
+    %         \phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu
+    %     \end{equation*}
 
-    \textbf{Integro-differential equation}
+    \onslide<2>
+    \vfill
+    \centerline{\textbf{Integro-differential equation}}
 
 \end{frame}
 
 \begin{frame}{Discrete Ordinates Angular Discretization}
 
-    Compute angular flux on $N$ discrete angles 
-        \begin{equation*}
-            \psi(x,\mu) \xrightarrow{\text{S}_N} 
-            \begin{cases}
-                \psi_1(x), & \mu = \mu_1 \\ 
-                \psi_2(x), & \mu = \mu_2 \\ 
-                \vdots \\ 
-                \psi_N, & \mu = \mu_N 
-            \end{cases}
-        \end{equation*}
+    Compute angular flux on $N$ discrete angles defined by Gauss Quadrature 
+    \begin{equation*}
+        \psi(x,\mu) \xrightarrow{\text{S}_N} 
+        \begin{cases}
+            \psi_1(x), & \mu = \mu_1 \\ 
+            \psi_2(x), & \mu = \mu_2 \\ 
+            \vdots \\ 
+            \psi_N, & \mu = \mu_N 
+        \end{cases}
+    \end{equation*}
 
-    $\mu_1$, $\mu_2$, $\dots$, $\mu_N$ defined by N-point Gauss Quadrature Rule 
+    $\mu_1$, $\mu_2$, $\dots$, $\mu_N$ defined by $N$-point Gauss Quadrature Rule 
 
+    Integrate order $N-1$ polynomials exactly with 
     \begin{equation*}
         \phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
-            \xrightarrow{\text{S}_N} \sum_{n=1}^N w_n \psi_n(x)
+            \xrightarrow{\text{S}_N} \sum_{n=1}^N 
+            w_n \psi_n(x)
     \end{equation*}
 
 \end{frame}
@@ -156,8 +162,7 @@
 
 \begin{frame}{Source Iteration}
 
-    Lag scattering term 
-
+    Decouple by lagging scattering term 
     \begin{equation*}
         \mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
         \frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N        
@@ -187,7 +192,6 @@
 	Convergence rate is linked to the number of collisions in a particle's lifetime
 
     If $\phi^0(x) = 0$
-    % add arrow through phi_0
     \begin{equation*}
         \mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
         \cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)} + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
@@ -247,6 +251,23 @@
 \end{frame}
 
 \section{Eddington Acceleration}
+
+% \begin{frame}{Moment Equations}
+
+% 	Zeroth angular moment of Boltzmann Equation 
+% 	\begin{equation*}
+% 		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
+% 	\end{equation*}
+
+% 	First angular moment 
+% 	{\footnotesize \begin{equation*} 
+% 		\int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
+% 		\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
+% 		\int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+% 		\int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu \
+% 	\end{equation*}}
+
+% \end{frame}
 
 \input{zeroMoment}
 

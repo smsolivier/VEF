@@ -1,0 +1,33 @@
+Motivation
+	why work is needed (importance/difficulties)
+
+Sn/SI background 
+
+Eddington Acceleration  
+	Moment equations 
+
+	Explain algorithm 
+		flow chart ? 
+
+Results
+	describe test problem 
+	solution comparison of all methods (MC?) 
+	convergence comparison to unaccelerated and S2SA 
+	convergence rate comparison 
+		push fast convergence to phi 
+
+Future Work 
+
+	Develop rad hydro algorithm that makes use of drift diffusion solve 
+
+	energy discretization 
+
+	higher dimensions 
+
+Extra Slides 
+	
+	LD recovery schemes 
+
+Make algorithm block 
+
+make fancy animations 

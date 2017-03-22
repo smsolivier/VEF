@@ -15,14 +15,26 @@
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 
 \title{Mixed Hybrid Finite Element Eddington Acceleration of Discrete Ordinates Source Iteration}
-% \subtitle{A modern beamer theme}
+\subtitle{\normalsize American Nuclear Society Student Conference Presentation}
 % \date{\today}
 \date{\today}
 \author{Samuel S. Olivier }
 \institute{Department of Nuclear Engineering, Texas A\&M University}
 % \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
 
+
+\newcommand{\SN}{S$_N$\xspace}
+\renewcommand{\vec}[1]{\bm{#1}} %vector is bold italic
+\newcommand{\vd}{\bm{\cdot}} % slightly bold vector dot
+\newcommand{\grad}{\vec{\nabla}} % gradient
+\newcommand{\ud}{\mathop{}\!\mathrm{d}} % upright derivative symbol
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dderiv}[2]{\frac{\ud #1}{\ud #2}}
+\newcommand{\edd}{\langle \mu^2 \rangle} 
 \begin{document}
+
+% make blocks fill 
+\metroset{block=fill}
 
 \maketitle
 
@@ -33,29 +45,256 @@
 
 \section{Introduction}
 
-\begin{frame}[fragile]{Metropolis}
+\begin{frame}{Motivation}
+    
+    Radiation transport simulations are expensive 
 
-  The \themename theme is a Beamer theme with minimal visual noise
-  inspired by the \href{https://github.com/hsrmbeamertheme/hsrmbeamertheme}{\textsc{hsrm} Beamer
-  Theme} by Benjamin Weiss.
+    Multiphysics Coupling 
+        \begin{itemize}
+            \item Operator split requires iteration
+            \item Efficient solution methods are often incompatible 
+        \end{itemize}
 
-  Enable the theme by loading
+    Radiation Hydrodynamics 
+        \begin{itemize}
+            \item Mixed Hybrid Finite Element Method for hydro 
+            \item Linear Discontinuous Galerkin for transport 
+        \end{itemize}
 
-  \begin{verbatim}    \documentclass{beamer}
-    \usetheme{metropolis}\end{verbatim}
+    \begin{block}{Goal}
+        Develop an acceleration scheme that 
+            \begin{enumerate}
+                \item Robustly reduces the number of source iterations in Discrete Ordinates calculations 
 
-  Note, that you have to have Mozilla's \emph{Fira Sans} font and XeTeX
-  installed to enjoy this wonderful typography.
+                \item Remains compatible with MHFEM multiphysics 
+            \end{enumerate}
+        Test in 1D slab geometry case
+    \end{block}
+
 \end{frame}
-\begin{frame}[fragile]{Sections}
-  Sections group slides of the same topic
 
-  \begin{verbatim}    \section{Elements}\end{verbatim}
+\section{Background}
 
-  for which \themename provides a nice progress indicator \ldots
+\begin{frame}{Boltzmann Equation}
+    Steady-state, mono-energetic, istropically-scattering, fixed-source Linear Boltzmann Equation in 1D slab geometry:
+    \begin{equation*}
+        \mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
+        \frac{\Sigma_s(x)}{2} \int_{-1}^{1} \psi(x, \mu') d\mu' + \frac{Q(x)}{2}
+    \end{equation*}
+
+    $\mu = \cos \theta$ the cosine of the angle of flight $\theta$ relative to the $x$-axis
+
+    $\Sigma_t(x)$, $\Sigma_s(x)$ total and scattering macroscopic cross sections 
+
+    $Q(x)$ the isotropic fixed-source
+
+    $\psi(x,\mu)$ the angular flux 
+
+    Factors of 1/2 come from 
+        \begin{equation*}
+            \phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu
+        \end{equation*}
+
+    \textbf{Integro-differential equation}
+
 \end{frame}
 
-\section{Titleformats}
+\begin{frame}{Discrete Ordinates Angular Discretization}
+
+    Compute angular flux on $N$ discrete angles 
+        \begin{equation*}
+            \psi(x,\mu) \xrightarrow{\text{S}_N} 
+            \begin{cases}
+                \psi_1(x), & \mu = \mu_1 \\ 
+                \psi_2(x), & \mu = \mu_2 \\ 
+                \vdots \\ 
+                \psi_N, & \mu = \mu_N 
+            \end{cases}
+        \end{equation*}
+
+    $\mu_1$, $\mu_2$, $\dots$, $\mu_N$ defined by N-point Gauss Quadrature Rule 
+
+    \begin{equation*}
+        \phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
+            \xrightarrow{\text{S}_N} \sum_{n=1}^N w_n \psi_n(x)
+    \end{equation*}
+
+\end{frame}
+
+\begin{frame}{\SN Equations}
+
+    \begin{equation*}
+        \mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
+        \frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \, 1 \leq n \leq N
+    \end{equation*}
+
+    \begin{equation*}
+        \phi(x) = \sum_{n=1}^N w_n \psi_n(x)
+    \end{equation*}
+
+    \textbf{$N$ coupled, ordinary differential equations}
+
+\end{frame}
+
+\begin{frame}{Source Iteration}
+
+    Lag scattering term 
+
+    \begin{equation*}
+        \mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
+        \frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N        
+    \end{equation*}
+
+    \begin{exampleblock}{Source Iteration}
+    \begin{enumerate}
+        \item Given previous estimate for $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1}$
+
+        \item Compute $\phi^{\ell+1}(x) = 
+            \sum_{n=1}^N w_n \psi_n^{\ell+1}(x)$ 
+
+        \item Update scattering term with $\phi^{\ell+1}(x)$ and repeat until: 
+             \begin{equation*}
+                \frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon 
+             \end{equation*}
+
+    \end{enumerate}
+    \end{exampleblock}
+
+    \textbf{$N$ independent, first-order, ordinary differential equations}
+
+\end{frame}
+
+\begin{frame}{Need For Acceleration in Source Iteration}
+
+    If $\phi^0(x) = 0$
+    % add arrow through phi_0
+    \begin{equation*}
+        \mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
+        \frac{\Sigma_s(x)}{2} \phi^{0}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
+    \end{equation*}      
+
+    $\Rightarrow \phi^1(x) $ is the uncollided flux 
+
+    Each source iteration adds scattering information 
+
+    $\phi^{\ell}(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions 
+
+    Number of iterations is linked to the number of collisions in a particle's lifetime 
+
+    \textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
+
+\end{frame}
+
+\begin{frame}{Diffusion Synthetic Acceleration}
+
+    Large, highly scattering systems $\Rightarrow$ Diffusion Theory is accurate! 
+
+    % bold acceleration additions
+
+    \begin{exampleblock}{Diffusion Synthetic Acceleration}
+    \begin{enumerate}
+        \item Given previous estimate for $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1/2}$
+
+        \item Compute $\phi^{\ell+1/2}(x) = 
+            \sum_{n=1}^N w_n \psi_n^{\ell+1/2}(x)$ 
+
+        \item \textbf{Solve diffusion equation for a correction factor, $f^{\ell+1}(x)$}
+
+        \item Update scattering term with 
+            $\bf{\phi^{\ell+1}(x) = \phi^{\ell+1/2}(x) + f^{\ell+1}(x)}$ 
+        and repeat until: 
+             \begin{equation*}
+                \frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon 
+             \end{equation*}
+
+    \end{enumerate}
+    \end{exampleblock}
+
+\end{frame}
+
+\begin{frame}{DSA Problems}
+
+    Transport and Diffusion steps must be consistenly differenced to prevent non-convergence 
+
+    Consistently differenced diffusion is much more expensive to solve 
+
+    Transport and MHFEM are not compatible
+
+    \textbf{A new acceleration scheme is needed!}
+
+\end{frame}
+
+\section{Eddigton Acceleration}
+
+\begin{frame}{Zeroth Angular Moment}
+
+    % *** make replace at same spot *** 
+
+    \onslide<1>
+    \begin{equation*}
+        \mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
+        \frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2}
+    \end{equation*}
+
+    \onslide<2>
+    \begin{equation*}
+        \int_{-1}^{1} \mu \pderiv{\psi}{x}(x, \mu) + 
+            \Sigma_t(x) \psi(x,\mu) \ud \mu = 
+        \int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \ud \mu
+    \end{equation*}
+
+    \onslide<3>
+    \begin{equation*}
+        \dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
+    \end{equation*}
+
+\end{frame}
+
+\begin{frame}{First Angular Moment}
+    
+    \begin{equation*}
+        \frac{\ud}{\ud x} \edd(x) \phi(x) + \Sigma_t(x) J(x) = 0 
+    \end{equation*}
+
+\end{frame}
+
+\begin{frame}{Eddington Acceleration}
+
+    Use \SN to compute $\edd(x)$ and Moment Equations to find $\phi(x)$ 
+
+    \begin{exampleblock}{Eddington Acceleration}
+    \begin{enumerate}
+        \item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1/2}(x)$
+
+        \item Compute $\edd^{\ell+1/2}(x)$ 
+
+        \item Solve the moment equations for $\phi^{\ell+1}(x)$ using $\edd^{\ell+1/2}(x)$ 
+
+        \item Update the scalar flux estimate with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges
+    \end{enumerate}
+    \end{exampleblock}
+
+\end{frame}
+
+\begin{frame}{Eddington Acceleration Properties}
+    
+    Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
+
+    Solution to moment equations models all scattering events at once 
+
+    Reduces dependence on source iterations to introduce scattering information 
+
+    Benefits 
+    \begin{enumerate}
+        \item Moment Equations are conservative 
+
+        \item Transport and Acceleration steps can be differenced with arbitrarily different methods 
+
+        \item Accelerates source iterations 
+
+    \end{enumerate}
+
+\end{frame}
 
 \begin{frame}{Metropolis titleformats}
   \themename supports 4 different titleformats:
@@ -103,7 +342,7 @@
 \end{frame}
 }
 
-\section{Elements}
+\section{Results}
 
 \begin{frame}[fragile]{Typography}
       \begin{verbatim}The theme provides sensible defaults to

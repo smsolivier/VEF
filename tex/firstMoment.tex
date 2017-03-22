@@ -33,89 +33,98 @@
 
 	\only<+>{
 	\begin{equation*}
-	        \alert{\dderiv{}{x}\int_{-1}^{1} \mu^2\psi(x, \mu) \ud \mu} \ + 
-	        \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
-	        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
-	        \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	        \int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu %\ + 
+	        % \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
+	        % \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+	        % \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
 	    \end{equation*}
 	}
 
 	\only<+>{
-	\begin{align*}
-	        \alert{
+	\begin{equation*}
+	        \dderiv{}{x}\int_{-1}^{1} \mu^2\psi(x, \mu) \ud \mu %\ + 
+	        % \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
+	        % \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+	        % \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	    \end{equation*}
+	}
+
+	\only<+>{
+	\begin{equation*}
 	        	\dderiv{}{x} \frac{
 	        		\int_{-1}^{1} \psi(x,\mu) \ud \mu
 	        		\int_{-1}^{1} \mu^2\psi(x, \mu) \ud \mu 
 	        	}{
 	        		\int_{-1}^{1} \psi(x,\mu) \ud \mu 
-	        	}} \ &+ 
-	        \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \\ &=   
-	        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu + 
-	        \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
-	    \end{align*}
-	}
-
-	\only<+>{
-	\begin{equation*}
-	        \alert{\dderiv{}{x} \edd(x) \phi(x)} \ + 
-	        \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
-	        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
-	        \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	        	} %\ &+ 
+	        % \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \\ &=   
+	        % \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu + 
+	        % \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
 	    \end{equation*}
 	}
 
 	\only<+>{
 	\begin{equation*}
-	        \dderiv{}{x} \edd(x) \phi(x) \ + 
-	        \alert{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu} \ = 
-	        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
-	        \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	        \dderiv{}{x} \edd(x) \phi(x) %\ + 
+	        % \int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
+	        % \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+	        % \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
 	    \end{equation*}
 	}
 
-	\only<+>{
-	\begin{equation*}
-	        \dderiv{}{x} \edd(x) \phi(x) \ + 
-	        \alert{\Sigma_t(x) J(x)} \ = 
-	        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
-	        \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
-	    \end{equation*}
-	}
+	% \only<+>{
+	% \begin{equation*}
+	%         \dderiv{}{x} \edd(x) \phi(x) \ + 
+	%         \alert{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu} \ = 
+	%         \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+	%         \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	%     \end{equation*}
+	% }
 
-	\only<+>{
-	\begin{equation*}
-	        \dderiv{}{x} \edd(x) \phi(x) \ + 
-	        \Sigma_t(x) J(x) \ = 
-	        \alert{\int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu} \ + 
-	        \alert{\int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu }
-	    \end{equation*}
-	}
+	% \only<+>{
+	% \begin{equation*}
+	%         \dderiv{}{x} \edd(x) \phi(x) \ + 
+	%         \alert{\Sigma_t(x) J(x)} \ = 
+	%         \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+	%         \int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu 
+	%     \end{equation*}
+	% }
 
-	\only<+>{
-	\begin{equation*}
-	        \dderiv{}{x} \edd(x) \phi(x) \ + 
-	        \Sigma_t(x) J(x) \ = 
-	        \alert{\frac{\Sigma_s(x)}{2} \phi(x) \int_{-1}^{1} \mu \ud \mu} \ + 
-	        \alert{\frac{Q(x)}{2}\int_{-1}^{1} \mu \ud \mu }
-	    \end{equation*}
-	}
+	% \only<+>{
+	% \begin{equation*}
+	%         \dderiv{}{x} \edd(x) \phi(x) \ + 
+	%         \Sigma_t(x) J(x) \ = 
+	%         \alert{\int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu} \ + 
+	%         \alert{\int_{-1}^{1} \mu \frac{Q(x)}{2} \ud \mu }
+	%     \end{equation*}
+	% }
 
-	\only<+>{
-	\begin{equation*}
-	        \dderiv{}{x} \edd(x) \phi(x) \ + 
-	        \Sigma_t(x) J(x) \ = 
-	        \alert{\frac{\Sigma_s(x)}{2} \phi(x) \cancelto{0}{\int_{-1}^{1} \mu \ud \mu}} \ + 
-	        \alert{\frac{Q(x)}{2}\cancelto{0}{\int_{-1}^{1} \mu \ud \mu }}
-	    \end{equation*}
-	}
+	% \only<+>{
+	% \begin{equation*}
+	%         \dderiv{}{x} \edd(x) \phi(x) \ + 
+	%         \Sigma_t(x) J(x) \ = 
+	%         \alert{\frac{\Sigma_s(x)}{2} \phi(x) \int_{-1}^{1} \mu \ud \mu} \ + 
+	%         \alert{\frac{Q(x)}{2}\int_{-1}^{1} \mu \ud \mu }
+	%     \end{equation*}
+	% }
 
-	\only<+>{
-	\begin{equation*}
-	        \dderiv{}{x} \edd(x) \phi(x) \ + 
-	        \Sigma_t(x) J(x) \ = \alert{0}
-	    \end{equation*}
-	}
+	% \only<+>{
+	% \begin{equation*}
+	%         \dderiv{}{x} \edd(x) \phi(x) \ + 
+	%         \Sigma_t(x) J(x) \ = 
+	%         \alert{\frac{\Sigma_s(x)}{2} \phi(x) \cancelto{0}{\int_{-1}^{1} \mu \ud \mu}} \ + 
+	%         \alert{\frac{Q(x)}{2}\cancelto{0}{\int_{-1}^{1} \mu \ud \mu }}
+	%     \end{equation*}
+	% }
 
+	% \only<+>{
+	% \begin{equation*}
+	%         \dderiv{}{x} \edd(x) \phi(x) \ + 
+	%         \Sigma_t(x) J(x) \ = \alert{0}
+	%     \end{equation*}
+	% }
+
+	\normalsize
 	\only<+>{
 	\begin{equation*}
 	        \dderiv{}{x} \edd(x) \phi(x) \ + 

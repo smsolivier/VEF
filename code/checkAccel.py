@@ -12,7 +12,7 @@ from hidespines import *
 
 N = 100 # number of edges 
 Sigmat = 1 
-c = np.linspace(0, 1, 5)
+c = np.linspace(0, 1, 20)
 Sigmaa = Sigmat*(1 - c) 
 q = 1 
 xb = 20
@@ -56,7 +56,7 @@ plt.yscale('log')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$\Sigma_s/\Sigma_t$', fontsize=20)
 plt.ylabel('Number of Iterations', fontsize=16)
-# plt.savefig('../tex/accel.pdf')
+plt.savefig('../tex/accel.pdf', transparent=True)
 
 plt.figure()
 plt.plot(c, it/itmu)

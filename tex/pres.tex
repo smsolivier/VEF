@@ -1,6 +1,8 @@
 \documentclass[10pt]{beamer}
 
 \usetheme[progressbar=frametitle]{metropolis}
+% font options
+\usefonttheme{professionalfonts}
 \usepackage{appendixnumberbeamer}
 
 \usepackage{booktabs}
@@ -13,18 +15,20 @@
 
 \usepackage{cancel}
 
+\usepackage{color}
+
 \usepackage{xspace}
 \usepackage{siunitx}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 
 \title{Mixed Hybrid Finite Element Method Eddington Acceleration of Discrete Ordinates Source Iteration}
-\subtitle{\normalsize American Nuclear Society Student Conference Presentation}
+\subtitle{\normalsize ANS Student Conference \\ Mathematics and Computation}
 % \date{\today}
 \date{\today}
 \author{Samuel S. Olivier }
-\institute{Department of Nuclear Engineering, Texas A\&M University}
+\institute{Department of Nuclear Engineering, Texas A\&M University \\ \vfill
+\centerline{\includegraphics[height=.75cm]{nuen-logo.png}}}
 % \titlegraphic{\hfill\includegraphics[height=1.5cm]{nuen-logo.png}}
-
 
 \newcommand{\SN}{S$_N$\xspace}
 \renewcommand{\vec}[1]{\bm{#1}} %vector is bold italic
@@ -38,6 +42,17 @@
 
 % make blocks fill 
 \metroset{block=fill}
+
+% dark background 
+% \metroset{background=dark}
+
+% color options
+\definecolor{maroon}{RGB}{80,0,0}
+\setbeamercolor{progress bar}{fg=maroon}
+\setbeamercolor{progress bar in head/foot}{fg=maroon}
+\setbeamercolor{progress bar in section page}{fg=maroon}
+
+% \setbeamercolor{alerted text}{fg=maroon}
 
 \maketitle
 
@@ -217,9 +232,11 @@
 
 \begin{frame}{DSA Problems}
 
-    Transport and Diffusion steps must be consistenly differenced to prevent non-convergence 
+    Becomes non-convergent in highly scattering media with coarse spatial grids 
 
-    Consistently differenced diffusion is much more expensive to solve 
+    Transport and Diffusion steps must be consistently differenced to prevent non-convergence 
+
+    Consistently differenced diffusion is more expensive to solve 
 
     Transport and MHFEM are not compatible
 
@@ -239,9 +256,11 @@
 
 	Combining the zeroth and first moments 
 
+    \begin{alertblock}{Drift Diffusion Equation}
 	\begin{equation*}
 		-\dderiv{}{x} \frac{1}{\Sigma_t(x)} \dderiv{}{x} \edd(x) \phi(x) + \Sigma_a(x) \phi(x) = Q(x) 
 	\end{equation*}
+    \end{alertblock}
 
 	Diffusion Equation is recovered if $\edd(x) = \frac{1}{3}$
 	
@@ -307,28 +326,84 @@
 
 \end{frame}
 
-\begin{frame}[standout]
-  Questions?
+\begin{frame}{Iterations to Convergence Comparison}
+
+    \centerline{\includegraphics[width=.7\paperwidth]{accel.pdf}}
+
+    Accelerates between 2.5 and 650 times $\Rightarrow$ acceleration is occurring 
+
+    Performs similarly to consistent acceleration scheme 
+
 \end{frame}
 
+\begin{frame}{Convergence Rate Comparison}
+
+    \begin{center}
+
+        \includegraphics[width=.45\paperwidth]{converge_una.pdf}
+        \includegraphics[width=.45\paperwidth]{converge_acc.pdf}
+
+    \end{center}
+
+    \vfill
+    \centerline{\textbf{Fast rate of convergence of $\edd(x)$ is transfered to $\phi(x)$}}
+
+\end{frame}
+
+\section{Conclusions}
+
+\begin{frame}{Summary}
+
+    Conclusions
+    \begin{itemize}
+
+        \item Scheme successfully accelerated source iteration in 1D slab geometry 
+
+        \item Inherently compatible with rad-hydro multiphysics 
+
+        \begin{itemize}
+            \item Transport and acceleration steps can be discretized with arbitrarily different methods 
+            \item Avoids consistency issues 
+            \item Provides less expensive, conservative solution 
+        \end{itemize}
+
+        \item Proved Mixed Hybrid Finite Element Method can be used to accelerate lumped Linear Discontinuous Galerkin transport 
+
+    \end{itemize}
+
+    Future Work 
+    \begin{itemize}
+        \item Develop a rad-hydro algorithm 
+
+        \begin{itemize}
+            \item Make use of inexpensive Drift Diffusion solution in operator split iterations 
+        \end{itemize}
+
+        \item Add discretization in energy 
+
+        \item Higher dimensions 
+
+        \item Anisotropic scattering 
+
+    \end{itemize}
+
+\end{frame}
+
+% begin uncounted slides ---------------------------
 \appendix
 
-\begin{frame}[fragile]{Backup slides}
-  Sometimes, it is useful to add slides at the end of your presentation to
-  refer to during audience questions.
+\begin{frame}{References}
 
-  The best way to do this is to include the \verb|appendixnumberbeamer|
-  package in your preamble and call \verb|\appendix| before your backup slides.
+    \nocite{adams,morel,llnl,alcouffe,mhfem,hydro}
+    \small
+    \setbeamertemplate{bibliography item}{\insertbiblabel}
+    \bibliographystyle{siam}
+    \bibliography{bibliography}
 
-  \themename will automatically turn off slide numbering and progress bars for
-  slides in the appendix.
 \end{frame}
 
-\begin{frame}[allowframebreaks]{References}
-
-  \bibliography{demo}
-  \bibliographystyle{abbrv}
-
+\begin{frame}[standout]
+  Questions?
 \end{frame}
 
 \end{document}

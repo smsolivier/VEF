@@ -212,6 +212,11 @@ class LD(Transport):
 		# lambda function to compute convergence criterion 
 		conv_f = lambda new, old: np.linalg.norm(new - old, 2)/np.linalg.norm(new, 2)
 
+		self.phiConv = [] # store convergence of flux 
+		self.eddConv = [] # store convergence of eddington 
+
+		edd = np.zeros(self.N) # cell centered eddington 
+
 		while (True):
 
 			# check if max reached 
@@ -224,12 +229,21 @@ class LD(Transport):
 			phiL_old = np.copy(self.phiL)
 			phiR_old = np.copy(self.phiR)
 
+			edd_old = np.copy(edd)
+
 			# sweep to update flux 
 			self.phiL, self.phiR = self.sweep(phiL_old, phiR_old)
 
 			# compute convergence 
 			convL = conv_f(self.phiL, phiL_old) # left convergence 
 			convR = conv_f(self.phiR, phiR_old) # right convergence 
+
+
+			edd = self.getEddington(.5*(self.psiL + self.psiR))
+			self.eddConv.append(conv_f(edd, edd_old))
+
+			# store average of left and right 
+			self.phiConv.append((convL + convR)/2) 
 
 			if (convL < tol and convR < tol):
 

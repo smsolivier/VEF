@@ -11,16 +11,18 @@
 
 \usepackage{lmodern}
 
+\usepackage{cancel}
+
 \usepackage{xspace}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 
-\title{Mixed Hybrid Finite Element Eddington Acceleration of Discrete Ordinates Source Iteration}
+\title{Mixed Hybrid Finite Element Method Eddington Acceleration of Discrete Ordinates Source Iteration}
 \subtitle{\normalsize American Nuclear Society Student Conference Presentation}
 % \date{\today}
 \date{\today}
 \author{Samuel S. Olivier }
 \institute{Department of Nuclear Engineering, Texas A\&M University}
-% \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
+% \titlegraphic{\hfill\includegraphics[height=1.5cm]{nuen-logo.png}}
 
 
 \newcommand{\SN}{S$_N$\xspace}
@@ -166,11 +168,13 @@
 
 \begin{frame}{Need For Acceleration in Source Iteration}
 
+	Convergence rate is linked to the number of collisions in a particle's lifetime
+
     If $\phi^0(x) = 0$
     % add arrow through phi_0
     \begin{equation*}
         \mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
-        \frac{\Sigma_s(x)}{2} \phi^{0}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
+        \cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)} + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
     \end{equation*}      
 
     $\Rightarrow \phi^1(x) $ is the uncollided flux 
@@ -178,8 +182,6 @@
     Each source iteration adds scattering information 
 
     $\phi^{\ell}(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions 
-
-    Number of iterations is linked to the number of collisions in a particle's lifetime 
 
     \textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
 
@@ -198,10 +200,10 @@
         \item Compute $\phi^{\ell+1/2}(x) = 
             \sum_{n=1}^N w_n \psi_n^{\ell+1/2}(x)$ 
 
-        \item \textbf{Solve diffusion equation for a correction factor, $f^{\ell+1}(x)$}
+        \item \alert{Solve diffusion equation for a correction factor, $f^{\ell+1}(x)$}
 
         \item Update scattering term with 
-            $\bf{\phi^{\ell+1}(x) = \phi^{\ell+1/2}(x) + f^{\ell+1}(x)}$ 
+            $\alert{\phi^{\ell+1}(x) = \phi^{\ell+1/2}(x) + f^{\ell+1}(x)}$ 
         and repeat until: 
              \begin{equation*}
                 \frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon 
@@ -220,55 +222,41 @@
 
     Transport and MHFEM are not compatible
 
-    \textbf{A new acceleration scheme is needed!}
-
-\end{frame}
-
-\section{Eddigton Acceleration}
-
-\begin{frame}{Zeroth Angular Moment}
-
-    % *** make replace at same spot *** 
-
-    \onslide<1>
-    \begin{equation*}
-        \mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
-        \frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2}
-    \end{equation*}
-
     \onslide<2>
-    \begin{equation*}
-        \int_{-1}^{1} \mu \pderiv{\psi}{x}(x, \mu) + 
-            \Sigma_t(x) \psi(x,\mu) \ud \mu = 
-        \int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \ud \mu
-    \end{equation*}
-
-    \onslide<3>
-    \begin{equation*}
-        \dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
-    \end{equation*}
+    \vfill 
+    \centerline{\textbf{A new acceleration scheme is needed!}}
 
 \end{frame}
 
-\begin{frame}{First Angular Moment}
-    
-    \begin{equation*}
-        \frac{\ud}{\ud x} \edd(x) \phi(x) + \Sigma_t(x) J(x) = 0 
-    \end{equation*}
+\section{Eddington Acceleration}
 
+\input{zeroMoment}
+
+\input{firstMoment}
+
+\begin{frame}{Drift Diffusion Equation}
+
+	Combining the zeroth and first moments 
+
+	\begin{equation*}
+		-\dderiv{}{x} \frac{1}{\Sigma_t(x)} \dderiv{}{x} \edd(x) \phi(x) + \Sigma_a(x) \phi(x) = Q(x) 
+	\end{equation*}
+
+	Diffusion Equation is recovered if $\edd(x) = \frac{1}{3}$
+	
 \end{frame}
 
 \begin{frame}{Eddington Acceleration}
 
-    Use \SN to compute $\edd(x)$ and Moment Equations to find $\phi(x)$ 
+    Use \SN to compute $\edd(x)$ and Drift Diffusion to find $\phi(x)$ 
 
     \begin{exampleblock}{Eddington Acceleration}
     \begin{enumerate}
         \item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1/2}(x)$
 
-        \item Compute $\edd^{\ell+1/2}(x)$ 
+        \item \alert{Compute $\edd^{\ell+1/2}(x)$ }
 
-        \item Solve the moment equations for $\phi^{\ell+1}(x)$ using $\edd^{\ell+1/2}(x)$ 
+        \item \alert{Solve the Drift Diffusion Equation for $\phi^{\ell+1}(x)$ using $\edd^{\ell+1/2}(x)$} 
 
         \item Update the scalar flux estimate with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges
     \end{enumerate}
@@ -278,11 +266,17 @@
 
 \begin{frame}{Eddington Acceleration Properties}
     
-    Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
+    Acceleration occurs due to: 
+    \begin{enumerate}
+    	\item Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
 
-    Solution to moment equations models all scattering events at once 
+    	\item Solution to moment equations models all scattering events at once 
 
-    Reduces dependence on source iterations to introduce scattering information 
+    	\item Dependence on source iterations to introduce scattering information is reduced
+
+    \end{enumerate}
+
+    Downside: produces 2 solutions (\SN and Drift Diffusion)
 
     Benefits 
     \begin{enumerate}
@@ -292,262 +286,17 @@
 
         \item Accelerates source iterations 
 
+        \item Difference between \SN and Drift Diffusion solution can be used as a measure of iteration uncertainty 
+
     \end{enumerate}
 
 \end{frame}
 
-\begin{frame}{Metropolis titleformats}
-  \themename supports 4 different titleformats:
-  \begin{itemize}
-    \item Regular
-    \item \textsc{Smallcaps}
-    \item \textsc{allsmallcaps}
-    \item ALLCAPS
-  \end{itemize}
-  They can either be set at once for every title type or individually.
-\end{frame}
-
-{
-    \metroset{titleformat frame=smallcaps}
-\begin{frame}{Small caps}
-  This frame uses the \texttt{smallcaps} titleformat.
-
-  \begin{alertblock}{Potential Problems}
-    Be aware, that not every font supports small caps. If for example you typeset your presentation with pdfTeX and the Computer Modern Sans Serif font, every text in smallcaps will be typeset with the Computer Modern Serif font instead.
-  \end{alertblock}
-\end{frame}
-}
-
-{
-\metroset{titleformat frame=allsmallcaps}
-\begin{frame}{All small caps}
-  This frame uses the \texttt{allsmallcaps} titleformat.
-
-  \begin{alertblock}{Potential problems}
-    As this titleformat also uses smallcaps you face the same problems as with the \texttt{smallcaps} titleformat. Additionally this format can cause some other problems. Please refer to the documentation if you consider using it.
-
-    As a rule of thumb: Just use it for plaintext-only titles.
-  \end{alertblock}
-\end{frame}
-}
-
-{
-\metroset{titleformat frame=allcaps}
-\begin{frame}{All caps}
-  This frame uses the \texttt{allcaps} titleformat.
-
-  \begin{alertblock}{Potential Problems}
-    This titleformat is not as problematic as the \texttt{allsmallcaps} format, but basically suffers from the same deficiencies. So please have a look at the documentation if you want to use it.
-  \end{alertblock}
-\end{frame}
-}
-
 \section{Results}
 
-\begin{frame}[fragile]{Typography}
-      \begin{verbatim}The theme provides sensible defaults to
-\emph{emphasize} text, \alert{accent} parts
-or show \textbf{bold} results.\end{verbatim}
+\begin{frame}{Test Problem} 
 
-  \begin{center}becomes\end{center}
-
-  The theme provides sensible defaults to \emph{emphasize} text,
-  \alert{accent} parts or show \textbf{bold} results.
-\end{frame}
-
-\begin{frame}{Font feature test}
-  \begin{itemize}
-    \item Regular
-    \item \textit{Italic}
-    \item \textsc{SmallCaps}
-    \item \textbf{Bold}
-    \item \textbf{\textit{Bold Italic}}
-    \item \textbf{\textsc{Bold SmallCaps}}
-    \item \texttt{Monospace}
-    \item \texttt{\textit{Monospace Italic}}
-    \item \texttt{\textbf{Monospace Bold}}
-    \item \texttt{\textbf{\textit{Monospace Bold Italic}}}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Lists}
-  \begin{columns}[T,onlytextwidth]
-    \column{0.33\textwidth}
-      Items
-      \begin{itemize}
-        \item Milk \item Eggs \item Potatos
-      \end{itemize}
-
-    \column{0.33\textwidth}
-      Enumerations
-      \begin{enumerate}
-        \item First, \item Second and \item Last.
-      \end{enumerate}
-
-    \column{0.33\textwidth}
-      Descriptions
-      \begin{description}
-        \item[PowerPoint] Meeh. \item[Beamer] Yeeeha.
-      \end{description}
-  \end{columns}
-\end{frame}
-\begin{frame}{Animation}
-  \begin{itemize}[<+- | alert@+>]
-    \item \alert<4>{This is\only<4>{ really} important}
-    \item Now this
-    \item And now this
-  \end{itemize}
-\end{frame}
-\begin{frame}{Figures}
-  \begin{figure}
-    \newcounter{density}
-    \setcounter{density}{20}
-    \begin{tikzpicture}
-      \def\couleur{alerted text.fg}
-      \path[coordinate] (0,0)  coordinate(A)
-                  ++( 90:5cm) coordinate(B)
-                  ++(0:5cm) coordinate(C)
-                  ++(-90:5cm) coordinate(D);
-      \draw[fill=\couleur!\thedensity] (A) -- (B) -- (C) --(D) -- cycle;
-      \foreach \x in {1,...,40}{%
-          \pgfmathsetcounter{density}{\thedensity+20}
-          \setcounter{density}{\thedensity}
-          \path[coordinate] coordinate(X) at (A){};
-          \path[coordinate] (A) -- (B) coordinate[pos=.10](A)
-                              -- (C) coordinate[pos=.10](B)
-                              -- (D) coordinate[pos=.10](C)
-                              -- (X) coordinate[pos=.10](D);
-          \draw[fill=\couleur!\thedensity] (A)--(B)--(C)-- (D) -- cycle;
-      }
-    \end{tikzpicture}
-    \caption{Rotated square from
-    \href{http://www.texample.net/tikz/examples/rotated-polygons/}{texample.net}.}
-  \end{figure}
-\end{frame}
-\begin{frame}{Tables}
-  \begin{table}
-    \caption{Largest cities in the world (source: Wikipedia)}
-    \begin{tabular}{lr}
-      \toprule
-      City & Population\\
-      \midrule
-      Mexico City & 20,116,842\\
-      Shanghai & 19,210,000\\
-      Peking & 15,796,450\\
-      Istanbul & 14,160,467\\
-      \bottomrule
-    \end{tabular}
-  \end{table}
-\end{frame}
-\begin{frame}{Blocks}
-  Three different block environments are pre-defined and may be styled with an
-  optional background color.
-
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-      \begin{block}{Default}
-        Block content.
-      \end{block}
-
-      \begin{alertblock}{Alert}
-        Block content.
-      \end{alertblock}
-
-      \begin{exampleblock}{Example}
-        Block content.
-      \end{exampleblock}
-
-    \column{0.5\textwidth}
-
-      \metroset{block=fill}
-
-      \begin{block}{Default}
-        Block content.
-      \end{block}
-
-      \begin{alertblock}{Alert}
-        Block content.
-      \end{alertblock}
-
-      \begin{exampleblock}{Example}
-        Block content.
-      \end{exampleblock}
-
-  \end{columns}
-\end{frame}
-\begin{frame}{Math}
-  \begin{equation*}
-    e = \lim_{n\to \infty} \left(1 + \frac{1}{n}\right)^n
-  \end{equation*}
-\end{frame}
-\begin{frame}{Line plots}
-  \begin{figure}
-    \begin{tikzpicture}
-      \begin{axis}[
-        mlineplot,
-        width=0.9\textwidth,
-        height=6cm,
-      ]
-
-        \addplot {sin(deg(x))};
-        \addplot+[samples=100] {sin(deg(2*x))};
-
-      \end{axis}
-    \end{tikzpicture}
-  \end{figure}
-\end{frame}
-\begin{frame}{Bar charts}
-  \begin{figure}
-    \begin{tikzpicture}
-      \begin{axis}[
-        mbarplot,
-        xlabel={Foo},
-        ylabel={Bar},
-        width=0.9\textwidth,
-        height=6cm,
-      ]
-
-      \addplot plot coordinates {(1, 20) (2, 25) (3, 22.4) (4, 12.4)};
-      \addplot plot coordinates {(1, 18) (2, 24) (3, 23.5) (4, 13.2)};
-      \addplot plot coordinates {(1, 10) (2, 19) (3, 25) (4, 15.2)};
-
-      \legend{lorem, ipsum, dolor}
-
-      \end{axis}
-    \end{tikzpicture}
-  \end{figure}
-\end{frame}
-\begin{frame}{Quotes}
-  \begin{quote}
-    Veni, Vidi, Vici
-  \end{quote}
-\end{frame}
-
-{%
-\setbeamertemplate{frame footer}{My custom footer}
-\begin{frame}[fragile]{Frame footer}
-    \themename defines a custom beamer template to add a text to the footer. It can be set via
-    \begin{verbatim}\setbeamertemplate{frame footer}{My custom footer}\end{verbatim}
-\end{frame}
-}
-
-\begin{frame}{References}
-  Some references to showcase [allowframebreaks] \cite{knuth92,ConcreteMath,Simpson,Er01,greenwade93}
-\end{frame}
-
-\section{Conclusion}
-
-\begin{frame}{Summary}
-
-  Get the source of this theme and the demo presentation from
-
-  \begin{center}\url{github.com/matze/mtheme}\end{center}
-
-  The theme \emph{itself} is licensed under a
-  \href{http://creativecommons.org/licenses/by-sa/4.0/}{Creative Commons
-  Attribution-ShareAlike 4.0 International License}.
-
-  \begin{center}\ccbysa\end{center}
+	
 
 \end{frame}
 

@@ -1,0 +1,173 @@
+%!TEX root = ./pres.tex
+
+\begin{frame}{Zeroth Angular Moment}
+
+    % *** make replace at same spot *** 
+
+    \only<+>{
+    \begin{equation*}
+            \mu \dderiv{\psi}{x}(x, \mu) + 
+            \Sigma_t(x) \psi(x,\mu) = 
+            \frac{\Sigma_s(x)}{2} \phi(x) + 
+            \frac{Q(x)}{2} 
+        \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+        \int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
+        \int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
+        \int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+        \int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\alert{\int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu} \ + 
+    	\int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
+    	\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\alert{\int_{-1}^{1} \dderiv{\mu \psi}{x}(x, \mu) \ud \mu} \ + 
+    	\int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
+    	\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\alert{\dderiv{}{x} \int_{-1}^{1} \mu \psi(x, \mu) \ud \mu} \ + 
+    	\int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
+    	\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\alert{\dderiv{}{x}J(x)} + 
+    	\int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
+    	\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\alert{\int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu } = 
+    	\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\alert{\Sigma_t(x) \int_{-1}^{1} \psi(x,\mu) \ud \mu } = 
+    	\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\alert{\Sigma_t(x) \phi(x)} = 
+    	\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\Sigma_t(x) \phi(x) = 
+    	\alert{\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu } \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\Sigma_t(x) \phi(x) = 
+    	\alert{\frac{\Sigma_s(x)}{2} \phi(x) \int_{-1}^{1} \ud \mu } \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\Sigma_t(x) \phi(x) = 
+    	\alert{\Sigma_s(x) \phi(x) } \ + 
+    	\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\Sigma_t(x) \phi(x) = 
+    	\Sigma_s(x) \phi(x) \ + 
+    	\alert{\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu }
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\Sigma_t(x) \phi(x) = 
+    	\Sigma_s(x) \phi(x) \ + 
+    	\alert{\frac{Q(x)}{2} \int_{-1}^{1} \ud \mu }
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\Sigma_t(x) \phi(x) = 
+    	\Sigma_s(x) \phi(x) \ + 
+    	\alert{Q(x)}
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\alert{\Sigma_t(x) \phi(x)} = 
+    	\alert{\Sigma_s(x) \phi(x) } \ + 
+    	Q(x)
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\alert{\left[\Sigma_t(x) - \Sigma_s(x) \right] \phi(x)} = 
+    	Q(x)
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+    	\dderiv{}{x}J(x) + 
+    	\alert{\Sigma_a(x) \phi(x)} = 
+    	Q(x)
+    \end{equation*}
+    }
+
+    \only<+>{
+    \begin{equation*}
+        \dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
+    \end{equation*}
+    }
+
+\end{frame}

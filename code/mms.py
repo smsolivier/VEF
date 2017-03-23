@@ -24,7 +24,7 @@ def getOrder(sol, N):
 		sol[i].setMMS()
 		# make video 
 		# x, phi, it = sol[i].sourceIteration(tol, PLOT='phi' + str(N[i]))
-		x, phi, it = sol[i].sourceIteration(tol)
+		x, phi, it = sol[i].sourceIteration(tol, 1000)
 
 		phi_int = interp1d(x, phi)
 
@@ -40,14 +40,14 @@ def getOrder(sol, N):
 
 	return err
 
-N = np.array([40, 80, 100, 160])
+N = np.array([40, 80, 100, 160])*5
 
 n = 8 
 
 Sigmaa = lambda x: .1
 Sigmat = lambda x: 1
 
-xb = 2
+xb = 10
 
 dd = [DD.DD(np.linspace(0, xb, x), n, Sigmaa, 
 	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1) for x in N]
@@ -65,15 +65,15 @@ ld_edd = [LD.Eddington(np.linspace(0, xb, x), n, Sigmaa,
 ld_edd2 = [LD.Eddington(np.linspace(0, xb, x), n, Sigmaa, 
 	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1, CENT=1) for x in N]
 
-# errDD = getOrder(dd, N)
-# errDD_edd = getOrder(dd_edd, N)
+errDD = getOrder(dd, N)
+errDD_edd = getOrder(dd_edd, N)
 
 errLD = getOrder(ld, N)
 errLD_edd = getOrder(ld_edd, N)
 # errLD_edd2 = getOrder(ld_edd2, N)
 
-# plt.loglog(1/N, errDD, '-o', label='DD')
-# plt.loglog(1/N, errDD_edd, '-o', label='DD Edd')
+plt.loglog(1/N, errDD, '-o', label='DD')
+plt.loglog(1/N, errDD_edd, '-o', label='DD Edd')
 plt.loglog(1/N, errLD, '-o', label='LD')
 plt.loglog(1/N, errLD_edd, '-o', label='LD Edd')
 # plt.loglog(1/N, errLD_edd2, '-o', label='LD Edd2')

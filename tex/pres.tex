@@ -66,29 +66,32 @@
 \section{Motivation}
 
 \begin{frame}{Motivation}
-    
-    Radiation transport simulations are expensive 
 
-    Multiphysics Coupling 
-        \begin{itemize}
-            \item Operator split requires iteration
-            \item Efficient solution methods are often incompatible 
-        \end{itemize}
+	\footnotesize
+	Radiation Hydrodynamics 
+	\vspace{-.1in}
+	    \begin{itemize}
+	    	\item Couple radiation transport and fluid dynamics
+	    	\item Material temperatures so high that fluid momentum and energy is altered by release of thermal radiation 
+	    	\item Required in high energy density physics (National Ignition Facility, astrophysics)
+	    \end{itemize}
+    \vspace{-.05in}
+    Radiation transport simulations are expensive and difficult to incorporate into hydro 
 
-    Radiation Hydrodynamics 
-        \begin{itemize}
-            \item Mixed Hybrid Finite Element Method for hydro 
-            \item Linear Discontinuous Galerkin for transport 
-        \end{itemize}
+    Efficient methods developed independently 
+
+    Mixed Hybrid Finite Element Method works well for hydrodynamics but is incompatible with radiation transport 
+
+    Want to use MHFEM for hydrodynamics and Linear Discontinuous Galerkin for transport 
 
     \begin{block}{Goal}
         Develop an acceleration scheme that 
-            \begin{enumerate}
+            \begin{enumerate} \vspace{-.1in}
                 \item Robustly reduces the number of source iterations in Discrete Ordinates calculations 
-
                 \item Increases compatibility with MHFEM multiphysics 
             \end{enumerate}
-        Test in 1D slab geometry case
+        \vspace{-.05in}
+       	Show that MHFEM can be used to accelerate lumped LDG radiation transport 
     \end{block}
 
 \end{frame}
@@ -156,7 +159,8 @@
         \phi(x) = \sum_{n=1}^N w_n \psi_n(x)
     \end{equation*}
 
-    \textbf{$N$ coupled, ordinary differential equations}
+    \vfill
+    \centerline{\textbf{$N$ coupled, ordinary differential equations}}
 
 \end{frame}
 
@@ -167,6 +171,8 @@
         \mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
         \frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N        
     \end{equation*}
+
+    \textbf{$N$ independent, first-order, ordinary differential equations}
 
     \begin{exampleblock}{Source Iteration}
     \begin{enumerate}
@@ -183,8 +189,6 @@
     \end{enumerate}
     \end{exampleblock}
 
-    \textbf{$N$ independent, first-order, ordinary differential equations}
-
 \end{frame}
 
 \begin{frame}{Need For Acceleration in Source Iteration}
@@ -194,14 +198,16 @@
     If $\phi^0(x) = 0$
     \begin{equation*}
         \mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
-        \cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)} + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
-    \end{equation*}      
-
+        \vphantom{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}} 
+        \only<+>{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}
+        \only<+>{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}}
+         + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
+    \end{equation*}
     $\Rightarrow \phi^1(x) $ is the uncollided flux 
 
-    Each source iteration adds scattering information 
-
     $\phi^{\ell}(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions 
+
+    Each source iteration adds scattering information 
 
     \textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
 
@@ -238,9 +244,9 @@
 
     Becomes non-convergent in highly scattering media with coarse spatial grids 
 
-    Transport and Diffusion steps must be consistently differenced to prevent non-convergence 
+    Transport and Diffusion steps must be consistently differenced 
 
-    Consistently differenced diffusion is more expensive to solve 
+    Consistently differenced equations are more expensive to solve 
 
     Transport and MHFEM are not compatible
 
@@ -252,44 +258,178 @@
 
 \section{Eddington Acceleration}
 
-% \begin{frame}{Moment Equations}
+\begin{frame}{Zeroth Angular Moment}
 
-% 	Zeroth angular moment of Boltzmann Equation 
-% 	\begin{equation*}
-% 		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
-% 	\end{equation*}
-
-% 	First angular moment 
-% 	{\footnotesize \begin{equation*} 
-% 		\int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
-% 		\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ = 
-% 		\int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
-% 		\int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu \
-% 	\end{equation*}}
-
-% \end{frame}
-
-\input{zeroMoment}
-
-\input{firstMoment}
-
-\begin{frame}{Drift Diffusion Equation}
-
-	Combining the zeroth and first moments 
-
-    \begin{alertblock}{Drift Diffusion Equation}
+	Boltzmann Equation
 	\begin{equation*}
-		-\dderiv{}{x} \frac{1}{\Sigma_t(x)} \dderiv{}{x} \edd(x) \phi(x) + \Sigma_a(x) \phi(x) = Q(x) 
+	        \mu \dderiv{\psi}{x}(x, \mu) + 
+	        \Sigma_t(x) \psi(x,\mu) = 
+	        \frac{\Sigma_s(x)}{2} \phi(x) + 
+	        \frac{Q(x)}{2} 
 	\end{equation*}
-    \end{alertblock}
 
-	Diffusion Equation is recovered if $\edd(x) = \frac{1}{3}$
-	
+	Integrate over all angles 
+	\begin{equation*}
+	    \int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
+	    \int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
+	    \int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+	    \int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+	\end{equation*}
+
+	Use $J(x) = \int_{-1}^{1} \mu \psi(x,\mu) \ud \mu$, 
+		$\phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu$ 
+	\begin{block}{Zeroth Angular Moment}
+	\begin{equation*}
+		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
+	\end{equation*}
+	\end{block}
+
+\end{frame}
+
+\begin{frame}{First Angular Moment}
+
+	Multiply by $\mu$ and integrate 
+	{\footnotesize
+	\begin{equation*}
+		\only<1,2,3>{
+        \int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu}
+        \only<4>{\alert{\int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu}} \ + 
+        \vphantom{\underbrace{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu}_{
+        	\Sigma_t(x) J(x)}}
+        \only<1>{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ =}
+        \only<2,3,4>{\underbrace{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu}_{
+        	\Sigma_t(x) J(x)
+        } \ =}
+        \only<1,2>{
+        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + \ 
+        \int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu }
+        \only<3,4>{\underbrace{
+	        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu + 
+	        \int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu 
+	    }_{\text{Isotropic} \Rightarrow 0}
+        }
+    \end{equation*}}
+
+\end{frame}
+
+\begin{frame}{Eddington Factor}
+
+	\onslide<1->
+	Rearrange derivative 
+	\begin{equation*}
+		\dderiv{}{x} \int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
+	\end{equation*}
+
+	\onslide<2->
+	Multiply and divide by $\int_{-1}^{1} \psi(x,\mu) \ud \mu$
+	\begin{equation*}
+		\only<2>{\dderiv{}{x} \int_{-1}^{1} \psi(x,\mu) \ud \mu}
+		\only<3->{\dderiv{}{x} \underbrace{\int_{-1}^{1} \psi(x,\mu) \ud \mu
+			\vphantom{
+				\frac{
+					\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
+				}{
+					\int_{-1}^{1} \psi(x,\mu) \ud \mu
+				}
+			}}_{
+			\phi(x)
+		}}
+		\only<2>{
+			\frac{
+				\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
+			}{
+				\int_{-1}^{1} \psi(x,\mu) \ud \mu
+			}
+		}
+		\only<3->{\underbrace{\frac{
+			\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
+		}{
+			\int_{-1}^{1} \psi(x,\mu) \ud \mu
+		}
+		}_\text{Eddington Factor}
+		}
+		\vphantom{
+			\underbrace{
+			\frac{
+				\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
+			}{
+				\int_{-1}^{1} \psi(x,\mu) \ud \mu
+			}
+			}_{\edd(x)}
+		}
+	\end{equation*}
+
+	\onslide<4->
+	Eddington Factor 
+	\begin{equation*}
+		\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x,\mu) \ud \mu}{
+			\int_{-1}^1 \psi(x,\mu) \ud \mu
+		}
+	\end{equation*}
+
+	\onslide<5->
+	Shape function 
+
+\end{frame}
+
+\begin{frame}{Moment Equations}
+
+	\begin{block}{Moment Equations}
+	\begin{equation*}
+		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
+	\end{equation*}
+	\begin{equation*}
+		\dderiv{}{x} \edd(x) \phi(x) 
+		+ \Sigma_t(x) J(x) = 0 
+	\end{equation*}
+	\end{block}
+
+	Solve First Moment for $J(x)$ 
+	\begin{equation*}
+		J(x) = -\frac{1}{\Sigma_t(x)} \dderiv{}{x} \edd(x) \phi(x)
+	\end{equation*}
+
+	Combine Zero and First Moments $\Rightarrow$ Drift Diffusion Equation
+		\begin{equation*}
+			-\dderiv{}{x} \frac{1}{\Sigma_t(x)} \dderiv{}{x} \edd(x) \phi(x)
+			+ \Sigma_a(x) \phi(x) = Q(x)
+		\end{equation*}
+
+	Fick's Law: set $\edd(x) = \frac{1}{3}$
+	\begin{equation*}
+		J(x) = -\frac{1}{3\Sigma_t(x)} \dderiv{}{x} \phi(x)
+	\end{equation*}
+
+\end{frame}
+
+% \input{zeroMoment}
+
+% \input{firstMoment}
+
+\begin{frame}{S$_8$ v. Diffusion}
+
+	Small system $\Rightarrow$ diffusion not expected to be accurate 
+	\begin{center}
+	\includegraphics[width=.45\paperwidth]{figs/dvs.pdf}
+	\includegraphics[width=.45\paperwidth]{figs/edd.pdf}
+	\end{center}
+
+\end{frame}
+
+\begin{frame}{S$_8$ v. Drift Diffusion}
+
+	Use $\edd(x)$ from S$_8$ in Moment Equations
+	\begin{center}
+	\includegraphics[width=.5\paperwidth]{figs/corrected.pdf}
+	\end{center}
+
+	\centerline{\textbf{Drift Diffusion and \SN match!}}
+
 \end{frame}
 
 \begin{frame}{Eddington Acceleration}
 
-    Use \SN to compute $\edd(x)$ and Drift Diffusion to find $\phi(x)$ 
+    Use \SN to compute $\edd(x)$ and Moment Equations to find $\phi(x)$ 
 
     \begin{exampleblock}{Eddington Acceleration}
     \begin{enumerate}
@@ -297,7 +437,8 @@
 
         \item \alert{Compute $\edd^{\ell+1/2}(x)$ }
 
-        \item \alert{Solve the Drift Diffusion Equation for $\phi^{\ell+1}(x)$ using $\edd^{\ell+1/2}(x)$} 
+        \item \alert{Solve the Moment Equations for $\phi^{\ell+1}(x)$ 
+        	using $\edd^{\ell+1/2}(x)$} 
 
         \item Update the scalar flux estimate with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges
     \end{enumerate}
@@ -321,9 +462,9 @@
 
     Benefits 
     \begin{enumerate}
-        \item Moment Equations are conservative 
+    	\item No need for consistent differencing $\Rightarrow$ transport and acceleration steps can be differenced with arbitrarily different methods 
 
-        \item Transport and Acceleration steps can be differenced with arbitrarily different methods 
+        \item Moment Equations are conservative 
 
         \item Accelerates source iterations 
 
@@ -345,11 +486,15 @@
 
     100 cells $\Rightarrow$ optical thickness of 20 and optical thickness per cell of 0.2 
 
+    S$_8$ solved with lumped Linear Discontinuous Galerkin 
+
+    Moment Equations solved with Mixed Hybrid Finite Element 
+
 \end{frame}
 
 \begin{frame}{Iterations to Convergence Comparison}
 
-    \centerline{\includegraphics[width=.7\paperwidth]{accel.pdf}}
+    \centerline{\includegraphics[width=.7\paperwidth]{figs/accel.pdf}}
 
     Accelerates between 2.5 and 650 times $\Rightarrow$ acceleration is occurring 
 
@@ -361,8 +506,8 @@
 
     \begin{center}
 
-        \includegraphics[width=.45\paperwidth]{converge_una.pdf}
-        \includegraphics[width=.45\paperwidth]{converge_acc.pdf}
+        \includegraphics[width=.45\paperwidth]{figs/converge_una.pdf}
+        \includegraphics[width=.45\paperwidth]{figs/converge_acc.pdf}
 
     \end{center}
 
@@ -371,13 +516,26 @@
 
 \end{frame}
 
+% \begin{frame}{Diffusion Limit}
+
+% 	Scale cross sections, source 
+% 	\begin{equation*}
+% 	\Sigma_t \rightarrow \frac{1}{\epsilon} \Sigma_t, \,
+% 		\Sigma_a \rightarrow \epsilon \Sigma_a ,\,
+% 		Q \rightarrow \epsilon Q
+% 	\end{equation*}
+
+% 	System becomes diffusive as $\epsilon \rightarrow 0$ 
+
+
+% \end{frame}
+
 \section{Conclusions}
 
 \begin{frame}{Summary}
 
     Conclusions
-    \begin{itemize}
-
+    \begin{itemize} \vspace{-.1in}
         \item Scheme successfully accelerated source iteration in 1D slab geometry 
 
         \item Inherently compatible with rad-hydro multiphysics 
@@ -393,11 +551,11 @@
     \end{itemize}
 
     Future Work 
-    \begin{itemize}
+    \begin{itemize} \vspace{-.1in}
         \item Develop a rad-hydro algorithm 
 
         \begin{itemize}
-            \item Make use of inexpensive Drift Diffusion solution in operator split iterations 
+            \item Make use of inexpensive Moment solution in operator split iterations 
         \end{itemize}
 
         \item Add discretization in energy 

@@ -252,6 +252,8 @@ class LD(Transport):
 			# update iteration count 
 			it += 1 
 
+			print('{} {}'.format(it, .5*(convL + convR)/tol), end='\r')
+
 		print('Number of Iterations =', it, end=', ')
 		tt.stop() # end timer 
 
@@ -344,6 +346,9 @@ class Eddington(LD):
 
 		psiEdge = self.edgePsi() # get edge values of psi 
 		psiCent = self.centPsi() # get center values of psi 
+
+		# store SN flux 
+		self.phi_SN = self.zeroMoment(psiCent)
 
 		# compute eddington factor with cell CENTERS 
 		mu2 = self.getEddington(psiCent)

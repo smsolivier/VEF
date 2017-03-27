@@ -8,6 +8,8 @@ import dd as DD
 
 from scipy.interpolate import interp1d 
 
+from hidespines import * 
+
 ''' Test MMS functions in LD and DD ''' 
 
 def getOrder(sol, N):
@@ -65,17 +67,21 @@ ld_edd = [LD.Eddington(np.linspace(0, xb, x), n, Sigmaa,
 ld_edd2 = [LD.Eddington(np.linspace(0, xb, x), n, Sigmaa, 
 	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1, CENT=1) for x in N]
 
-errDD = getOrder(dd, N)
-errDD_edd = getOrder(dd_edd, N)
+# errDD = getOrder(dd, N)
+# errDD_edd = getOrder(dd_edd, N)
 
 errLD = getOrder(ld, N)
 errLD_edd = getOrder(ld_edd, N)
 # errLD_edd2 = getOrder(ld_edd2, N)
 
-plt.loglog(1/N, errDD, '-o', label='DD')
-plt.loglog(1/N, errDD_edd, '-o', label='DD Edd')
-plt.loglog(1/N, errLD, '-o', label='LD')
-plt.loglog(1/N, errLD_edd, '-o', label='LD Edd')
+# plt.loglog(xb/N, errDD, '-o', label='DD')
+# plt.loglog(xb/N, errDD_edd, '-o', label='DD Edd')
+plt.loglog(xb/N, errLD, '-o', label='LD')
+plt.loglog(xb/N, errLD_edd, '-o', label='LD Edd')
 # plt.loglog(1/N, errLD_edd2, '-o', label='LD Edd2')
-plt.legend(loc='best')
+plt.legend(loc='best', frameon=False)
+plt.xlabel(r'$h$', fontsize=20)
+plt.ylabel('Error', fontsize=20)
+hidespines(plt.gca())
+plt.savefig('../tex/figs/ooa.pdf', transparent=True)
 plt.show()

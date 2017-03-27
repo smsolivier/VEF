@@ -40,14 +40,14 @@ def getOrder(sol, N):
 
 	return err
 
-N = np.array([40, 80, 100, 160])*5
+N = np.array([40, 80, 100, 160])
 
 n = 8 
 
 Sigmaa = lambda x: .1
 Sigmat = lambda x: 1
 
-xb = 10
+xb = 2
 
 dd = [DD.DD(np.linspace(0, xb, x), n, Sigmaa, 
 	Sigmat, np.ones((n,x-1)), BCL=0, BCR=1) for x in N]

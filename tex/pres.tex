@@ -67,16 +67,16 @@
 
 \begin{frame}{Motivation}
 
-	\footnotesize
+	\scriptsize
 	Radiation Hydrodynamics 
 	\vspace{-.1in}
 	    \begin{itemize}
 	    	\item Couple radiation transport and fluid dynamics
-	    	\item Material temperatures so high that fluid momentum and energy is altered by release of thermal radiation 
-	    	\item Required in high energy density physics (National Ignition Facility, astrophysics)
+	    	\item Material temperatures so high that fluid momentum and energy are altered by release of thermal radiation 
+	    	\item Required in high energy density physics simulations (National Ignition Facility, astrophysics)
 	    \end{itemize}
     \vspace{-.05in}
-    Radiation transport simulations are expensive and difficult to incorporate into hydro 
+    Radiation transport simulations are expensive and difficult to incorporate into hydrodynamics
 
     Efficient methods developed independently 
 
@@ -159,8 +159,9 @@
         \phi(x) = \sum_{n=1}^N w_n \psi_n(x)
     \end{equation*}
 
-    \vfill
-    \centerline{\textbf{$N$ coupled, ordinary differential equations}}
+    \textbf{$N$ coupled, ordinary differential equations}
+
+    All coupling in scattering term 
 
 \end{frame}
 
@@ -173,6 +174,8 @@
     \end{equation*}
 
     \textbf{$N$ independent, first-order, ordinary differential equations}
+
+    Solve each equation with well-known sweeping process 
 
     \begin{exampleblock}{Source Iteration}
     \begin{enumerate}
@@ -193,22 +196,28 @@
 
 \begin{frame}{Need For Acceleration in Source Iteration}
 
+    \onslide<1->
 	Convergence rate is linked to the number of collisions in a particle's lifetime
 
+    \onslide<2->
     If $\phi^0(x) = 0$
     \begin{equation*}
         \mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
         \vphantom{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}} 
-        \only<+>{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}
-        \only<+>{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}}
+        \only<2>{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}
+        \only<3->{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}}
          + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
     \end{equation*}
-    $\Rightarrow \phi^1(x) $ is the uncollided flux 
+    \onslide<4->
+    $\phi^1(x) $ is the uncollided flux 
 
+    \onslide<5->
+    $\phi^2(x)$ is uncollided and once collided flux 
+
+    \onslide<6->
     $\phi^{\ell}(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions 
 
-    Each source iteration adds scattering information 
-
+    \onslide<7->
     \textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
 
 \end{frame}
@@ -260,6 +269,7 @@
 
 \begin{frame}{Zeroth Angular Moment}
 
+    \onslide<+->
 	Boltzmann Equation
 	\begin{equation*}
 	        \mu \dderiv{\psi}{x}(x, \mu) + 
@@ -268,14 +278,17 @@
 	        \frac{Q(x)}{2} 
 	\end{equation*}
 
-	Integrate over all angles 
+    \onslide<+->
+	Integrate over all angles \footnotesize
 	\begin{equation*}
 	    \int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
 	    \int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
 	    \int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
 	    \int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
 	\end{equation*}
+    \normalsize
 
+    \onslide<+->
 	Use $J(x) = \int_{-1}^{1} \mu \psi(x,\mu) \ud \mu$, 
 		$\phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu$ 
 	\begin{block}{Zeroth Angular Moment}
@@ -376,11 +389,12 @@
 
 	\begin{block}{Moment Equations}
 	\begin{equation*}
-		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
+		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) \tag{\footnotesize Zeroth Moment}
 	\end{equation*}
 	\begin{equation*}
 		\dderiv{}{x} \edd(x) \phi(x) 
 		+ \Sigma_t(x) J(x) = 0 
+        \tag{\footnotesize First Moment}
 	\end{equation*}
 	\end{block}
 
@@ -418,11 +432,13 @@
 
 \begin{frame}{S$_8$ v. Drift Diffusion}
 
+    \onslide<+->
 	Use $\edd(x)$ from S$_8$ in Moment Equations
 	\begin{center}
 	\includegraphics[width=.5\paperwidth]{figs/corrected.pdf}
 	\end{center}
 
+    \onslide<+->
 	\centerline{\textbf{Drift Diffusion and \SN match!}}
 
 \end{frame}
@@ -448,6 +464,7 @@
 
 \begin{frame}{Eddington Acceleration Properties}
     
+    \onslide<+->
     Acceleration occurs due to: 
     \begin{enumerate}
     	\item Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
@@ -458,8 +475,10 @@
 
     \end{enumerate}
 
+    \onslide<+->
     Downside: produces 2 solutions (\SN and Drift Diffusion)
 
+    \onslide<+->
     Benefits 
     \begin{enumerate}
     	\item No need for consistent differencing $\Rightarrow$ transport and acceleration steps can be differenced with arbitrarily different methods 
@@ -490,11 +509,17 @@
 
     Moment Equations solved with Mixed Hybrid Finite Element 
 
+    Compare to acceleration to constistently differenced S$_2$SA 
+
 \end{frame}
 
 \begin{frame}{Iterations to Convergence Comparison}
 
-    \centerline{\includegraphics[width=.7\paperwidth]{figs/accel.pdf}}
+    Vary ratio of $\Sigma_s$ to $\Sigma_t$ 
+
+    More scattering $\Rightarrow$ more diffusive, harder for \SN to solve 
+
+    \centerline{\includegraphics[width=.55\paperwidth]{figs/accel.pdf}}
 
     Accelerates between 2.5 and 650 times $\Rightarrow$ acceleration is occurring 
 
@@ -504,6 +529,7 @@
 
 \begin{frame}{Convergence Rate Comparison}
 
+    \onslide<+->
     \begin{center}
 
         \includegraphics[width=.45\paperwidth]{figs/converge_una.pdf}
@@ -511,6 +537,7 @@
 
     \end{center}
 
+    \onslide<+->
     \vfill
     \centerline{\textbf{Fast rate of convergence of $\edd(x)$ is transfered to $\phi(x)$}}
 
@@ -534,6 +561,7 @@
 
 \begin{frame}{Summary}
 
+    \onslide<+->
     Conclusions
     \begin{itemize} \vspace{-.1in}
         \item Scheme successfully accelerated source iteration in 1D slab geometry 
@@ -550,6 +578,7 @@
 
     \end{itemize}
 
+    \onslide<+->
     Future Work 
     \begin{itemize} \vspace{-.1in}
         \item Develop a rad-hydro algorithm 

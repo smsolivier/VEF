@@ -72,8 +72,8 @@
 	\vspace{-.1in}
 	    \begin{itemize}
             \item Propogate thermal radiation through fluid 
-	    	\item Model effects of thermal radiation on fluid momentum and energy 
-	    	\item Required in high energy density laboratory physics and astrophysics 
+	    	\item Model effect of thermal radiation on fluid momentum and energy 
+	    	\item Required in high energy density laboratory physics (NIF, Z Machine) and astrophysics 
 	    \end{itemize}
     \vspace{-.05in}
 
@@ -421,7 +421,7 @@
 		\end{equation*}
 
 	\pause
-	Fick's Law: set $\edd(x) = \frac{1}{3}$
+	Recover Diffusion Equation by setting $\edd(x) = \frac{1}{3}$
 	\begin{equation*}
 		J(x) = -\frac{1}{3\Sigma_t(x)} \dderiv{}{x} \phi(x)
 	\end{equation*}
@@ -451,7 +451,7 @@
 	\end{center}
 
     \onslide<+->
-    Drift Diffusion and \SN match! 
+    Moment Equations and \SN match! 
 
     \onslide<+-> 
     Requires knowledge of angular flux
@@ -608,7 +608,7 @@
 	\centerline{\includegraphics[width=.5\paperwidth]{figs/hlim.pdf}}
 
 	\onslide<+->
-	\SN and Moment solutions converge 
+	\SN and Moment solutions converge as mesh if refined 
 
 \end{frame}
 
@@ -619,8 +619,10 @@
 		\phi(x) = \sin\left(\frac{\pi x}{x_b}\right)
 	\end{equation*}
 
+	\pause
 	\centerline{\includegraphics[width=.5\paperwidth]{figs/ooa.pdf}}
 
+	\pause
 	Both second order accurate
 
 \end{frame}

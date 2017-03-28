@@ -189,6 +189,174 @@ class MHFEM:
 			print('\n --- FATAL ERROR: MHFEM right boundary condition not defined ---\n')
 			sys.exit()
 
+	def discretizeGauss(self, sn):
+		''' setup coefficient matrix with MHFEM equations 
+			Supply Sn object 
+		''' 
+
+		# make eddington factor array (edges and centers)
+		# get edge eddington 
+		psiEdge = sn.edgePsi() # get edge value of psi 
+		mu2_edge = sn.getEddington(psiEdge) # edge eddington 
+
+		# evaluate centers with gauss quad 
+		phiL = sn.zeroMoment(sn.psiL) # left flux 
+		phiR = sn.zeroMoment(sn.psiR) # right flux 
+		muPsiL = np.zeros(sn.N) # cell centered 
+		muPsiR = np.zeros(sn.N) # cell centered 
+		for i in range(sn.n):
+
+			muPsiL += sn.mu[i]**2 * sn.psiL[i,:] * sn.w[i] 
+			muPsiR += sn.mu[i]**2 * sn.psiR[i,:] * sn.w[i] 
+
+		mu2_cent = np.zeros(sn.N) # cell centered eddington, gauss quad 
+
+		# basis functions 
+		Bli = lambda x, i: (sn.xe[i+1] - x)/sn.h[i] 
+		Bri = lambda x, i: (x - sn.xe[i])/sn.h[i] 
+
+		xlg = -1/np.sqrt(3) 
+		xrg = 1/np.sqrt(3) 
+		for i in range(sn.N):
+
+			# left and right gauss points 
+			# convert from (-1, 1) -> (x_i-1/2, x_i+1/2) 
+			xlg = sn.xc[i] - sn.h[i]/2 / np.sqrt(3) 
+			xrg = sn.xc[i] + sn.h[i]/2 / np.sqrt(3) 
+
+			xg = np.array([xlg, xrg]) 
+
+			for j in range(len(xg)):
+
+				mu2_cent[i] += (Bli(xg[j], i) * muPsiL[i] + Bri(xg[j], i) * muPsiR[i])/(
+					phiL[i] * Bli(xg[j], i) + phiR[i] * Bri(xg[j], i)) / 2 
+
+		# concatenate into one array 
+		mu2 = np.zeros(self.n) # centers and edges 
+		mu2[0] = mu2_edge[0] # set left boundary 
+		ii = 1 
+		for i in range(sn.N):
+
+			mu2[ii] = mu2_cent[i] 
+			mu2[ii+1] = mu2_edge[i+1] 
+
+			ii += 2 
+
+		# create boundary eddington factor 
+		top = 0 
+		for i in range(sn.n):
+
+			top += np.fabs(sn.mu[i])*psiEdge[i,:] * sn.w[i] 
+
+		B = top/sn.zeroMoment(psiEdge) 
+
+		# build equations 
+		for i in range(1, self.n, 2):
+
+			hi = self.x[i+1] - self.x[i-1] # cell width, x_i+1/2 - x_i-1/2 
+			beta = 2/(self.Sigmat(self.x[i])*hi)
+
+			# balance equation 
+			# lower diagonal 
+			self.A[3,i-1] = -3 * beta * mu2[i-1]
+
+			# diagonal term 
+			self.A[2,i] = 6*beta*mu2[i] + self.Sigmaa(self.x[i])*hi 
+
+			# upper diagonal 
+			self.A[1,i+1] = -3*beta*mu2[i+1]
+
+			# phi_i+1/2 equation
+			if (i != self.n-2):
+
+				# cell i+1 width, x_i+3/2 - x_i+1/2 
+				h1 = self.x[i+3] - self.x[i+1] 
+				beta1 = 2/(self.Sigmat(self.x[i+2])*h1) 
+
+				# second lower (phi_i-1/2)
+				self.A[4,i-1] = -beta*mu2[i-1]
+
+				# first lower (phi_i) 
+				self.A[3,i] = 3*beta*mu2[i]
+				
+				# diagonal term (phi_i+1/2)
+				self.A[2,i+1] = -2*(beta + beta1)*mu2[i+1]
+
+				# first upper (phi_i+1)
+				self.A[1,i+2] = 3*beta*mu2[i+2]
+
+				# second upper (phi_i+3/2)
+				self.A[0,i+3] = -beta*mu2[i+3]
+
+		# boundary conditions 
+		# left 
+		if (self.BCL == 0): # reflecting 
+
+			h1 = self.x[2] - self.x[0] 
+			beta1 = 2/(self.Sigmat(self.x[1])*h1) 
+
+			# J_1L = 0 
+			# diagonal (phi_1/2)
+			self.A[2,0] = -2*beta1*mu2[0] 
+
+			# first upper (phi_1)
+			self.A[1,1] = 3*beta1*mu2[1]
+
+			# second upper (phi_3/2)
+			self.A[0,2] = -beta1*mu2[2]
+
+		elif (self.BCL == 1): # marshak 
+
+			h1 = self.x[2] - self.x[0] 
+			beta1 = 2/(self.Sigmat(self.x[1])*h1) 
+
+			# diagonal (phi_1/2)
+			self.A[2,0] = -B[0] - 2*beta1*mu2[0]
+
+			# first upper (phi_1)
+			self.A[1,1] = 3*beta1*mu2[1]
+
+			# second upper (phi_3/2)
+			self.A[0,2] = -beta1*mu2[2]
+
+		else:
+			print('\n--- FATAL ERROR: MHFEM left boundary condition not defined ---\n')
+			sys.exit()
+
+		# right
+		if (self.BCR == 0): # reflecting 
+
+			hN = self.x[-1] - self.x[-3] # cell N width 
+			betaN = 2/(self.Sigmat(self.x[-2])*hN)
+
+			# J_NR = 0 
+			# second lower (phi_N-1/2)
+			self.A[4,-3] = betaN*mu2[-3]
+
+			# first lower (phi_N)
+			self.A[3,-2] = -3*betaN*mu2[-2]
+
+			# diagonal (phi_N+1/2)
+			self.A[2,-1] = 2*betaN*mu2[-1]
+
+		elif (self.BCR == 1): # marshak 
+
+			hN = self.x[-1] - self.x[-3] # cell N width 
+			betaN = 2/(self.Sigmat(self.x[-2])*hN)
+
+			# second lower (phi_N-1/2)
+			self.A[4,-3] = betaN*mu2[-3]
+
+			# first lower (phi_N)
+			self.A[3,-2] = -3*betaN*mu2[-2]
+
+			# diagonal (phi_N+1/2)
+			self.A[2,-1] = B[-1] + 2*betaN*mu2[-1]
+
+		else:
+			print('\n --- FATAL ERROR: MHFEM right boundary condition not defined ---\n')
+			sys.exit()
+
 	def getEdges(self, phi):
 
 		# get edge values 

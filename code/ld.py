@@ -340,6 +340,27 @@ class Eddington(LD):
 		return phiL, phiR 
 
 	def sweep(self, phiL, phiR):
+
+		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
+
+		# make SN flux public 
+		self.phi_SN = self.zeroMoment(self.centPsi())
+
+		# discretize MHFEM
+		self.mhfem.discretizeGauss(self)
+
+		# solve for phi, get edges and centers 
+		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
+			self.firstMoment(self.q)/2)
+
+		# get LD left and right fluxes 
+		phiL, phiR = self.ldRecovery(phi, OPT=self.CENT)
+
+		return phiL, phiR # return accelerated flux 
+
+class Eddington_old(Eddington):
+
+	def sweep(self, phiL, phiR):
 		''' one source iteration ''' 
 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
@@ -371,11 +392,11 @@ class Eddington(LD):
 		# get LD left and right fluxes 
 		phiL, phiR = self.ldRecovery(phi, OPT=self.CENT)
 
-		return phiL, phiR # return accelerated flux 
+		return phiL, phiR # return accelerated flux 	
 
 if __name__ == '__main__':
 
-	N = 50
+	N = 500
 	n = 8
 	xb = 2 
 	x = np.linspace(0, xb, N)

@@ -69,44 +69,45 @@
 
 	\scriptsize
 	Radiation Hydrodynamics 
-	\vspace{-.1in}
+	\vspace{-.05in}
 	    \begin{itemize}
             \item Propogation of thermal radiation through a fluid 
             \item Effects of radiation on fluid momentum and energy 
 	    	\item Required in high energy density laboratory physics (NIF, Z Machine) and astrophysics 
 	    \end{itemize}
+    % \vspace{-.05in}
+
+   	% Efficient methods developed independently 
+
+    Spatial Discretizations
     \vspace{-.05in}
-
-   	Efficient methods developed independently 
-
-    Want
-    \vspace{-.1in}
     \begin{itemize}
         \item Mixed Hybrid Finite Element Method (MHFEM) for hydrodynamics 
         \item Linear Discontinuous Galerkin (LDG) for transport 
     \end{itemize}
-    \vspace{-0.05in}
+    % \vspace{-0.05in}
 
     Need hydrodynamics and transport to be consistently differenced  
-    \vspace{-.1in}
+    \vspace{-.05in}
     \begin{itemize}
+    	\item Use the same method or do extra work to make differing methods agree 
         \item Interpolating between spatial grids introduces noise 
         \item Matching grids between methods is not always possible in higher dimensions 
     \end{itemize}
-    \vspace{-.05in}
+    % \vspace{-.05in}
 
-    Solution: 
-    \vspace{-.1in}
-    \begin{itemize}
-        \item Extra work to make differing methods agree (MUSCL-Hancock and LDG) 
-        \item Discretize with same method
-    \end{itemize}
+    % Solution: 
+    % \vspace{-.1in}
+    % \begin{itemize}
+    %     \item Extra work to make differing methods agree (MUSCL-Hancock and LDG) 
+    %     \item Discretize with same method
+    % \end{itemize}
 
-    MHFEM and first-order form of transport are incompatible 
+    Problem: MHFEM and first-order form of transport are incompatible $\Rightarrow$ can't use linear acceleration scheme 
 
     \begin{block}{Goal}
-        Develop a transport algorithm that 
-            \begin{enumerate} \vspace{-.1in}
+        Develop a non-linear acceleration scheme that 
+            \begin{enumerate} \vspace{-.05in}
                 \item Robustly reduces the number of source iterations in Discrete Ordinates calculations 
                 \item Bridges LDG transport and MHFEM multiphysics
             \end{enumerate}
@@ -172,14 +173,15 @@
 
 \begin{frame}{\SN Equations}
 
+	\begin{block}{\SN Equations}
     \begin{equation*}
         \mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
         \frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \, 1 \leq n \leq N
     \end{equation*}
-
     \begin{equation*}
         \phi(x) = \sum_{n=1}^N w_n \psi_n(x)
     \end{equation*}
+   	\end{block}
 
     \textbf{$N$ coupled, ordinary differential equations}
 
@@ -243,6 +245,16 @@
 
     \onslide<7->
     \textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
+
+\end{frame}
+
+\begin{frame}{Need For Acceleration in Source Iteration}
+
+	Radiation Hydrodynamics problems often contain highly diffusive regions 
+
+	\SN is too expensive in these regions 
+
+	Need an \alert{acceleration scheme} that rapidly increases the rate of convergence of source iteration 
 
 \end{frame}
 
@@ -411,6 +423,7 @@
 
 \begin{frame}{Moment Equations}
 
+	\footnotesize
 	\begin{block}{Moment Equations}
 	\begin{equation*}
 		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) \tag{\footnotesize Zeroth Moment}
@@ -431,18 +444,20 @@
     \pause
     If $\edd(x) = \frac{1}{3}$
     \begin{equation*}
-        J(x) = -\frac{1}{3\Sigma_t(x)} \dderiv{\phi}{x}
+        J(x) = -\frac{1}{3\Sigma_t(x)} \dderiv{\phi}{x} \tag{Fick's Law}
     \end{equation*}
 
     \pause
-    Moment Equations = transport informed diffusion 
+    Moment Equations = transport informed diffusion
+
+    \pause
+    Transport information passed through $\edd(x)$ 
 
     \pause
     Just as accurate as \SN
 
     \pause
-    \textbf{Solving the Moment Equations requires knowledge of the angular flux}
-
+    \textbf{Solving the Moment Equations requires knowledge of the angular flux (the solution)}    
 	% \pause
 	% Combine Zero and First Moments $\Rightarrow$ Drift Diffusion Equation
 	% 	\begin{equation*}
@@ -475,36 +490,32 @@
     \end{enumerate}
     \end{exampleblock}
 
+    Acceleration occurs because
+    \begin{enumerate}
+    	\item Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
+
+    	\item Moment Equations model all scattering at once $\Rightarrow$ dependence on source iterations to introduce scattering information is reduced 
+
+    \end{enumerate}
+
 \end{frame}
 
 \begin{frame}{Eddington Acceleration Properties}
 
-	\footnotesize
-    
-    \onslide<+->
-    Acceleration occurs due to: 
-    \begin{enumerate}
-    	\item Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
-
-    	\item Solution to moment equations models all scattering events at once 
-
-    	\item Dependence on source iterations to introduce scattering information is reduced
-
-    \end{enumerate}
-
-    \onslide<+->
+	% \footnotesize 
     Non-linear scheme $\Rightarrow$ produces 2 solutions (\SN and Moment)
 
-    \onslide<+->
+    \pause
+    Relaxes consistent differencing requirements 
+
+    \pause
     Solutions converge as cell spacing decreases 
 
-    \onslide<+->
+    \pause
     Benefits 
     \begin{enumerate}
 
-    	\item No need for consistent differencing $\Rightarrow$ transport can be LDG and acceleration can be MHFEM 
-
-    	\item Accelerates source iterations 
+    	\item Transport can be LDG and Moment can be MHFEM
 
         \item Moment Equations are conservative and relatively inexpensive compared to transport sweep 
 
@@ -608,7 +619,7 @@
 	\centerline{\includegraphics[width=.5\paperwidth]{figs/hlim.pdf}}
 
 	\onslide<+->
-	\SN and Moment solutions converge as mesh if refined 
+	\SN and Moment solutions converge as mesh is refined 
 
 \end{frame}
 
@@ -625,6 +636,9 @@
 	\pause
 	Both second order accurate
 
+	\pause
+	Eddington Acceleration did not effect the order of accuracy of lumped LDG 
+
 \end{frame}
 
 \section{Conclusions}
@@ -636,15 +650,23 @@
     \begin{itemize} \vspace{-.1in}
         \item Scheme successfully accelerated source iteration in 1D slab geometry 
 
-        \item Inherently compatible with rad-hydro multiphysics 
+        % \item Inherently compatible with rad-hydro multiphysics 
 
+        % \begin{itemize}
+        %     \item Transport and acceleration steps can be discretized with arbitrarily different methods 
+        %     \item Avoids consistency issues 
+        %     \item Provides less expensive, conservative solution 
+        % \end{itemize}
+
+        \item Eddington Acceleration is uniquely suited for radiation hydrodynamics 
         \begin{itemize}
-            \item Transport and acceleration steps can be discretized with arbitrarily different methods 
-            \item Avoids consistency issues 
-            \item Provides less expensive, conservative solution 
+        	\item LDG transport 
+        	\item MHFEM hydrodynamics 
+        	\item Source iteration acceleration 
+        	\item Provides inexpensive, conservative solution 
         \end{itemize}
 
-        \item Proved Mixed Hybrid Finite Element Method can be used to accelerate lumped Linear Discontinuous Galerkin transport 
+        \item Proved MHFEM can be used to accelerate lumped LDG transport in 1D slab geometry 
 
     \end{itemize}
 
@@ -657,13 +679,13 @@
             \item Make use of inexpensive Moment solution in multiphysics iterations 
         \end{itemize}
 
-        \item Add discretization in energy 
+        \item Add energy, time dependence 
 
-        \item Higher dimensions 
+        \item Test in 3D 
 
-        \item Anisotropic scattering 
+        % \item P$_N$ scattering/source expansion  
 
-        \item Implement LDG basis functions in MHFEM 
+        \item Explore other multiphysics applications 
 
     \end{itemize}
 

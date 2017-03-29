@@ -1,5 +1,5 @@
 # store where pythonscripts are located in relation to makefile 
-codedir = ../../code/ 
+codedir = ../../code/
 # where to store figures 
 figdir = figs/
 

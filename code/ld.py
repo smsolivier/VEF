@@ -7,6 +7,11 @@ from transport import * # general transport class
 
 from mhfem_acc import * 
 
+''' Linear Discontinuous Galerkin spatial discretization of Sn 
+	Inherits from transport.py 
+	Has unaccelerated, eddington accelerated methods 
+''' 
+
 class LD(Transport):
 	''' Linear Discontinuous Galerkin spatial discretization of Sn 
 		Inherits functions from transport.py 

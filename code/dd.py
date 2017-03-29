@@ -9,6 +9,11 @@ from mhfem_acc import *
 
 import direct as Direct # direct S2 solver 
 
+''' Diamond differenced Sn solver 
+	Inherits from transport.py 
+	Includes unaccelerated, eddington accelerated, S2SA, DSA
+''' 
+
 class DD(Transport):
 	''' Diamond Difference spatial discretization of Sn 
 		Inherits functions from transport.py 

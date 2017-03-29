@@ -8,6 +8,8 @@ import mhfem_acc as MH
 
 from hidespines import * 
 
+''' compares diffusion and transport ''' 
+
 N = 100
 xb = 2
 xe = np.linspace(0, xb, N+1)

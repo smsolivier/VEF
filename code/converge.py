@@ -7,6 +7,8 @@ import ld as LD
 
 from hidespines import * 
 
+''' plot eddington and flux convergence for unaccelerated and accelerated Sn ''' 
+
 N = 100 
 
 Sigmat = 1 

@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 from TDMA import * 
 
+''' Regular finite element diffusion solver ''' 
+
 class FEM:
 
 	def __init__(self, xe, mu2, Sigmaa, Sigmat, BCL=0, BCR=2):

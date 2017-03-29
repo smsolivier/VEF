@@ -10,6 +10,8 @@ import sys
 
 from exactDiff import * 
 
+''' Mixed Hybrid Finite Element solver for moment equations (drift diffusion) ''' 
+
 class MHFEM:
 
 	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1, CENT=0):

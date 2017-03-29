@@ -8,7 +8,7 @@ import ld as LD
 
 from hidespines import * 
 
-''' compare the number of iterations for unaccelerated, Eddington, and DSA S8 ''' 
+''' compare the number of iterations for unaccelerated, Eddington, and S2SA S8 ''' 
 
 N = 100 # number of edges 
 Sigmat = 1 

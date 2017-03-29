@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 
 import sys 
 
+''' computes analytic diffusion solutions ''' 
+
 def refMarshak(Sigmaa, Sigmat, Q, xb):
 
 	D = 1/(3*Sigmat) 

@@ -10,6 +10,8 @@ import sys
 
 import shutil 
 
+''' General Discrete Ordinates class ''' 
+
 class Transport:
 	''' general transport initialization ''' 
 

@@ -8,6 +8,8 @@ import dd as DD
 
 from hidespines import * 
 
+''' compares difference between Sn and moment equations as cell width --> 0 ''' 
+
 N = 100 
 n = 8 
 xb = 1

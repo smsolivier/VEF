@@ -1,4 +1,4 @@
-\documentclass{anstrans}
+\documentclass{../anstrans}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \title{Mixed Hybrid Finite Element Method Eddington Acceleration of Discrete Ordinates Source Iteration}
 \author{Samuel S. Olivier*, Jim E. Morel}
@@ -29,7 +29,7 @@
 % order of accuracy of accelerated system 
 
 \begin{document}
-\section{Introduction}
+\section{Introduction} 
 	% Two of the most challenging computational tasks are radiation transport and hydrodynamics. 
 	One of the most challenging computational tasks is simulating the interaction of radiation with matter. 
 	A full description of a particle in flight includes three spatial variables ($x$,$y$ and $z$), two angular or direction of flight variables ($\mu =$ the cosine of the polar angle and $\gamma =$ the azimuthal angle), one energy variable ($E$) and one time variable ($t$). Numerical solutions require discretizing all seven variables leading to immense systems of algebraic equations. In addition, material properties can lead to vastly different solution behaviors making generalized numerical methods for radiation transport difficult to attain \cite{adams}. 
@@ -124,7 +124,7 @@
 \section{Results}
 	\begin{figure}
 		\centering
-		\includegraphics[width=8.5cm]{accel.pdf}
+		\includegraphics[width=8.5cm]{figs/accel.pdf}
 		\caption{A comparison of the number of iterations until convergence for unaccelerated, Eddington accelerated, and DSA S$_8$ SI. }
 		\label{fig:comparison}
 	\end{figure}
@@ -135,7 +135,7 @@
 
 	\begin{figure}
 		\centering
-		\includegraphics[width=8.5cm]{eddCon_si.pdf}
+		\includegraphics[width=8.5cm]{figs/eddCon_si.pdf}
 		\caption{The convergence rate of $\phi(x)$ compared to $\edd(x)$ for unaccelerated S$_8$ with $\Sigma_s/\Sigma_t = 0.75$. }
 		\label{fig:conv_si}
 	\end{figure}
@@ -148,7 +148,7 @@
 
 	\begin{figure}
 		\centering
-		\includegraphics[width=8.5cm]{eddCon_mu.pdf}
+		\includegraphics[width=8.5cm]{figs/eddCon_mu.pdf}
 		\caption{The convergence rate of $\phi(x)$ compared to $\edd(x)$ for Eddington accelerated S$_8$ with $\Sigma_s/\Sigma_t = 0.75$. }
 		\label{fig:conv_edd}
 	\end{figure}
@@ -162,5 +162,5 @@
 % \section{Acknowledgments}
 
 \bibliographystyle{ans}
-\bibliography{bibliography.bib}
+\bibliography{../bibliography.bib}
 \end{document}

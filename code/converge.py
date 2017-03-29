@@ -7,7 +7,14 @@ import ld as LD
 
 from hidespines import * 
 
+import sys 
+
 ''' plot eddington and flux convergence for unaccelerated and accelerated Sn ''' 
+
+if (len(sys.argv) > 1):
+	outfile = sys.argv[1:] 
+else:
+	outfile = None 
 
 N = 100 
 
@@ -41,7 +48,8 @@ plt.xlabel('Iteration Number')
 plt.ylabel('Convergence')
 plt.legend(loc='best', frameon=False)
 hidespines(plt.gca())
-plt.savefig('../tex/converge_una.pdf', transparent=True)
+if (outfile != None):
+	plt.savefig(outfile[0], transparent=True)
 
 # accelerated 
 plt.figure()
@@ -53,6 +61,8 @@ plt.xlabel('Iteration Number')
 plt.ylabel('Convergence')
 plt.legend(loc='best', frameon=False)
 hidespines(plt.gca())
-plt.savefig('../tex/converge_acc.pdf', transparent=True)
+if (outfile != None):
+	plt.savefig(outfile[1], transparent=True)
 
-plt.show()
+if (outfile == None):
+	plt.show()

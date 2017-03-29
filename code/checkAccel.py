@@ -8,14 +8,22 @@ import ld as LD
 
 from hidespines import * 
 
+import sys 
+
 ''' compare the number of iterations for unaccelerated, Eddington, and S2SA S8 ''' 
+
+# accept save location 
+if (len(sys.argv) > 1):
+	outfile = sys.argv[1] 
+else:
+	outfile = None 
 
 N = 100 # number of edges 
 Sigmat = 1 
 c = np.linspace(0, 1, 20)
 Sigmaa = Sigmat*(1 - c) 
 q = 1 
-xb = 20
+xb = 2
 
 tol = 1e-6 
 
@@ -56,9 +64,12 @@ plt.yscale('log')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$\Sigma_s/\Sigma_t$', fontsize=20)
 plt.ylabel('Number of Iterations', fontsize=16)
-plt.savefig('../tex/accel.pdf', transparent=True)
+if (outfile != None):
+	plt.savefig(outfile, transparent=True)
 
 plt.figure()
 plt.plot(c, it/itmu)
 plt.yscale('log')
-plt.show()
+
+if (outfile == None):
+	plt.show()

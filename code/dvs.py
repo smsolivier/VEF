@@ -8,7 +8,14 @@ import mhfem_acc as MH
 
 from hidespines import * 
 
+import sys 
+
 ''' compares diffusion and transport ''' 
+
+if (len(sys.argv) > 1):
+	outfile = sys.argv[1:]
+else:
+	outfile = None 
 
 N = 100
 xb = 2
@@ -56,7 +63,8 @@ plt.xlabel(r'$\Sigma_t x$', fontsize=fsize)
 plt.ylabel(r'$\phi(x)$', fontsize=fsize)
 plt.legend(loc='best', frameon=False)
 hidespines(plt.gca())
-plt.savefig('../tex/figs/dvs.pdf', transparent=True)
+if (outfile != None):
+	plt.savefig(outfile[0], transparent=True)
 
 plt.figure()
 plt.axhline(1/3, color='k', alpha=.4)
@@ -64,7 +72,8 @@ plt.plot(x*Sigmat(x), edd)
 plt.xlabel(r'$\Sigma_t x$', fontsize=fsize)
 plt.ylabel(r'$\langle \mu^2 \rightangle(x)$', fontsize=fsize)
 hidespines(plt.gca())
-plt.savefig('../tex/figs/edd.pdf', transparent=True)
+if (outfile != None):
+	plt.savefig(outfile[1], transparent=True)
 
 plt.figure()
 plt.plot(x*Sigmat(x), phi, '--', label='S$_8$')
@@ -73,6 +82,7 @@ plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$\Sigma_t x$', fontsize=fsize)
 plt.ylabel(r'$\phi(x)$', fontsize=fsize)
 hidespines(plt.gca())
-plt.savefig('../tex/figs/corrected.pdf', transparent=True)
-
-plt.show()
+if (outfile != None):
+	plt.savefig(outfile[2], transparent=True)
+else:
+	plt.show()

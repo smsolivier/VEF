@@ -10,9 +10,16 @@ from scipy.interpolate import interp1d
 
 from hidespines import * 
 
+import sys 
+
 ''' compare number of iterations in LD and DD Eddington Acceleration 
 	in the Diffusion Limit (epsilon --> 0) 
 ''' 
+
+if (len(sys.argv) > 1):
+	outfile = sys.argv[1] 
+else:
+	outfile = None 
 
 def getDiff(eps, solver):
 
@@ -72,5 +79,7 @@ plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$\epsilon$', fontsize=20)
 plt.ylabel('Number of Iterations', fontsize=20)
 hidespines(plt.gca())
-plt.savefig('../tex/figs/diffLimit.pdf', transparent=True)
-plt.show()
+if (outfile != None):
+	plt.savefig(outfile, transparent=True)
+else:
+	plt.show()

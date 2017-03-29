@@ -8,7 +8,14 @@ import dd as DD
 
 from hidespines import * 
 
+import sys 
+
 ''' compares difference between Sn and moment equations as cell width --> 0 ''' 
+
+if (len(sys.argv) > 1):
+	outfile = sys.argv[1] 
+else:
+	outfile = None 
 
 N = 100 
 n = 8 
@@ -19,7 +26,7 @@ Sigmat = lambda x: 1
 
 tol = 1e-6 
 
-N = np.logspace(1, 5, 5) 
+N = np.logspace(1, 4, 5) 
 
 for i in range(len(N)):
 
@@ -41,24 +48,26 @@ for i in range(len(N)):
 
 	old = LD.Eddington_old(xe, n, Sigmaa, Sigmat, q) 
 
-	dd = DD.Eddington(xe, n, Sigmaa, Sigmat, q)
+	# dd = DD.Eddington(xe, n, Sigmaa, Sigmat, q)
 
 	x, phi, it = ed.sourceIteration(tol) 
-	xo, phio, ito = old.sourceIteration(tol)
-	xdd, phidd, itdd = dd.sourceIteration(tol)
+	# xo, phio, ito = old.sourceIteration(tol)
+	# xdd, phidd, itdd = dd.sourceIteration(tol)
 
 	diff[i] = np.linalg.norm(phi - ed.phi_SN, 2) / np.linalg.norm(ed.phi_SN, 2)
-	diffOld[i] = np.linalg.norm(phio - old.phi_SN, 2) / np.linalg.norm(old.phi_SN, 2) 
-	diffDD[i] = np.linalg.norm(phidd - dd.phi_SN, 2) / np.linalg.norm(dd.phi_SN, 2)
+	# diffOld[i] = np.linalg.norm(phio - old.phi_SN, 2) / np.linalg.norm(old.phi_SN, 2) 
+	# diffDD[i] = np.linalg.norm(phidd - dd.phi_SN, 2) / np.linalg.norm(dd.phi_SN, 2)
 
 plt.loglog(xb/N, diff, '-o', clip_on=False, label='Gauss')
-plt.loglog(xb/N, diffOld, '-o', clip_on=False, label='Old')
-plt.loglog(xb/N, diffDD, '-o', clip_on=False, label='DD')
+# plt.loglog(xb/N, diffOld, '-o', clip_on=False, label='Old')
+# plt.loglog(xb/N, diffDD, '-o', clip_on=False, label='DD')
 plt.xlabel(r'$h$', fontsize=20)
 plt.ylabel('Convergence', fontsize=20)
-plt.legend(loc='best')
+# plt.legend(loc='best')
 hidespines(plt.gca())
-# plt.savefig('../tex/figs/hlim.pdf', transparent=True)
-plt.show()
+if (outfile != None):
+	plt.savefig(outfile, transparent=True)
+else:
+	plt.show()
 
 

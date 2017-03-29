@@ -10,7 +10,14 @@ from scipy.interpolate import interp1d
 
 from hidespines import * 
 
+import sys 
+
 ''' Test MMS functions in LD and DD ''' 
+
+if (len(sys.argv) > 1):
+	outfile = sys.argv[1] 
+else:
+	outfile = None 
 
 def getOrder(sol, N):
 
@@ -83,5 +90,7 @@ plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$h$', fontsize=20)
 plt.ylabel('Error', fontsize=20)
 hidespines(plt.gca())
-plt.savefig('../tex/figs/ooa.pdf', transparent=True)
-plt.show()
+if (outfile != None):
+	plt.savefig(outfile, transparent=True)
+else:
+	plt.show()

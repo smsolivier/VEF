@@ -14,7 +14,9 @@ Test MMS functions in LD and DD
 compare the number of iterations for unaccelerated, Eddington, and S2SA S8 
 ### ld.py
 Linear Discontinuous Galerkin spatial discretization of Sn 
+
 Inherits from transport.py 
+
 Has unaccelerated, eddington accelerated methods
 ### exactDiff.py
 computes analytic diffusion solutions 
@@ -26,7 +28,9 @@ compares diffusion and transport
 Regular finite element diffusion solver 
 ### dd.py
 Diamond differenced Sn solver 
+
 Inherits from transport.py 
+
 Includes unaccelerated, eddington accelerated, S2SA, DSA
 ### diffLimit.py
 compare LD and DD Eddington Acceleration in the Diffusion Limit (epsilon --> 0) 

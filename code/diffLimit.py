@@ -10,7 +10,9 @@ from scipy.interpolate import interp1d
 
 from hidespines import * 
 
-''' compare LD and DD Eddington Acceleration in the Diffusion Limit (epsilon --> 0) ''' 
+''' compare number of iterations in LD and DD Eddington Acceleration 
+	in the Diffusion Limit (epsilon --> 0) 
+''' 
 
 def getDiff(eps, solver):
 

@@ -10,7 +10,10 @@ import sys
 
 import shutil 
 
-''' General Discrete Ordinates class ''' 
+''' General Discrete Ordinates class 
+	Provides common variable names and helpful functions 
+	Parent class for all spatial discretization methods and acceleration methods 
+''' 
 
 class Transport:
 	''' general transport initialization ''' 

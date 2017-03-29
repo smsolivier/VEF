@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 import sys 
 
-''' direct S2 solver ''' 
+''' Direct S2 solver ''' 
 
 class Direct:
 	''' initialize direct S2 solver ''' 

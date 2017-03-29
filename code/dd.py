@@ -159,6 +159,9 @@ class Eddington(DD):
 		# get eddington factor 
 		mu2 = self.getEddington(psi)
 
+		# make SN phi public 
+		self.phi_SN = self.zeroMoment(psi)
+
 		# generate boundary eddington for transport consistency 
 		top = 0 
 		for i in range(self.n):

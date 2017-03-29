@@ -1,14 +1,11 @@
 # EddingtonAcceleration
-Python code implementing Eddington acceleration into Linear Discontinuous Galerkin and Diamond Difference Sn 
+Python code, papers, and latex documents relevant to implementing Eddington Acceleration into Linear Discontinuous Galerkin and Diamond Differenced Discrete Ordinates. 
 
-# code 
+## code 
 Contains all python scripts 
 
-# literature 
+## literature 
 Relevant papers 
 
-# tex 
-Latex files and figures for ANS student conference summary and presentation 
-
-# paper 
-Latex files for Journal of Computational and Theoretical Transport submission 
+## tex 
+Latex files and figures for ANS student conference summary and presentation and publication in Journal of Computational and Theoretical Transport. 

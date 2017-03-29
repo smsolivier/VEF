@@ -1,6 +1,6 @@
 from matplotlib import rc 
 
-''' Make plots matplotlib plots look nice ''' 
+''' Make matplotlib plots look nice ''' 
 
 def hidespines(ax, ticksize=0):
 	rc('font',**{'family':'sans-serif','sans-serif':['Times']})

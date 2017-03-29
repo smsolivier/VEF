@@ -11,7 +11,11 @@ import direct as Direct # direct S2 solver
 
 ''' Diamond differenced Sn solver 
 	Inherits from transport.py 
-	Includes unaccelerated, eddington accelerated, S2SA, DSA
+	Includes 
+		unaccelerated 
+		eddington accelerated 
+		S2SA 
+		inconsistent DSA
 ''' 
 
 class DD(Transport):

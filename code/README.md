@@ -9,7 +9,11 @@ Linear Discontinuous Galerkin spatial discretization of Sn
 
 Inherits from transport.py 
 
-Has unaccelerated, eddington accelerated methods 
+Has 
+
+* unaccelerated 
+
+* eddington accelerated 
 
 
 ## dd.py
@@ -17,7 +21,15 @@ Diamond differenced Sn solver
 
 Inherits from transport.py 
 
-Includes unaccelerated, eddington accelerated, S2SA, DSA
+Includes 
+
+* unaccelerated 
+
+* eddington accelerated 
+
+* S2SA 
+
+* inconsistent DSA
 
 
 ## direct.py

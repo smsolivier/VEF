@@ -9,7 +9,9 @@ from mhfem_acc import *
 
 ''' Linear Discontinuous Galerkin spatial discretization of Sn 
 	Inherits from transport.py 
-	Has unaccelerated, eddington accelerated methods 
+	Has 
+		unaccelerated 
+		eddington accelerated 
 ''' 
 
 class LD(Transport):

@@ -1,7 +1,5 @@
 ### hlimit.py
 compares difference between Sn and moment equations as cell width --> 0
-### mhfem_diff.py
-
 ### direct.py
 direct S2 solver
 ### mhfem_acc.py

@@ -40,3 +40,18 @@ $(figdir)corrected.pdf : $(codedir)dvs.py
 $(MAIN).pdf: $(MAIN).tex $(FIGS)
 	latexmk -pdf\
 		-pdflatex="pdflatex --interaction=nonstopmode --shell-escape %O %S" $(MAIN)
+
+# remove tex auxilary files 
+.PHONY : clean 
+clean : 
+	-rm $(MAIN).aux 
+	-rm $(MAIN).bbl 
+	-rm $(MAIN).blg
+	-rm $(MAIN).fdb_latexmk
+	-rm $(MAIN).fls
+	-rm $(MAIN).log
+	-rm $(MAIN).nav
+	-rm $(MAIN).out
+	-rm $(MAIN).snm
+	-rm $(MAIN).toc
+	-rm $(MAIN).synctex.gz

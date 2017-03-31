@@ -38,14 +38,16 @@ x, phi, it = unac.sourceIteration(tol)
 
 xac, phiac, itac = acc.sourceIteration(tol)
 
+fontsize = 20 
+
 # unaccelerated 
 plt.figure()
 plt.semilogy(np.arange(1, len(unac.phiConv)+1), 
 	unac.phiConv, '-o', label=r'$\phi(x)$', clip_on=False)
 plt.semilogy(np.arange(1, len(unac.eddConv)+1), 
 	unac.eddConv, '-*', label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
-plt.xlabel('Iteration Number')
-plt.ylabel('Convergence')
+plt.xlabel('Iteration Number', fontsize=fontsize)
+plt.ylabel('Convergence', fontsize=fontsize)
 plt.legend(loc='best', frameon=False)
 hidespines(plt.gca())
 if (outfile != None):
@@ -57,8 +59,8 @@ plt.semilogy(np.arange(1, len(acc.phiConv)+1),
 	acc.phiConv, '-o', label=r'$\phi(x)$', clip_on=False)
 plt.semilogy(np.arange(1, len(acc.eddConv)+1), 
 	acc.eddConv, '-*', label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
-plt.xlabel('Iteration Number')
-plt.ylabel('Convergence')
+plt.xlabel('Iteration Number', fontsize=fontsize)
+plt.ylabel('Convergence', fontsize=fontsize)
 plt.legend(loc='best', frameon=False)
 hidespines(plt.gca())
 if (outfile != None):

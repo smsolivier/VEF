@@ -82,21 +82,26 @@
 
    	% Efficient methods developed independently 
 
-    Spatial Discretizations
-    \vspace{-.05in}
-    \begin{itemize}
-        \item Mixed Hybrid Finite Element Method (MHFEM) for hydrodynamics 
-        \item Linear Discontinuous Galerkin (LDG) for transport 
-    \end{itemize}
-    % \vspace{-0.05in}
+   	Need hydrodynamics and transport to be consistently differenced  
+   	\vspace{-.05in}
+   	\begin{itemize}
+   		\item Use the same method or do extra work to make differing methods agree 
+   	    \item Interpolating between spatial grids introduces noise 
+   	    \item Matching grids between methods is not always possible in higher dimensions 
+   	\end{itemize}
 
-    Need hydrodynamics and transport to be consistently differenced  
-    \vspace{-.05in}
-    \begin{itemize}
-    	\item Use the same method or do extra work to make differing methods agree 
-        \item Interpolating between spatial grids introduces noise 
-        \item Matching grids between methods is not always possible in higher dimensions 
-    \end{itemize}
+   	Hydrodynamics will be discretized with Mixed Hybrid Finite Element Method (MHFEM) 
+
+   	Want to be able to pair with Linear Discontinuous Galerkin (LDG) transport 
+
+    % Spatial Discretizations 
+    % \vspace{-.05in}
+    % \begin{itemize}
+    %     \item Mixed Hybrid Finite Element Method (MHFEM) for hydrodynamics 
+    %     \item Linear Discontinuous Galerkin (LDG) for transport 
+    % \end{itemize}
+    % % \vspace{-0.05in}
+
     % \vspace{-.05in}
 
     % Solution: 
@@ -106,16 +111,21 @@
     %     \item Discretize with same method
     % \end{itemize}
 
-    Problem: MHFEM and first-order form of transport are incompatible $\Rightarrow$ can't use linear acceleration scheme 
+    Problems
+    \vspace{-.05in}
+    	\begin{itemize}
+    		\item Radiation transport is expensive 
+    		\item MHFEM and first-order form of transport are incompatible $\Rightarrow$ can't use linear acceleration scheme 
+    	\end{itemize}
 
     \begin{block}{Goal}
-        Develop a non-linear acceleration scheme that 
+        Develop a transport algorithm that 
             \begin{enumerate} \vspace{-.05in}
                 \item Robustly reduces the number of source iterations in Discrete Ordinates calculations 
                 \item Bridges LDG transport and MHFEM multiphysics
             \end{enumerate}
         \vspace{-.05in}
-       	Test in 1D slab with lumped LDG transport  
+       	Show scheme works in 1D slab with lumped LDG transport
     \end{block}
 
 \end{frame}
@@ -508,11 +518,11 @@
 	% \footnotesize 
     Non-linear scheme $\Rightarrow$ produces 2 solutions (\SN and Moment)
 
-    \pause
-    Relaxes consistent differencing requirements 
+    \pause 
+    Linear schemes require that diffusion and \SN produce one solution 
 
     \pause
-    Solutions converge as cell spacing decreases 
+    Relaxes consistent differencing requirements 
 
     \pause
     Benefits 
@@ -521,6 +531,8 @@
     	\item Transport can be LDG and Moment can be MHFEM
 
         \item Moment Equations are conservative and relatively inexpensive compared to transport sweep 
+
+        \item Can use Moment solution in MHFEM multiphysics iterations without needing a full transport sweep 
 
         \item Difference between \SN and Moment solution can be used as a measure of spatial truncation error (measure of mesh convergence)
 
@@ -586,7 +598,7 @@
 
 \begin{frame}{Convergence Rate Comparison}
 
-    \onslide<+->
+	
     \begin{columns}
     \begin{column}{.5\paperwidth}
     \begin{figure} \centering
@@ -594,6 +606,7 @@
         \includegraphics[width=.45\paperwidth]{figs/converge_una.pdf}
     \end{figure}
     \end{column}
+    \pause
     \begin{column}{.5\paperwidth}
     \begin{figure} \centering
     	Accelerated
@@ -602,7 +615,7 @@
    	\end{column}
    	\end{columns}
 
-    \onslide<+->
+   	\pause
     \vfill
     \centerline{\textbf{Fast rate of convergence of $\edd(x)$ is transfered to $\phi(x)$}}
 
@@ -663,13 +676,12 @@
 
         \item Eddington Acceleration is uniquely suited for radiation hydrodynamics 
         \begin{itemize}
-        	\item LDG transport 
-        	\item MHFEM hydrodynamics 
-        	\item Source iteration acceleration 
+        	\item Transport and acceleration steps can be different 
+        	\item Reduces expense of source iteration 
         	\item Provides inexpensive, conservative solution 
         \end{itemize}
 
-        \item Proved MHFEM can be used to accelerate lumped LDG transport in 1D slab geometry 
+        \item Showed MHFEM can be used to accelerate lumped LDG transport 
 
     \end{itemize}
 
@@ -682,9 +694,7 @@
             \item Make use of inexpensive Moment solution in multiphysics iterations 
         \end{itemize}
 
-        \item Add energy, time dependence 
-
-        \item Test in 3D 
+        \item Add temperature 
 
         % \item P$_N$ scattering/source expansion  
 
@@ -699,7 +709,7 @@
 
 \begin{frame}{References}
 
-    \nocite{adams,morel,llnl,alcouffe,mhfem,hydro,bolding}
+    \nocite{adams,morel,llnl,alcouffe,mhfem,hydro,bolding,nonlinearAccel}
     \setbeamerfont{bibliography item}{size=\footnotesize}
     \setbeamerfont{bibliography entry author}{size=\footnotesize}
     \setbeamerfont{bibliography entry title}{size=\footnotesize}

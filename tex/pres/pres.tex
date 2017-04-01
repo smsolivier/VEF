@@ -75,7 +75,7 @@
 	\vspace{-.05in}
 	    \begin{itemize}
             \item Propogation of thermal radiation through a fluid
-            \item Effects of radiation on fluid momentum and energy 
+            \item Effects of emission, absorption, scattering on fluid momentum and energy 
 	    	\item Required in high energy density laboratory physics (NIF, Z Machine) and astrophysics 
 	    \end{itemize}
     % \vspace{-.05in}
@@ -318,7 +318,9 @@
 
 \begin{frame}{Zeroth Angular Moment}
 
-    \onslide<+->
+	Take angular moments of the Boltzmann equation 
+
+    \pause
 	Boltzmann Equation
 	\begin{equation*}
 	        \mu \dderiv{\psi}{x}(x, \mu) + 
@@ -327,7 +329,7 @@
 	        \frac{Q(x)}{2} 
 	\end{equation*}
 
-    \onslide<+->
+	\pause
 	Integrate over all angles \footnotesize
 	\begin{equation*}
 	    \int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
@@ -337,7 +339,7 @@
 	\end{equation*}
     \normalsize
 
-    \onslide<+->
+    \pause
 	Use $J(x) = \int_{-1}^{1} \mu \psi(x,\mu) \ud \mu$, 
 		$\phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu$ 
 	\begin{block}{Zeroth Angular Moment}
@@ -430,7 +432,7 @@
 	\end{equation*}
 
 	\onslide<5->
-	Shape function 
+	Angular flux weighted average of $\mu^2$
 
 \end{frame}
 
@@ -464,7 +466,7 @@
     Moment Equations = transport informed diffusion
 
     \pause
-    Transport information passed through $\edd(x)$ 
+    Transport information passed through $\edd(x)$ and boundary conditions
 
     \pause
     Just as accurate as \SN
@@ -676,12 +678,12 @@
 
         \item Eddington Acceleration is uniquely suited for radiation hydrodynamics 
         \begin{itemize}
-        	\item Transport and acceleration steps can be different 
+        	\item Transport and acceleration steps can be differenced with different methods 
         	\item Reduces expense of source iteration 
         	\item Provides inexpensive, conservative solution 
         \end{itemize}
 
-        \item Showed MHFEM can be used to accelerate lumped LDG transport 
+        \item Showed MHFEM and lumped LDG can be paired 
 
     \end{itemize}
 
@@ -696,7 +698,7 @@
 
         \item Add temperature 
 
-        % \item P$_N$ scattering/source expansion  
+        \item Higher order of accuracy 
 
         \item Explore other multiphysics applications 
 

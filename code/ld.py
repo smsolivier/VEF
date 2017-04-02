@@ -346,6 +346,63 @@ class Eddington(LD):
 
 		return phiL, phiR 
 
+	def makeEddingtonGauss(self):
+		''' Create edge and center array of eddington factor 
+			Edges from upwinded edge psi 
+			Centers from Gauss Quadrature second order approximation of integrating 
+				linear eddington 
+		''' 
+
+		# get edge eddington from upwinded values 
+		psiEdge = self.edgePsi() # get edge values 
+		mu2_edge = self.getEddington(psiEdge) # edge eddington 
+
+		# evaluate centers with gauss quad 
+		phiL = self.zeroMoment(self.psiL) # left flux 
+		phiR = self.zeroMoment(self.psiR) # right flux 
+
+		# integrate mu^2 psi 
+		muPsiL = np.zeros(self.N) # left 
+		muPsiR = np.zeros(self.N) # right 
+		for i in range(self.n):
+
+			muPsiL += self.mu[i]**2 * self.psiL[i,:] * self.w[i] 
+			muPsiR += self.mu[i]**2 * self.psiR[i,:] * self.w[i] 
+
+		mu2_cent = np.zeros(self.N) # cell centered eddington
+
+		# MHFEM basis functions 
+		Bli = lambda x, i: (self.xe[i+1] - x)/self.h[i] 
+		Bri = lambda x, i: (x - self.xe[i])/self.h[i] 
+
+		# compute interior coefficients 
+		for i in range(self.N):
+
+			# convert from (-1, 1) --> (x_i-1/2, x_i+1/2)
+			xlg = self.xc[i] - self.h[i]/2 / np.sqrt(3) 
+			xrg = self.xc[i] + self.h[i]/2 / np.sqrt(3) 
+
+			xg = np.array([xlg, xrg]) # combine left and right points 
+
+			# compute center with 2 order gauss quad 
+			for j in range(len(xg)):
+
+				mu2_cent[i] += (Bli(xg[j], i) * muPsiL[i] + Bri(xg[j], i) * muPsiR[i])/(
+					phiL[i] * Bli(xg[j], i) + phiR[i] * Bri(xg[j], i)) / 2
+
+		# concatenate into one array 
+		mu2 = np.zeros(2*self.Ne - 1) # store centers and edges 
+		mu2[0] = mu2_edge[0] # set left boundary 
+		ii = 1 
+		for i in range(self.N):
+
+			mu2[ii] = mu2_cent[i] 
+			mu2[ii+1] = mu2_edge[i+1] 
+
+			ii += 2 
+
+		return mu2 
+
 	def sweep(self, phiL, phiR):
 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
@@ -353,8 +410,20 @@ class Eddington(LD):
 		# make SN flux public 
 		self.phi_SN = self.zeroMoment(self.centPsi())
 
+		mu2 = self.makeEddingtonGauss() # get linear eddington 
+
+		psiEdge = self.edgePsi()
+
+		# create boundary eddington factor 
+		top = 0 
+		for i in range(self.n):
+
+			top += np.fabs(self.mu[i])*psiEdge[i,:] * self.w[i] 
+
+		B = top/self.zeroMoment(psiEdge) 
+
 		# discretize MHFEM
-		self.mhfem.discretizeGauss(self)
+		self.mhfem.discretizeGauss(mu2, B)
 
 		# solve for phi, get edges and centers 
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
@@ -403,7 +472,7 @@ class Eddington_old(Eddington):
 
 if __name__ == '__main__':
 
-	N = 500
+	N = 100
 	n = 8
 	xb = 2 
 	x = np.linspace(0, xb, N)
@@ -432,7 +501,11 @@ if __name__ == '__main__':
 
 	xe, phie, ite = ed.sourceIteration(tol)
 
-	plt.plot(x, phi, label='LD')
-	plt.plot(xe, phie, label='LD Edd')
+	plt.figure()
+	plt.plot(x, phi, '-o', label='LD')
+	plt.plot(xe, phie, '-o', label='LD Edd')
 	plt.legend(loc='best')
+
+	plt.figure()
+	plt.semilogy(x, np.fabs(phi - phie)/phi)
 	plt.show()

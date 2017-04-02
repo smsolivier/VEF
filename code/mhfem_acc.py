@@ -189,67 +189,11 @@ class MHFEM:
 			print('\n --- FATAL ERROR: MHFEM right boundary condition not defined ---\n')
 			sys.exit()
 
-	def discretizeGauss(self, sn):
+	def discretizeGauss(self, mu2, B):
 		''' setup coefficient matrix with MHFEM equations 
 			Supply Sn object 
 			Linear Eddington factor approximated with second order Gauss Quad 
 		''' 
-
-		# make eddington factor array (edges and centers)
-		# get edge eddington 
-		psiEdge = sn.edgePsi() # get edge value of psi 
-		mu2_edge = sn.getEddington(psiEdge) # edge eddington 
-
-		# evaluate centers with gauss quad 
-		phiL = sn.zeroMoment(sn.psiL) # left flux 
-		phiR = sn.zeroMoment(sn.psiR) # right flux 
-		muPsiL = np.zeros(sn.N) # cell centered 
-		muPsiR = np.zeros(sn.N) # cell centered 
-		for i in range(sn.n):
-
-			muPsiL += sn.mu[i]**2 * sn.psiL[i,:] * sn.w[i] 
-			muPsiR += sn.mu[i]**2 * sn.psiR[i,:] * sn.w[i] 
-
-		mu2_cent = np.zeros(sn.N) # cell centered eddington, gauss quad 
-
-		# MHFEM basis functions 
-		Bli = lambda x, i: (sn.xe[i+1] - x)/sn.h[i] 
-		Bri = lambda x, i: (x - sn.xe[i])/sn.h[i] 
-
-		# compute interior coefficient 
-		for i in range(sn.N):
-
-			# left and right gauss points 
-			# convert from (-1, 1) -> (x_i-1/2, x_i+1/2) 
-			xlg = sn.xc[i] - sn.h[i]/2 / np.sqrt(3) 
-			xrg = sn.xc[i] + sn.h[i]/2 / np.sqrt(3) 
-
-			xg = np.array([xlg, xrg]) # combine left and right points 
-
-			# compute the center using second order Gauss quadrature 
-			for j in range(len(xg)):
-
-				mu2_cent[i] += (Bli(xg[j], i) * muPsiL[i] + Bri(xg[j], i) * muPsiR[i])/(
-					phiL[i] * Bli(xg[j], i) + phiR[i] * Bri(xg[j], i)) / 2
-
-		# concatenate into one array 
-		mu2 = np.zeros(self.n) # centers and edges 
-		mu2[0] = mu2_edge[0] # set left boundary 
-		ii = 1 
-		for i in range(sn.N):
-
-			mu2[ii] = mu2_cent[i] 
-			mu2[ii+1] = mu2_edge[i+1] 
-
-			ii += 2 
-
-		# create boundary eddington factor 
-		top = 0 
-		for i in range(sn.n):
-
-			top += np.fabs(sn.mu[i])*psiEdge[i,:] * sn.w[i] 
-
-		B = top/sn.zeroMoment(psiEdge) 
 
 		# build equations 
 		for i in range(1, self.n, 2):

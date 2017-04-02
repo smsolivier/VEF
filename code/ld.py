@@ -7,11 +7,11 @@ from transport import * # general transport class
 
 from mhfem_acc import * 
 
-''' Linear Discontinuous Galerkin spatial discretization of Sn 
+''' Lumped Linear Discontinuous Galerkin spatial discretization of Sn 
 	Inherits from transport.py 
-	Has 
-		unaccelerated 
-		eddington accelerated 
+	Includes 
+		Unaccelerated
+		Eddington Accelerated 
 ''' 
 
 class LD(Transport):
@@ -272,10 +272,10 @@ class LD(Transport):
 class Eddington(LD):
 	''' Eddington Acceleration ''' 
 
-	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, CENT=1):
-		''' CENT:
-				0: edges 
-				1: centers 
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=1):
+		''' OPT: controls how LD left and right fluxes are recovered
+				0: use cell centers
+				1: maintain slopes by using the cell edges from MHFEM 
 		''' 
 
 		# call LD initialization 
@@ -283,7 +283,7 @@ class Eddington(LD):
 
 		self.name = 'LD Edd' # name of method 
 
-		self.CENT = CENT 
+		self.OPT = OPT # slope recovery method 
 
 		# use cell centers in source iteration 
 		self.x = self.xc 
@@ -361,7 +361,7 @@ class Eddington(LD):
 			self.firstMoment(self.q)/2)
 
 		# get LD left and right fluxes 
-		phiL, phiR = self.ldRecovery(phi, OPT=self.CENT)
+		phiL, phiR = self.ldRecovery(phi, OPT=self.OPT)
 
 		return phiL, phiR # return accelerated flux 
 
@@ -397,7 +397,7 @@ class Eddington_old(Eddington):
 			self.firstMoment(self.q)/2)
 
 		# get LD left and right fluxes 
-		phiL, phiR = self.ldRecovery(phi, OPT=self.CENT)
+		phiL, phiR = self.ldRecovery(phi, OPT=self.OPT)
 
 		return phiL, phiR # return accelerated flux 	
 

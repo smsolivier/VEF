@@ -8,8 +8,6 @@ from scipy.linalg import solve_banded
 
 import sys 
 
-from exactDiff import * 
-
 ''' Mixed Hybrid Finite Element solver for moment equations (drift diffusion) ''' 
 
 class MHFEM:
@@ -214,12 +212,11 @@ class MHFEM:
 
 		mu2_cent = np.zeros(sn.N) # cell centered eddington, gauss quad 
 
-		# basis functions 
+		# MHFEM basis functions 
 		Bli = lambda x, i: (sn.xe[i+1] - x)/sn.h[i] 
 		Bri = lambda x, i: (x - sn.xe[i])/sn.h[i] 
 
-		xlg = -1/np.sqrt(3) 
-		xrg = 1/np.sqrt(3) 
+		# compute interior coefficient 
 		for i in range(sn.N):
 
 			# left and right gauss points 
@@ -227,12 +224,13 @@ class MHFEM:
 			xlg = sn.xc[i] - sn.h[i]/2 / np.sqrt(3) 
 			xrg = sn.xc[i] + sn.h[i]/2 / np.sqrt(3) 
 
-			xg = np.array([xlg, xrg]) 
+			xg = np.array([xlg, xrg]) # combine left and right points 
 
+			# compute the center using second order Gauss quadrature 
 			for j in range(len(xg)):
 
 				mu2_cent[i] += (Bli(xg[j], i) * muPsiL[i] + Bri(xg[j], i) * muPsiR[i])/(
-					phiL[i] * Bli(xg[j], i) + phiR[i] * Bri(xg[j], i)) / 2 
+					phiL[i] * Bli(xg[j], i) + phiR[i] * Bri(xg[j], i)) / 2
 
 		# concatenate into one array 
 		mu2 = np.zeros(self.n) # centers and edges 
@@ -361,6 +359,7 @@ class MHFEM:
 			sys.exit()
 
 	def getEdges(self, phi):
+		''' Convert a combined edge and center array to edges only ''' 
 
 		# get edge values 
 		phiEdge = np.zeros(self.N)
@@ -375,6 +374,7 @@ class MHFEM:
 		return phiEdge
 
 	def getCenters(self, phi):
+		''' Convert a combined edge and center array to centers only ''' 
 
 		# get center values 
 		phiCent = np.zeros(self.N-1) 
@@ -393,10 +393,6 @@ class MHFEM:
 			Inputs:
 				q: cell centered array of source terms 
 				qq: cell centered array of first moment of source 
-				CENT: return phi on cell edges or edges and centers 
-					0: edges only 
-					1: centers only 
-					2: edges and centers
 		''' 
 
 		# check q and qq are cell centered 
@@ -437,9 +433,6 @@ class MHFEM:
 		betaN = 2/(self.Sigmat(self.x[-2]))
 		b[-1] = betaN/2*qq[-1]
 
-		# plt.plot(b)
-		# plt.show()
-
 		# solve for flux 
 		# solve banded matrix 
 		phi = solve_banded((2,2), self.A, b)
@@ -460,6 +453,9 @@ class MHFEM:
 			return self.x, phi 
 
 	def checkSolution(self, phi, mu2, q):
+		''' Check for continuity and conservation 
+			Only supports isotropic q (qq = 0) 
+		''' 
 
 		# continuity 
 		Jl = np.zeros(self.N - 1) 
@@ -517,6 +513,8 @@ class MHFEM:
 
 if __name__ == '__main__':
 
+	from exactDiff import * 
+
 	eps = 1
 	Sigmaa = .1*eps 
 	Sigmat = .83/eps
@@ -567,39 +565,3 @@ if __name__ == '__main__':
 	plt.ylabel('| MHFEM - Exact | / Exact ')
 	plt.legend(loc='best')
 	plt.show()
-
-	# plt.plot(x_ex, phi_ex(x_ex), '--')
-	# plt.plot(x, phi, '-o')
-	# # plt.plot(x, np.fabs(phi - phi_ex(x)), '-o')
-	# # plt.yscale('log')
-	# plt.show()
-
-	# check order of convergence 
-	# N = np.array([20, 40, 80, 160])
-
-	# err = np.zeros(len(N))
-	# for i in range(len(N)):
-
-	# 	mh = MHFEM(np.linspace(0, xb, N[i]), lambda x: Sigmaa, 
-	# 		lambda x: Sigmat, BCL=0, BCR=1)
-
-	# 	mh.discretize(np.ones(N[i])/3, np.ones(N[i])/2)
-
-	# 	x, phi = mh.solve(np.ones(N[i])*Q, CENT=1)
-
-	# 	phif = interp1d(x, phi)
-
-	# 	# err[i] = np.linalg.norm(phi - phi_ex(x), 2)
-	# 	err[i] = np.fabs(phif(xb/2) - phi_ex(xb/2))
-
-	# fit = np.polyfit(np.log(1/(N)), np.log(err), 1)
-
-	# print(fit[0])
-
-	# plt.loglog(1/(N), np.exp(fit[1]) * (1/(N))**fit[0], '-o')
-	# plt.loglog(1/(N), err, '-o')
-	# plt.show()
-
-
-
-

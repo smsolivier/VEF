@@ -1,10 +1,6 @@
 # Eddington Acceleration Python Code
+Test Test Test
 
-Code for Linear Discontinuous Galerkin and Diamond Differenced Sn
-
-
-## mhfem_acc.py
-Mixed Hybrid Finite Element solver for moment equations (drift diffusion) 
 
 ## ld.py
 Lumped Linear Discontinuous Galerkin spatial discretization of Sn 
@@ -17,6 +13,9 @@ Includes
 
 * Eddington Accelerated 
 
+
+## mhfem_acc.py
+Mixed Hybrid Finite Element solver for moment equations (drift diffusion) 
 
 ## dd.py
 Diamond differenced Sn solver 
@@ -60,11 +59,11 @@ compare number of iterations in LD and DD Eddington Acceleration
 in the Diffusion Limit (epsilon --> 0) 
 
 
-## checkAccel.py
-compare the number of iterations for unaccelerated, Eddington, and S2SA S8 
-
 ## hlimit.py
 compares difference between Sn and moment equations as cell width --> 0 
+
+## checkAccel.py
+compare the number of iterations for unaccelerated, Eddington, and S2SA S8 
 
 ## converge.py
 plot eddington and flux convergence for unaccelerated and accelerated Sn 

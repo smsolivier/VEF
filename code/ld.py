@@ -272,10 +272,14 @@ class LD(Transport):
 class Eddington(LD):
 	''' Eddington Acceleration ''' 
 
-	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=1):
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=1, GAUSS=1):
 		''' OPT: controls how LD left and right fluxes are recovered
 				0: use cell centers
 				1: maintain slopes by using the cell edges from MHFEM 
+			GAUSS: use gauss quad for <mu^2> in MHFEM 
+				0: computes <mu^2> from edge and center psi 
+				1: uses gauss quad to compute centers for linear <mu^2> 
+					edges from edge psi 
 		''' 
 
 		# call LD initialization 
@@ -284,6 +288,8 @@ class Eddington(LD):
 		self.name = 'LD Edd' # name of method 
 
 		self.OPT = OPT # slope recovery method 
+
+		self.GAUSS = GAUSS # use gauss quad in eddington creation 
 
 		# use cell centers in source iteration 
 		self.x = self.xc 
@@ -403,6 +409,31 @@ class Eddington(LD):
 
 		return mu2 
 
+	def makeEddingtonConst(self):
+		''' Create edge and center array of eddington factor 
+			Edges from upwinded edge psi 
+			Centers from average of psiL and psiR
+		''' 
+
+		psiEdge = self.edgePsi() # get edge psi 
+		psiCent = self.centPsi() # get center psi 
+
+		mu2_edge = self.getEddington(psiEdge) # edge eddington factor 
+		mu2_cent = self.getEddington(psiCent) # center eddington factor 
+
+		# concatenate into one array 
+		mu2 = np.zeros(2*self.Ne - 1) # store centers and edges 
+		mu2[0] = mu2_edge[0] # set left boundary 
+		ii = 1 
+		for i in range(self.N):
+
+			mu2[ii] = mu2_cent[i] 
+			mu2[ii+1] = mu2_edge[i+1] 
+
+			ii += 2 
+
+		return mu2 
+
 	def sweep(self, phiL, phiR):
 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
@@ -410,7 +441,19 @@ class Eddington(LD):
 		# make SN flux public 
 		self.phi_SN = self.zeroMoment(self.centPsi())
 
-		mu2 = self.makeEddingtonGauss() # get linear eddington 
+		# create eddington for MHFEM 
+		if (self.GAUSS == 0):
+
+			mu2 = self.makeEddingtonConst()
+
+		elif(self.GAUSS == 1):
+
+			mu2 = self.makeEddingtonGauss()
+
+		else:
+
+			print('\n --- FATAL ERROR: LD Eddington GAUSS not defined properly ---\n')
+			sys.exit()
 
 		psiEdge = self.edgePsi()
 
@@ -475,21 +518,22 @@ if __name__ == '__main__':
 	N = 100
 	n = 8
 	xb = 2 
-	x = np.linspace(0, xb, N)
+	x = np.linspace(0, xb, N+1)
 
 	eps = 1
 
-	Sigmaa = lambda x: .1 * eps
-	Sigmat = lambda x: .83 / eps 
+	Sigmaa = lambda x: .1 
+	Sigmat = lambda x: .83
 
-	qf = lambda x: (x > xb/2)
+	# qf = lambda x: (x > xb/2)
 
-	q = np.ones((n,N-1)) * eps
+	# q = np.ones((n,N-1)) * eps
 
-	for i in range(n):
+	# for i in range(n):
 
-		q[i,:] = qf(np.linspace(xb/N/2, xb - xb/N/2, N-1))
-# 
+	# 	q[i,:] = qf(np.linspace(xb/N/2, xb - xb/N/2, N-1))
+
+	q = np.ones((n, N))
 	tol = 1e-6
 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
@@ -502,8 +546,8 @@ if __name__ == '__main__':
 	xe, phie, ite = ed.sourceIteration(tol)
 
 	plt.figure()
-	plt.plot(x, phi, '-o', label='LD')
-	plt.plot(xe, phie, '-o', label='LD Edd')
+	plt.plot(x, phi, label='LD')
+	plt.plot(xe, phie, label='LD Edd')
 	plt.legend(loc='best')
 
 	plt.figure()

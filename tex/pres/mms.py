@@ -3,14 +3,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-import ld as LD
-import dd as DD 
-
 from scipy.interpolate import interp1d 
 
 from hidespines import * 
 
 import sys 
+
+sys.path.append('../../code')
+
+import ld as LD 
 
 ''' Test MMS functions in LD and DD ''' 
 
@@ -31,17 +32,12 @@ def getOrder(sol, N):
 	for i in range(len(sol)):
 
 		sol[i].setMMS()
-		# make video 
-		# x, phi, it = sol[i].sourceIteration(tol, PLOT='phi' + str(N[i]))
+
 		x, phi, it = sol[i].sourceIteration(tol, 1000)
 
 		phi_int = interp1d(x, phi)
 
 		err[i] = np.fabs(phi_mms(xb/2) - phi_int(xb/2))/phi_mms(xb/2)
-
-	# 	plt.plot(x, phi, '-o')
-
-	# plt.show()
 
 	fit = np.polyfit(np.log(1/N), np.log(err), 1)
 
@@ -49,7 +45,7 @@ def getOrder(sol, N):
 
 	return err
 
-N = np.array([40, 80, 160, 320])
+N = np.array([40, 80, 100, 160])
 
 n = 8 
 
@@ -59,28 +55,18 @@ Sigmat = lambda x: 1
 xb = 1
 
 # make solver objects 
-ed00 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=0, GAUSS=0) for x in N]
+ld = [LD.LD(np.linspace(0, xb, x+1), n, Sigmaa, 
+	Sigmat, np.ones((n, x)), BCL=0, BCR=1) for x in N]
 
-ed01 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=0, GAUSS=1) for x in N]
-
-ed10 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=1, GAUSS=0) for x in N]
-
-ed11 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=1, GAUSS=1) for x in N]
+ld_edd = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
+	Sigmat, np.ones((n,x)), BCL=0, BCR=1) for x in N]
 
 # get order of accuracy 
-err00 = getOrder(ed00, N)
-err01 = getOrder(ed01, N)
-err10 = getOrder(ed10, N)
-err11 = getOrder(ed11, N)
+errLD = getOrder(ld, N)
+errLD_edd = getOrder(ld_edd, N)
 
-plt.loglog(xb/N, err00, '-o', clip_on=False, label='00')
-plt.loglog(xb/N, err01, '-o', clip_on=False, label='01')
-plt.loglog(xb/N, err10, '-o', clip_on=False, label='10')
-plt.loglog(xb/N, err11, '-o', clip_on=False, label='11')
+plt.loglog(xb/N, errLD, '-o', label='Unaccelerated')
+plt.loglog(xb/N, errLD_edd, '-o', label='Accelerated')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$h$', fontsize=20)
 plt.ylabel('Error', fontsize=20)

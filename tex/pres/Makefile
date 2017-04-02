@@ -21,11 +21,11 @@ $(figdir)converge_una.pdf : $(codedir)converge.py
 $(figdir)converge_acc.pdf : $(codedir)converge.py 
 	$< $(figdir)converge_una.pdf $(figdir)converge_acc.pdf 
 
-$(figdir)hlim.pdf : $(codedir)hlimit.py 
-	$< $@
+$(figdir)hlim.pdf : hlimit.py 
+	./$< $@
 
-$(figdir)ooa.pdf : $(codedir)mms.py 
-	$< $@
+$(figdir)ooa.pdf : mms.py 
+	./$< $@
 
 $(figdir)dvs.pdf : $(codedir)dvs.py 
 	$< $(figdir)dvs.pdf $(figdir)edd.pdf $(figdir)corrected.pdf 
@@ -44,14 +44,14 @@ $(MAIN).pdf: $(MAIN).tex $(FIGS)
 # remove tex auxilary files 
 .PHONY : clean 
 clean : 
-	-rm $(MAIN).aux 
-	-rm $(MAIN).bbl 
-	-rm $(MAIN).blg
-	-rm $(MAIN).fdb_latexmk
-	-rm $(MAIN).fls
-	-rm $(MAIN).log
-	-rm $(MAIN).nav
-	-rm $(MAIN).out
-	-rm $(MAIN).snm
-	-rm $(MAIN).toc
-	-rm $(MAIN).synctex.gz
+	rm -f $(MAIN).aux 
+	rm -f $(MAIN).bbl 
+	rm -f $(MAIN).blg
+	rm -f $(MAIN).fdb_latexmk
+	rm -f $(MAIN).fls
+	rm -f $(MAIN).log
+	rm -f $(MAIN).nav
+	rm -f $(MAIN).out
+	rm -f $(MAIN).snm
+	rm -f $(MAIN).toc
+	rm -f $(MAIN).synctex.gz

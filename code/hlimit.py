@@ -24,6 +24,7 @@ def getDiff(sol, tol=1e-6):
 
 		x, phi, it = sol[i].sourceIteration(tol)
 
+		# diff[i] = np.linalg.norm(phi - sol[i].phi_SN, 2)/np.linalg.norm(sol[i].phi_SN, 2)
 		diff[i] = np.linalg.norm(phi - sol[i].phi_SN, 2)/np.linalg.norm(sol[i].phi_SN, 2)
 
 	return diff 
@@ -35,9 +36,9 @@ xb = 1
 Sigmaa = lambda x: .1 
 Sigmat = lambda x: 1 
 
-tol = 1e-6 
+tol = 1e-10
 
-N = np.logspace(1, 3, 5) 
+N = np.logspace(1, 4, 5) 
 
 for i in range(len(N)):
 

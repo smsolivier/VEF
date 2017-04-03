@@ -37,7 +37,8 @@ def getOrder(sol, N):
 
 		phi_int = interp1d(x, phi)
 
-		err[i] = np.fabs(phi_mms(xb/2) - phi_int(xb/2))/phi_mms(xb/2)
+		# err[i] = np.fabs(phi_mms(xb/2) - phi_int(xb/2))/phi_mms(xb/2)
+		err[i] = np.linalg.norm(phi_mms(x) - phi, 2)/np.linalg.norm(phi_mms(x), 2)
 
 	# 	plt.plot(x, phi, '-o')
 

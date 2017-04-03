@@ -22,7 +22,7 @@ else:
 
 def getOrder(sol, N):
 
-	tol = 1e-6
+	tol = 1e-12
 
 	print('Method =', sol[0].name)
 
@@ -37,7 +37,8 @@ def getOrder(sol, N):
 
 		phi_int = interp1d(x, phi)
 
-		err[i] = np.fabs(phi_mms(xb/2) - phi_int(xb/2))/phi_mms(xb/2)
+		# err[i] = np.fabs(phi_mms(xb/2) - phi_int(xb/2))/phi_mms(xb/2)
+		err[i] = np.linalg.norm(phi_mms(x) - phi, 2)/np.linalg.norm(phi_mms(x), 2)
 
 	fit = np.polyfit(np.log(1/N), np.log(err), 1)
 
@@ -45,7 +46,7 @@ def getOrder(sol, N):
 
 	return err
 
-N = np.array([80, 160, 320])
+N = np.array([40, 80, 160, 320, 640])
 
 n = 8 
 

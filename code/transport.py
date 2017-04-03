@@ -83,6 +83,8 @@ class Transport:
 			force phi = sin(pi*x/xb)
 		''' 
 
+		self.phi_mms = lambda x: np.sin(np.pi*x/self.xb)
+
 		# ensure correct BCs 
 		self.BCL = 1 
 		self.BCR = 1 

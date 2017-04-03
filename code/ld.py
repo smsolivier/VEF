@@ -522,7 +522,7 @@ if __name__ == '__main__':
 
 	eps = 1
 
-	Sigmaa = lambda x: .1 
+	Sigmaa = lambda x: .1
 	Sigmat = lambda x: .83
 
 	# qf = lambda x: (x > xb/2)

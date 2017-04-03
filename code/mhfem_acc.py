@@ -115,10 +115,10 @@ class MHFEM:
 				self.A[2,i+1] = -2*(beta + beta1)*mu2f(self.x[i+1])
 
 				# first upper (phi_i+1)
-				self.A[1,i+2] = 3*beta*mu2f(self.x[i+2])
+				self.A[1,i+2] = 3*beta1*mu2f(self.x[i+2])
 
 				# second upper (phi_i+3/2)
-				self.A[0,i+3] = -beta*mu2f(self.x[i+3])
+				self.A[0,i+3] = -beta1*mu2f(self.x[i+3])
 
 		# boundary conditions 
 		# left 
@@ -228,10 +228,10 @@ class MHFEM:
 				self.A[2,i+1] = -2*(beta + beta1)*mu2[i+1]
 
 				# first upper (phi_i+1)
-				self.A[1,i+2] = 3*beta*mu2[i+2]
+				self.A[1,i+2] = 3*beta1*mu2[i+2]
 
 				# second upper (phi_i+3/2)
-				self.A[0,i+3] = -beta*mu2[i+3]
+				self.A[0,i+3] = -beta1*mu2[i+3]
 
 		# boundary conditions 
 		# left 
@@ -459,11 +459,12 @@ if __name__ == '__main__':
 
 	from exactDiff import * 
 
+	xb = 10
+
 	eps = 1
 	Sigmaa = .1*eps 
-	Sigmat = .83/eps
-
-	xb = 10
+	Sigmat = 1
+	Sigmatf = lambda x: .5*(x < xb/2) + 1*(x >= xb/2) 
 
 	Q = 1 * eps 
 
@@ -473,7 +474,7 @@ if __name__ == '__main__':
 	N = 25 # number of edges 
 	xe = np.linspace(-xb, xb, N)
 	mu2 = np.ones(N-1)/3 
-	mhfem = MHFEM(xe, lambda x: Sigmaa, lambda x: Sigmat, BCL, BCR, CENT=2)
+	mhfem = MHFEM(xe, lambda x: Sigmaa, Sigmatf, BCL, BCR, CENT=2)
 	mhfem.discretize(mu2, np.ones(N)/2)
 	x, phi = mhfem.solve(np.ones(N-1)*Q, np.zeros(N-1))
 

@@ -50,14 +50,18 @@ def getIt(eps, opt, gauss):
 
 	return diff, it 
 
-# diff00, it00 = getIt(eps, ld00, tol, '00')
-# diff10, it10 = getIt(eps, ld10, tol, '10')
-# diff01, it01 = getIt(eps, ld01, tol, '01')
-# diff11, it11 = getIt(eps, ld11, tol, '11')
+diff00, it00 = getIt(eps, 0, 0)
+diff10, it10 = getIt(eps, 1, 0)
+diff01, it01 = getIt(eps, 0, 1)
+diff11, it11 = getIt(eps, 1, 1)
 diff20, it20 = getIt(eps, 2, 0)
 diff21, it21 = getIt(eps, 2, 1)
 
 plt.figure()
+plt.loglog(eps, diff00, '-o', label='00')
+plt.loglog(eps, diff10, '-o', label='10')
+plt.loglog(eps, diff01, '-o', label='01')
+plt.loglog(eps, diff11, '-o', label='11')
 plt.loglog(eps, diff20, '-o', label='20')
 plt.loglog(eps, diff21, '-o', label='21')
 
@@ -66,6 +70,10 @@ plt.ylabel('|Sn - Diffusion|')
 plt.legend(loc='best')
 
 plt.figure()
+plt.loglog(eps, it00, '-o', label='00')
+plt.loglog(eps, it10, '-o', label='10')
+plt.loglog(eps, it01, '-o', label='01')
+plt.loglog(eps, it11, '-o', label='11')
 plt.loglog(eps, it20, '-o', label='20')
 plt.loglog(eps, it21, '-o', label='21')
 

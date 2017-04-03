@@ -363,7 +363,7 @@ class Eddington(LD):
 				omega: controls left/right weighting of difference 
 			''' 
 
-		omega = 1
+		omega = 0
 
 		# extract cell centers 
 		phiC = self.mhfem.getCenters(phi)
@@ -378,6 +378,7 @@ class Eddington(LD):
 		delta[0] = delta[1] 
 		delta[-1] = delta[-2] 
 
+		# get slope limiter 
 		xi = self.vanLeer(delta, omega)
 
 		# compute slopes 

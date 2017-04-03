@@ -472,7 +472,7 @@ class Eddington(LD):
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
 			self.firstMoment(self.q)/2)
 
-		# get LD left and right fluxes 
+		# get LD left and right fluxes from MHFEM flux 
 		phiL, phiR = self.ldRecovery(phi, OPT=self.OPT)
 
 		return phiL, phiR # return accelerated flux 

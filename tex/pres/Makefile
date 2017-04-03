@@ -12,8 +12,8 @@ all : $(figdir) $(FIGS) $(MAIN).pdf
 $(figdir) : 
 	-mkdir $(figdir) 
 
-$(figdir)diffLimit.pdf : $(codedir)diffLimit.py 
-	$< $@
+$(figdir)diffLimit.pdf : diffLimit.py 
+	./$< $@
 
 $(figdir)converge_una.pdf : converge.py 
 	./$< $(figdir)converge_una.pdf $(figdir)converge_acc.pdf 

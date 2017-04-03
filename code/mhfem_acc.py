@@ -191,8 +191,9 @@ class MHFEM:
 
 	def discretizeGauss(self, mu2, B):
 		''' setup coefficient matrix with MHFEM equations 
-			Supply Sn object 
-			Linear Eddington factor approximated with second order Gauss Quad 
+			Inputs:
+				mu2: array of cell edge and center Eddington factors 
+				B: boundary value (set to 1/2 for marshak)
 		''' 
 
 		# build equations 

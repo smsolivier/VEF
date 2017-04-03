@@ -10,6 +10,8 @@ from scipy.interpolate import interp1d
 
 from hidespines import * 
 
+from R2 import * 
+
 import sys 
 
 ''' Test MMS functions in LD and DD ''' 
@@ -19,9 +21,7 @@ if (len(sys.argv) > 1):
 else:
 	outfile = None 
 
-def getOrder(sol, N):
-
-	tol = 1e-6
+def getOrder(sol, N, tol=1e-6):
 
 	print('Method =', sol[0].name)
 
@@ -46,7 +46,13 @@ def getOrder(sol, N):
 
 	fit = np.polyfit(np.log(1/N), np.log(err), 1)
 
-	print(fit[0], fit[1])
+	# fit equation 
+	f = lambda x: np.exp(fit[1]) * x**(fit[0])
+
+	# R^2 value
+	r2 = rsquared(err, f(1/N))
+
+	print(fit[0], fit[1], r2)
 
 	return err
 
@@ -57,7 +63,9 @@ n = 8
 Sigmaa = lambda x: .1
 Sigmat = lambda x: 1
 
-xb = 1
+xb = 5
+
+tol = 1e-10 
 
 # make solver objects 
 ed00 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
@@ -73,10 +81,10 @@ ed11 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 	Sigmat, np.ones((n, x)), OPT=1, GAUSS=1) for x in N]
 
 # get order of accuracy 
-err00 = getOrder(ed00, N)
-err01 = getOrder(ed01, N)
-err10 = getOrder(ed10, N)
-err11 = getOrder(ed11, N)
+err00 = getOrder(ed00, N, tol)
+err01 = getOrder(ed01, N, tol)
+err10 = getOrder(ed10, N, tol)
+err11 = getOrder(ed11, N, tol)
 
 plt.loglog(xb/N, err00, '-o', clip_on=False, label='00')
 plt.loglog(xb/N, err01, '-o', clip_on=False, label='01')

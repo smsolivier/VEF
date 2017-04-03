@@ -10,16 +10,16 @@ FIGS = $(figdir)diffLimit.pdf $(figdir)converge_una.pdf $(figdir)converge_acc.pd
 all : $(figdir) $(FIGS) $(MAIN).pdf
 
 $(figdir) : 
-	mkdir $(figdir) 
+	-mkdir $(figdir) 
 
 $(figdir)diffLimit.pdf : $(codedir)diffLimit.py 
 	$< $@
 
-$(figdir)converge_una.pdf : $(codedir)converge.py 
-	$< $(figdir)converge_una.pdf $(figdir)converge_acc.pdf 
+$(figdir)converge_una.pdf : converge.py 
+	./$< $(figdir)converge_una.pdf $(figdir)converge_acc.pdf 
 
-$(figdir)converge_acc.pdf : $(codedir)converge.py 
-	$< $(figdir)converge_una.pdf $(figdir)converge_acc.pdf 
+$(figdir)converge_acc.pdf : converge.py 
+	./$< $(figdir)converge_una.pdf $(figdir)converge_acc.pdf 
 
 $(figdir)hlim.pdf : hlimit.py 
 	./$< $@
@@ -38,8 +38,8 @@ $(figdir)corrected.pdf : $(codedir)dvs.py
 
 # compile latex 
 $(MAIN).pdf: $(MAIN).tex $(FIGS)
-	latexmk -pdf\
-		-pdflatex="pdflatex --interaction=nonstopmode --shell-escape %O %S" $(MAIN)
+	latexmk -pdf \
+		-pdflatex="pdflatex --interaction=nonstopmode --shell-escape %O %S" $(MAIN) > /dev/null
 
 # remove tex auxilary files 
 .PHONY : clean 

@@ -23,14 +23,14 @@
 
 \usepackage[usestackEOL]{stackengine}
 
-\title{Mixed Hybrid Finite Element Method Eddington Acceleration of Discrete Ordinates Source Iteration}
+\title{Mixed Hybrid Finite Element Eddington Acceleration of Discrete Ordinates Source Iteration}
 \subtitle{\normalsize ANS Student Conference \\ Mathematics and Computation}
 % \date{\today}
 \date{April 10, 2017}
 \author{Samuel S. Olivier}
 \institute{Department of Nuclear Engineering, Texas A\&M University \\ \\ 
 \scriptsize
-\url{https://github.com/smsolivier/EddingtonAcceleration.git} \\ 
+% \url{https://github.com/smsolivier/EddingtonAcceleration.git} \\ 
 \vfill
 \centerline{\includegraphics[height=.75cm]{nuen-logo.png}}}
 % \titlegraphic{\hfill\includegraphics[height=1.5cm]{nuen-logo.png}}
@@ -61,203 +61,195 @@
 
 \maketitle
 
-\begin{frame}{Overview }
+\begin{frame}{Overview}
   \setbeamertemplate{section in toc}[sections numbered]
   \tableofcontents[hideallsubsections]
 \end{frame}
 
 \section{Motivation}
 
+% \begin{frame}{Radiation Hydrodynamics }
+	
+% 	Describes
+% 	\vspace{-.05in}
+% 	\begin{itemize}
+% 		\item Propogation of thermal radiation through a fluid
+% 		\item Effects of emission, absorption, scattering on fluid momentum and energy 
+% 	\end{itemize}
+
+% 	Required in high energy density laboratory physics (NIF, Z Machine) and astrophysics 
+
+% 	Operator Split: advance hydrodynamics and radiation separately 
+
+% 	Need hydrodynamics and transport to be consistently differenced  
+% 	\vspace{-.05in}
+% 	\begin{itemize}
+% 		\item Use the same method or do extra work to make differing methods agree 
+% 		\item Interpolating between spatial grids introduces noise 
+% 		\item Matching grids between methods is not always possible in higher dimensions 
+% 	\end{itemize}
+
+% \end{frame}
+
 \begin{frame}{Motivation}
 
-	\scriptsize
+	\footnotesize
 	Radiation Hydrodynamics 
 	\vspace{-.05in}
-	    \begin{itemize}
-            \item Propogation of thermal radiation through a fluid
-            \item Effects of emission, absorption, scattering on fluid momentum and energy 
-	    	\item Required in high energy density laboratory physics (NIF, Z Machine) and astrophysics 
-	    \end{itemize}
-    % \vspace{-.05in}
+	\begin{itemize}
+		\item Describes the effects of emission, absorption, scattering on fluid momentum and energy 
+		\item Required in high energy density laboratory experiments (NIF, Z Machine) and astrophysics 
+	\end{itemize}
 
-   	% Efficient methods developed independently 
+	Mixed Hybrid Finite Element Method (MHFEM) hydrodynamics 
 
-   	Need hydrodynamics and transport to be consistently differenced  
-   	\vspace{-.05in}
-   	\begin{itemize}
-   		\item Use the same method or do extra work to make differing methods agree 
-   	    \item Interpolating between spatial grids introduces noise 
-   	    \item Matching grids between methods is not always possible in higher dimensions 
-   	\end{itemize}
+	Problems
+	\vspace{-.05in}
+		\begin{itemize}
+			\item MHFEM and first-order form of transport are incompatible $\Rightarrow$ can't use linear acceleration scheme 
+			\item Radiation transport is expensive 
+		\end{itemize}
 
-   	Hydrodynamics will be discretized with Mixed Hybrid Finite Element Method (MHFEM) 
-
-   	Want to be able to pair with Linear Discontinuous Galerkin (LDG) transport 
-
-    % Spatial Discretizations 
-    % \vspace{-.05in}
-    % \begin{itemize}
-    %     \item Mixed Hybrid Finite Element Method (MHFEM) for hydrodynamics 
-    %     \item Linear Discontinuous Galerkin (LDG) for transport 
-    % \end{itemize}
-    % % \vspace{-0.05in}
-
-    % \vspace{-.05in}
-
-    % Solution: 
-    % \vspace{-.1in}
-    % \begin{itemize}
-    %     \item Extra work to make differing methods agree (MUSCL-Hancock and LDG) 
-    %     \item Discretize with same method
-    % \end{itemize}
-
-    Problems
-    \vspace{-.05in}
-    	\begin{itemize}
-    		\item Radiation transport is expensive 
-    		\item MHFEM and first-order form of transport are incompatible $\Rightarrow$ can't use linear acceleration scheme 
-    	\end{itemize}
-
-    \begin{block}{Goal}
-        Develop a transport algorithm that 
-            \begin{enumerate} \vspace{-.05in}
-                \item Robustly reduces the number of source iterations in Discrete Ordinates calculations 
-                \item Bridges LDG transport and MHFEM multiphysics
-            \end{enumerate}
-        \vspace{-.05in}
-       	Show scheme works in 1D slab with lumped LDG transport
-    \end{block}
+	\begin{block}{Goal}
+		Develop a transport algorithm that 
+			\begin{enumerate} \vspace{-.05in}
+				\item Robustly reduces the number of source iterations in Discrete Ordinates calculations 
+				\item Bridges Linear Discontinuous Galerkin (LDG) transport and MHFEM multiphysics
+			\end{enumerate}
+		\vspace{-.05in}
+		Show scheme works in 1D slab with lumped LDG transport
+	\end{block}
 
 \end{frame}
 
 \section{Source Iteration Background}
 
 \begin{frame}{Boltzmann Equation}
-    Steady-state, mono-energetic, istropically-scattering, fixed-source \alert{Linear Boltzmann Equation} in 1D slab geometry:
-    \begin{equation*}
-        \mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
-        \frac{\Sigma_s(x)}{2} \int_{-1}^{1} \psi(x, \mu') d\mu' + \frac{Q(x)}{2}
-    \end{equation*}
+	Steady-state, mono-energetic, istropically-scattering, fixed-source \alert{Linear Boltzmann Equation} in 1D slab geometry:
+	\begin{equation*}
+		\mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
+		\frac{\Sigma_s(x)}{2} \int_{-1}^{1} \psi(x, \mu') d\mu' + \frac{Q(x)}{2}
+	\end{equation*}
 
-    $\mu = \cos \theta$ the cosine of the angle of flight $\theta$ relative to the $x$-axis
+	$\mu = \cos \theta$ the cosine of the angle of flight $\theta$ relative to the $x$-axis
 
-    $\Sigma_t(x)$, $\Sigma_s(x)$ total and scattering macroscopic cross sections 
+	$\Sigma_t(x)$, $\Sigma_s(x)$ total and scattering macroscopic cross sections 
 
-    $Q(x)$ the isotropic fixed-source
+	$Q(x)$ the isotropic fixed-source
 
-    $\psi(x,\mu)$ the angular flux 
+	$\psi(x,\mu)$ the angular flux 
 
-    % Factors of 1/2 come from 
-    %     \begin{equation*}
-    %         \phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu
-    %     \end{equation*}
+	% Factors of 1/2 come from 
+	%     \begin{equation*}
+	%         \phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu
+	%     \end{equation*}
 
-    \onslide<2>
-    \vfill
-    \centerline{\textbf{Integro-differential equation}}
+	\onslide<2>
+	\vfill
+	\centerline{\textbf{Integro-differential equation}}
 
 \end{frame}
 
 \begin{frame}{Discrete Ordinates (\SN) Angular Discretization}
 
-    Compute angular flux on $N$ discrete angles
-    \begin{equation*}
-        \psi(x,\mu) \xrightarrow{\text{S}_N} 
-        \begin{cases}
-            \psi_1(x), & \mu = \mu_1 \\ 
-            \psi_2(x), & \mu = \mu_2 \\ 
-            \vdots \\ 
-            \psi_N, & \mu = \mu_N 
-        \end{cases}
-    \end{equation*}
+	Compute angular flux on $N$ discrete angles
+	\begin{equation*}
+		\psi(x,\mu) \xrightarrow{\text{S}_N} 
+		\begin{cases}
+			\psi_1(x), & \mu = \mu_1 \\ 
+			\psi_2(x), & \mu = \mu_2 \\ 
+			\vdots \\ 
+			\psi_N, & \mu = \mu_N 
+		\end{cases}
+	\end{equation*}
 
-    \pause
-    $\mu_1$, $\mu_2$, $\dots$, $\mu_N$ defined by $N$-point Gauss Quadrature Rule 
+	\pause
+	$\mu_1$, $\mu_2$, $\dots$, $\mu_N$ defined by $N$-point Gauss Quadrature Rule 
 
-    \pause
-    Integrate order $2N-1$ polynomials exactly with 
-    \begin{equation*}
-        \phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
-            \xrightarrow{\text{S}_N} \sum_{n=1}^N 
-            w_n \psi_n(x)
-    \end{equation*}
+	\pause
+	Integrate order $2N-1$ polynomials exactly with 
+	\begin{equation*}
+		\phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
+			\xrightarrow{\text{S}_N} \sum_{n=1}^N 
+			w_n \psi_n(x)
+	\end{equation*}
 
 \end{frame}
 
 \begin{frame}{\SN Equations}
 
 	\begin{block}{\SN Equations}
-    \begin{equation*}
-        \mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
-        \frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \, 1 \leq n \leq N
-    \end{equation*}
-    \begin{equation*}
-        \phi(x) = \sum_{n=1}^N w_n \psi_n(x)
-    \end{equation*}
-   	\end{block}
+	\begin{equation*}
+		\mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
+		\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \, 1 \leq n \leq N
+	\end{equation*}
+	\begin{equation*}
+		\phi(x) = \sum_{n=1}^N w_n \psi_n(x)
+	\end{equation*}
+	\end{block}
 
-    \textbf{$N$ coupled, ordinary differential equations}
+	\textbf{$N$ coupled, ordinary differential equations}
 
-    All coupling in scattering term 
+	All coupling in scattering term 
 
 \end{frame}
 
 \begin{frame}{Source Iteration}
 
-    Decouple by lagging scattering term 
-    \begin{equation*}
-        \mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
-        \frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N        
-    \end{equation*}
+	Decouple by lagging scattering term 
+	\begin{equation*}
+		\mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
+		\frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N        
+	\end{equation*}
 
-    \textbf{$N$ independent, first-order, ordinary differential equations}
+	\textbf{$N$ independent, first-order, ordinary differential equations}
 
-    Solve each equation with well-known sweeping process 
+	Solve each equation with well-known sweeping process 
 
-    \begin{exampleblock}{Source Iteration}
-    \begin{enumerate}
-        \item Given previous estimate for $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1}$
+	\begin{exampleblock}{Source Iteration}
+	\begin{enumerate}
+		\item Given previous estimate for $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1}$
 
-        \item Compute $\phi^{\ell+1}(x) = 
-            \sum_{n=1}^N w_n \psi_n^{\ell+1}(x)$ 
+		\item Compute $\phi^{\ell+1}(x) = 
+			\sum_{n=1}^N w_n \psi_n^{\ell+1}(x)$ 
 
-        \item Update scattering term with $\phi^{\ell+1}(x)$ and repeat until: 
-             \begin{equation*}
-                \frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon 
-             \end{equation*}
+		\item Update scattering term with $\phi^{\ell+1}(x)$ and repeat until: 
+			 \begin{equation*}
+				\frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon 
+			 \end{equation*}
 
-    \end{enumerate}
-    \end{exampleblock}
+	\end{enumerate}
+	\end{exampleblock}
 
 \end{frame}
 
 \begin{frame}{Need For Acceleration in Source Iteration}
 
-    \onslide<1->
+	\onslide<1->
 	Convergence rate is linked to the number of collisions in a particle's lifetime
 
-    \onslide<2->
-    If $\phi^0(x) = 0$
-    \begin{equation*}
-        \mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
-        \vphantom{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}} 
-        \only<2>{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}
-        \only<3->{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}}
-         + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
-    \end{equation*}
-    \onslide<4->
-    $\phi^1(x) $ is the uncollided flux 
+	\onslide<2->
+	If $\phi^0(x) = 0$
+	\begin{equation*}
+		\mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
+		\vphantom{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}} 
+		\only<2>{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}
+		\only<3->{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}}
+		 + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
+	\end{equation*}
+	\onslide<4->
+	$\phi^1(x) $ is the uncollided flux 
 
-    \onslide<5->
-    $\phi^2(x)$ is uncollided and once collided flux 
+	\onslide<5->
+	$\phi^2(x)$ is uncollided and once collided flux 
 
-    \onslide<6->
-    \ $\vdots$
+	\onslide<6->
+	\ $\vdots$
 
-    $\phi^{\ell}(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions 
+	$\phi^{\ell}(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions 
 
-    \onslide<7->
-    \textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
+	\onslide<7->
+	\textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
 
 \end{frame}
 
@@ -318,28 +310,28 @@
 
 \begin{frame}{Zeroth Angular Moment}
 
-	Take angular moments of the Boltzmann equation 
+	Find conservative form of Boltzmann equation
 
-    \pause
+	\pause
 	Boltzmann Equation
 	\begin{equation*}
-	        \mu \dderiv{\psi}{x}(x, \mu) + 
-	        \Sigma_t(x) \psi(x,\mu) = 
-	        \frac{\Sigma_s(x)}{2} \phi(x) + 
-	        \frac{Q(x)}{2} 
+			\mu \dderiv{\psi}{x}(x, \mu) + 
+			\Sigma_t(x) \psi(x,\mu) = 
+			\frac{\Sigma_s(x)}{2} \phi(x) + 
+			\frac{Q(x)}{2} 
 	\end{equation*}
 
 	\pause
 	Integrate over all angles \footnotesize
 	\begin{equation*}
-	    \int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
-	    \int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
-	    \int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
-	    \int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
+		\int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
+		\int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
+		\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
+		\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
 	\end{equation*}
-    \normalsize
+	\normalsize
 
-    \pause
+	\pause
 	Use $J(x) = \int_{-1}^{1} \mu \psi(x,\mu) \ud \mu$, 
 		$\phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu$ 
 	\begin{block}{Zeroth Angular Moment}
@@ -356,23 +348,23 @@
 	{\footnotesize
 	\begin{equation*}
 		\only<1,2,3>{
-        \int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu}
-        \only<4>{\alert{\int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu}} \ + 
-        \vphantom{\underbrace{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu}_{
-        	\Sigma_t(x) J(x)}}
-        \only<1>{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ =}
-        \only<2,3,4>{\underbrace{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu}_{
-        	\Sigma_t(x) J(x)
-        } \ =}
-        \only<1,2>{
-        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + \ 
-        \int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu }
-        \only<3,4>{\underbrace{
-	        \int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu + 
-	        \int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu 
-	    }_{\text{Isotropic} \Rightarrow 0}
-        }
-    \end{equation*}}
+		\int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu}
+		\only<4>{\alert{\int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu}} \ + 
+		\vphantom{\underbrace{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu}_{
+			\Sigma_t(x) J(x)}}
+		\only<1>{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ =}
+		\only<2,3,4>{\underbrace{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu}_{
+			\Sigma_t(x) J(x)
+		} \ =}
+		\only<1,2>{
+		\int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + \ 
+		\int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu }
+		\only<3,4>{\underbrace{
+			\int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu + 
+			\int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu 
+		}_{\text{Isotropic} \Rightarrow 0}
+		}
+	\end{equation*}}
 
 \end{frame}
 
@@ -446,7 +438,7 @@
 	\begin{equation*}
 		\dderiv{}{x} \edd(x) \phi(x) 
 		+ \Sigma_t(x) J(x) = 0 
-        \tag{\footnotesize First Moment}
+		\tag{\footnotesize First Moment}
 	\end{equation*}
 	\end{block}
 
@@ -456,23 +448,23 @@
 		J(x) = -\frac{1}{\Sigma_t(x)} \dderiv{}{x} \edd(x) \phi(x)
 	\end{equation*}
 
-    \pause
-    If $\edd(x) = \frac{1}{3}$
-    \begin{equation*}
-        J(x) = -\frac{1}{3\Sigma_t(x)} \dderiv{\phi}{x} \tag{Fick's Law}
-    \end{equation*}
+	\pause
+	If $\edd(x) = \frac{1}{3}$
+	\begin{equation*}
+		J(x) = -\frac{1}{3\Sigma_t(x)} \dderiv{\phi}{x} \tag{Fick's Law}
+	\end{equation*}
 
-    \pause
-    Moment Equations = transport informed diffusion
+	\pause
+	Moment Equations = transport informed diffusion
 
-    \pause
-    Transport information passed through $\edd(x)$ and boundary conditions
+	\pause
+	Transport information passed through $\edd(x)$ and boundary conditions
 
-    \pause
-    Just as accurate as \SN
+	\pause
+	Just as accurate as \SN
 
-    \pause
-    \textbf{Solving the Moment Equations requires knowledge of the angular flux (the solution)}    
+	\pause
+	\textbf{Solving the Moment Equations requires knowledge of the angular flux (the solution)}    
 	% \pause
 	% Combine Zero and First Moments $\Rightarrow$ Drift Diffusion Equation
 	% 	\begin{equation*}
@@ -490,55 +482,55 @@
 
 \begin{frame}{Eddington Acceleration}
 
-    Use \SN to compute $\edd(x)$ and Moment Equations to find $\phi(x)$ 
+	Use \SN to compute $\edd(x)$ and Moment Equations to find $\phi(x)$ 
 
-    \begin{exampleblock}{Eddington Acceleration}
-    \begin{enumerate}
-        \item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1/2}(x)$
+	\begin{exampleblock}{Eddington Acceleration}
+	\begin{enumerate}
+		\item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1/2}(x)$
 
-        \item \alert{Compute $\edd^{\ell+1/2}(x)$ }
+		\item \alert{Compute $\edd^{\ell+1/2}(x)$ }
 
-        \item \alert{Solve the Moment Equations for $\phi^{\ell+1}(x)$ 
-        	using $\edd^{\ell+1/2}(x)$} 
+		\item \alert{Solve the Moment Equations for $\phi^{\ell+1}(x)$ 
+			using $\edd^{\ell+1/2}(x)$} 
 
-        \item Update the scalar flux estimate with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges
-    \end{enumerate}
-    \end{exampleblock}
+		\item Update the scalar flux estimate with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges
+	\end{enumerate}
+	\end{exampleblock}
 
-    Acceleration occurs because
-    \begin{enumerate}
-    	\item Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
+	Acceleration occurs because
+	\begin{enumerate}
+		\item Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
 
-    	\item Moment Equations model all scattering at once $\Rightarrow$ dependence on source iterations to introduce scattering information is reduced 
+		\item Moment Equations model all scattering at once $\Rightarrow$ dependence on source iterations to introduce scattering information is reduced 
 
-    \end{enumerate}
+	\end{enumerate}
 
 \end{frame}
 
 \begin{frame}{Eddington Acceleration Properties}
 
 	% \footnotesize 
-    Non-linear scheme $\Rightarrow$ produces 2 solutions (\SN and Moment)
+	Non-linear scheme $\Rightarrow$ produces 2 solutions (\SN and Moment)
 
-    \pause 
-    Linear schemes require that diffusion and \SN produce one solution 
+	\pause
+	Relaxes consistent differencing requirements important in linear acceleration 
 
-    \pause
-    Relaxes consistent differencing requirements 
+	\pause
+	Which solution is correct? 
 
-    \pause
-    Benefits 
-    \begin{enumerate}
+	\pause
+	Benefits 
+	\begin{enumerate}
 
-    	\item Transport can be LDG and Moment can be MHFEM
+		\item Transport can be LDG and Moment can be MHFEM
 
-        \item Moment Equations are conservative and relatively inexpensive compared to transport sweep 
+		\item Moment Equations are conservative and relatively inexpensive compared to transport sweep 
 
-        \item Can use Moment solution in MHFEM multiphysics iterations without needing a full transport sweep 
+		% \item Can use Moment solution in MHFEM multiphysics iterations without needing a full transport sweep 
 
-        \item Difference between \SN and Moment solution can be used as a measure of spatial truncation error (measure of mesh convergence)
+		\item Difference between \SN and Moment solution can be used as a measure of spatial truncation error (measure of mesh convergence)
 
-    \end{enumerate}
+	\end{enumerate}
 
 \end{frame}
 
@@ -579,7 +571,6 @@
 \begin{frame}{Diffusion Limit}
 
 	\footnotesize
-	\onslide<+->
 	Scale cross sections, source 
 	$$\Sigma_t \rightarrow \Sigma_t/\epsilon $$
 	$$\Sigma_a \rightarrow \epsilon \Sigma_a$$
@@ -587,13 +578,10 @@
 
 	System becomes diffusive as $\epsilon \rightarrow 0$ 
 
-	\onslide<+->
 	\centerline{\includegraphics[width=.5\paperwidth]{figs/diffLimit.pdf}}
 
-	\onslide<+->
 	Accelerates source iteration, survives diffusion limit 
 
-	\onslide<+->
 	Performs similarly to consistently differenced, linear acceleration (S$_2$SA)
 
 \end{frame}
@@ -601,25 +589,25 @@
 \begin{frame}{Convergence Rate Comparison}
 
 	
-    \begin{columns}
-    \begin{column}{.5\paperwidth}
-    \begin{figure} \centering
-    	Unaccelerated
-        \includegraphics[width=.45\paperwidth]{figs/converge_una.pdf}
-    \end{figure}
-    \end{column}
-    \pause
-    \begin{column}{.5\paperwidth}
-    \begin{figure} \centering
-    	Accelerated
-        \includegraphics[width=.45\paperwidth]{figs/converge_acc.pdf}
-    \end{figure}
-   	\end{column}
-   	\end{columns}
+	\begin{columns}
+	\begin{column}{.5\paperwidth}
+	\begin{figure} \centering
+		Unaccelerated
+		\includegraphics[width=.45\paperwidth]{figs/converge_una.pdf}
+	\end{figure}
+	\end{column}
+	\pause
+	\begin{column}{.5\paperwidth}
+	\begin{figure} \centering
+		Accelerated
+		\includegraphics[width=.45\paperwidth]{figs/converge_acc.pdf}
+	\end{figure}
+	\end{column}
+	\end{columns}
 
-   	\pause
-    \vfill
-    \centerline{\textbf{Fast rate of convergence of $\edd(x)$ is transfered to $\phi(x)$}}
+	\pause
+	\vfill
+	\centerline{\textbf{Fast rate of convergence of $\edd(x)$ is transfered to $\phi(x)$}}
 
 \end{frame}
 
@@ -663,46 +651,46 @@
 
 \begin{frame}{Summary}
 
-    \onslide<+->
-    Conclusions
-    \begin{itemize} \vspace{-.1in}
-        \item Scheme successfully accelerated source iteration in 1D slab geometry 
+	\onslide<+->
+	Conclusions
+	\begin{itemize} \vspace{-.1in}
+		\item Scheme successfully accelerated source iteration in 1D slab geometry 
 
-        % \item Inherently compatible with rad-hydro multiphysics 
+		% \item Inherently compatible with rad-hydro multiphysics 
 
-        % \begin{itemize}
-        %     \item Transport and acceleration steps can be discretized with arbitrarily different methods 
-        %     \item Avoids consistency issues 
-        %     \item Provides less expensive, conservative solution 
-        % \end{itemize}
+		% \begin{itemize}
+		%     \item Transport and acceleration steps can be discretized with arbitrarily different methods 
+		%     \item Avoids consistency issues 
+		%     \item Provides less expensive, conservative solution 
+		% \end{itemize}
 
-        \item Eddington Acceleration is uniquely suited for radiation hydrodynamics 
-        \begin{itemize}
-        	\item Transport and acceleration steps can be differenced with different methods 
-        	\item Reduces expense of source iteration 
-        	\item Provides inexpensive, conservative solution 
-        \end{itemize}
+		\item Eddington Acceleration is uniquely suited for radiation hydrodynamics 
+		\begin{itemize}
+			\item Transport and acceleration steps can be differenced with different methods 
+			\item Reduces expense of source iteration 
+			\item Provides inexpensive, conservative solution 
+		\end{itemize}
 
-        \item Showed MHFEM and lumped LDG can be paired 
+		\item Showed MHFEM and lumped LDG can be paired 
 
-    \end{itemize}
+	\end{itemize}
 
-    \onslide<+->
-    Future Work 
-    \begin{itemize} \vspace{-.1in}
-        \item Develop a rad-hydro algorithm 
+	\onslide<+->
+	Future Work 
+	\begin{itemize} \vspace{-.1in}
+		\item Develop a rad-hydro algorithm 
 
-        \begin{itemize}
-            \item Make use of inexpensive Moment solution in multiphysics iterations 
-        \end{itemize}
+		\begin{itemize}
+			\item Make use of inexpensive Moment solution in multiphysics iterations 
+		\end{itemize}
 
-        \item Add temperature 
+		\item Add temperature 
 
-        \item Higher order of accuracy 
+		\item Higher order of accuracy 
 
-        \item Explore other multiphysics applications 
+		\item Explore other multiphysics applications 
 
-    \end{itemize}
+	\end{itemize}
 
 \end{frame}
 
@@ -711,15 +699,15 @@
 
 \begin{frame}{References}
 
-    \nocite{adams,morel,llnl,alcouffe,mhfem,hydro,bolding,nonlinearAccel}
-    \setbeamerfont{bibliography item}{size=\footnotesize}
-    \setbeamerfont{bibliography entry author}{size=\footnotesize}
-    \setbeamerfont{bibliography entry title}{size=\footnotesize}
-    \setbeamerfont{bibliography entry location}{size=\footnotesize}
-    \setbeamerfont{bibliography entry note}{size=\footnotesize}
-    \setbeamertemplate{bibliography item}{\insertbiblabel}
-    \bibliographystyle{siam}
-    \bibliography{../bibliography}
+	\nocite{adams,morel,llnl,alcouffe,mhfem,hydro,bolding,nonlinearAccel}
+	\setbeamerfont{bibliography item}{size=\footnotesize}
+	\setbeamerfont{bibliography entry author}{size=\footnotesize}
+	\setbeamerfont{bibliography entry title}{size=\footnotesize}
+	\setbeamerfont{bibliography entry location}{size=\footnotesize}
+	\setbeamerfont{bibliography entry note}{size=\footnotesize}
+	\setbeamertemplate{bibliography item}{\insertbiblabel}
+	\bibliographystyle{siam}
+	\bibliography{../bibliography}
 
 \end{frame}
 
@@ -729,27 +717,27 @@
 
 \begin{frame}{S$_8$ v. Diffusion}
 
-    Small system $\Rightarrow$ diffusion not expected to be accurate 
-    \begin{center}
-    \includegraphics[width=.45\paperwidth]{figs/dvs.pdf}
-    \includegraphics[width=.45\paperwidth]{figs/edd.pdf}
-    \end{center}
+	Small system $\Rightarrow$ diffusion not expected to be accurate 
+	\begin{center}
+	\includegraphics[width=.45\paperwidth]{figs/dvs.pdf}
+	\includegraphics[width=.45\paperwidth]{figs/edd.pdf}
+	\end{center}
 
 \end{frame}
 
 \begin{frame}{S$_8$ v. Drift Diffusion}
 
-    \onslide<+->
-    Use $\edd(x)$ from S$_8$ in Moment Equations
-    \begin{center}
-    \includegraphics[width=.5\paperwidth]{figs/corrected.pdf}
-    \end{center}
+	\onslide<+->
+	Use $\edd(x)$ from S$_8$ in Moment Equations
+	\begin{center}
+	\includegraphics[width=.5\paperwidth]{figs/corrected.pdf}
+	\end{center}
 
-    \onslide<+->
-    Moment Equations and \SN match! 
+	\onslide<+->
+	Moment Equations and \SN match! 
 
-    \onslide<+-> 
-    Requires knowledge of angular flux
+	\onslide<+-> 
+	Requires knowledge of angular flux
 
 \end{frame}
 

@@ -24,9 +24,9 @@ xb = 1
 Sigmaa = lambda x: .1 
 Sigmat = lambda x: 1 
 
-tol = 1e-6 
+tol = 1e-9
 
-N = np.logspace(1, 4, 5) 
+N = np.logspace(1, 3, 5) 
 
 for i in range(len(N)):
 

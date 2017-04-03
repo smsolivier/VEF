@@ -45,7 +45,7 @@ def getOrder(sol, N):
 
 	return err
 
-N = np.array([40, 80, 100, 160])
+N = np.array([80, 160, 320])
 
 n = 8 
 

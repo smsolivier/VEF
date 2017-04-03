@@ -21,7 +21,7 @@ if (len(sys.argv) > 1):
 else:
 	outfile = None 
 
-def getOrder(sol, N, tol=1e-6):
+def getOrder(sol, N, tol, label):
 
 	print('Method =', sol[0].name)
 
@@ -54,9 +54,11 @@ def getOrder(sol, N, tol=1e-6):
 
 	print(fit[0], fit[1], r2)
 
+	plt.loglog(xb/N, err, '-o', clip_on=False, label=label)
+
 	return err
 
-N = np.array([40, 80, 160, 320])
+N = np.array([80, 160, 320, 640, 1280, 2560])
 
 n = 8 
 
@@ -80,16 +82,22 @@ ed10 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 ed11 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, np.ones((n, x)), OPT=1, GAUSS=1) for x in N]
 
-# get order of accuracy 
-err00 = getOrder(ed00, N, tol)
-err01 = getOrder(ed01, N, tol)
-err10 = getOrder(ed10, N, tol)
-err11 = getOrder(ed11, N, tol)
+ed20 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
+	Sigmat, np.ones((n,x)), OPT=2, GAUSS=0) for x in N]
 
-plt.loglog(xb/N, err00, '-o', clip_on=False, label='00')
-plt.loglog(xb/N, err01, '-o', clip_on=False, label='01')
-plt.loglog(xb/N, err10, '-o', clip_on=False, label='10')
-plt.loglog(xb/N, err11, '-o', clip_on=False, label='11')
+ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
+	Sigmat, np.ones((n, x)), OPT=2, GAUSS=1) for x in N]
+
+# get order of accuracy 
+# err00 = getOrder(ed00, N, tol, '00')
+# err01 = getOrder(ed01, N, tol, '01')
+# err10 = getOrder(ed10, N, tol, '10')
+# err11 = getOrder(ed11, N, tol, '11')
+err20 = getOrder(ed20, N, tol, '20')
+err21 = getOrder(ed21, N, tol, '21')
+
+plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
+	color='k', alpha=.3, label='Slope = 2')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$h$', fontsize=20)
 plt.ylabel('Error', fontsize=20)

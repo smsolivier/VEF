@@ -313,6 +313,10 @@ class Eddington(LD):
 
 			phiL, phiR = self.maintainSlopes(phi) 
 
+		elif (OPT == 2):
+
+			phiL, phiR = self.reconstructSlopes(phi)
+
 		return phiL, phiR 
 
 	def maintainSlopes(self, phi):
@@ -351,6 +355,81 @@ class Eddington(LD):
 			phiR[i] = phiEdge[i+1] 
 
 		return phiL, phiR 
+
+	def reconstructSlopes(self, phi):
+		''' Reconstruct phiL, phiR from MHFEM cell centers only 
+			Inputs:
+				phi: MHFEM scalar flux (edges and centers) 
+				omega: controls left/right weighting of difference 
+			''' 
+
+		omega = 1
+
+		# extract cell centers 
+		phiC = self.mhfem.getCenters(phi)
+
+		# compute delta 
+		delta = np.zeros(self.Ne) # cell edged differences 
+
+		for i in range(1, self.N):
+
+			delta[i] = phiC[i] - phiC[i-1]
+
+		delta[0] = delta[1] 
+		delta[-1] = delta[-2] 
+
+		xi = self.vanLeer(delta, omega)
+
+		# compute slopes 
+		slope = np.zeros(self.N) # cell centered 
+
+		for i in range(self.N):
+
+			slope[i] = .5*(1 + omega)*delta[i] + .5*(1-omega)*delta[i+1] 
+
+		# apply limiter 
+		slope *= xi 
+
+		# reconstuct LD left and right 
+		phiL = np.zeros(self.N)
+		phiR = np.zeros(self.N)
+
+		for i in range(self.N):
+
+			phiL[i] = phiC[i] - slope[i] 
+			phiR[i] = phiC[i] + slope[i] 
+
+		return phiL, phiR
+
+	def vanLeer(self, delta, omega):
+		''' Generate van leer slope limiter 
+			Inputs:
+				delta: cell edged center differences 
+				omega: left/right difference weighting parameter
+		''' 
+
+		xi = np.zeros(self.N) # self centered limiter 
+
+		r = np.zeros(self.N) # centered ratio of edge deltas 
+
+		beta = 1 
+
+		for i in range(self.N):
+
+			r[i] = delta[i]/delta[i+1] 
+
+		for i in range(self.N):
+
+			if r[i] < 0:
+
+				xi[i] = 0 
+
+			else:
+
+				xiR = 2*beta/(1 - omega + (1+omega)*r[i])
+				xi[i] = min(2*r[i]/(1+r[i]), xiR)
+
+		return xi
 
 	def makeEddingtonGauss(self):
 		''' Create edge and center array of eddington factor 
@@ -538,7 +617,7 @@ if __name__ == '__main__':
 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ld.setMMS()
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=2)
 	# ed.setMMS()
 
 	x, phi, it = ld.sourceIteration(tol)

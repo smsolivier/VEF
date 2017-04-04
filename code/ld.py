@@ -397,8 +397,8 @@ class Eddington(LD):
 
 		for i in range(self.N):
 
-			phiL[i] = phiC[i] - slope[i] 
-			phiR[i] = phiC[i] + slope[i] 
+			phiL[i] = phiC[i] - slope[i] / 2
+			phiR[i] = phiC[i] + slope[i] / 2
 
 		return phiL, phiR
 

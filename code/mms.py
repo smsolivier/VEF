@@ -58,7 +58,7 @@ def getOrder(sol, N, tol, label):
 
 	return err
 
-N = np.array([80, 160, 320, 640, 1280, 2560])
+N = np.array([80, 160, 320, 640])
 
 n = 8 
 
@@ -89,15 +89,15 @@ ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 	Sigmat, np.ones((n, x)), OPT=2, GAUSS=1) for x in N]
 
 # get order of accuracy 
-# err00 = getOrder(ed00, N, tol, '00')
-# err01 = getOrder(ed01, N, tol, '01')
-# err10 = getOrder(ed10, N, tol, '10')
-# err11 = getOrder(ed11, N, tol, '11')
-err20 = getOrder(ed20, N, tol, '20')
-err21 = getOrder(ed21, N, tol, '21')
+err00 = getOrder(ed00, N, tol, 'MHFEM Edges, No Gauss')
+err01 = getOrder(ed01, N, tol, 'Maintain Slopes, No Gauss')
+err10 = getOrder(ed10, N, tol, 'MHFEM Edges, Gauss')
+err11 = getOrder(ed11, N, tol, 'Maintain Slopes, Gauss')
+err20 = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
+err21 = getOrder(ed21, N, tol, 'vanLeer, Gauss')
 
 plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
-	color='k', alpha=.3, label='Slope = 2')
+	color='k', alpha=.7, label='Slope = 2')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$h$', fontsize=20)
 plt.ylabel('Error', fontsize=20)

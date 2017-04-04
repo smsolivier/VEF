@@ -16,10 +16,10 @@ if (len(sys.argv) > 1):
 else:
 	outfile = None 
 
-Nruns = 10 
-eps = np.logspace(-6, 0, Nruns)
+Nruns = 20
+eps = np.logspace(-4, -2, Nruns)
 
-tol = 1e-10 
+tol = 1e-12
 
 def getIt(eps, opt, gauss):
 
@@ -57,27 +57,32 @@ diff11, it11 = getIt(eps, 1, 1)
 diff20, it20 = getIt(eps, 2, 0)
 diff21, it21 = getIt(eps, 2, 1)
 
-plt.figure()
-plt.loglog(eps, diff00, '-o', label='00')
-plt.loglog(eps, diff10, '-o', label='10')
-plt.loglog(eps, diff01, '-o', label='01')
-plt.loglog(eps, diff11, '-o', label='11')
-plt.loglog(eps, diff20, '-o', label='20')
-plt.loglog(eps, diff21, '-o', label='21')
+plt.subplot(2,1,1)
+plt.loglog(eps, diff00, '-o', label='MHFEM Edges, No Gauss')
+plt.loglog(eps, diff10, '-o', label='Maintain Slopes, No Gauss')
+plt.loglog(eps, diff01, '-o', label='MHFEM Edges, Gauss')
+plt.loglog(eps, diff11, '-o', label='Maintain Slopes, Gauss')
+plt.loglog(eps, diff20, '-o', label='vanLeer, No Gauss')
+plt.loglog(eps, diff21, '-o', label='vanLeer, Gauss')
 
-plt.xlabel(r'$\epsilon$')
-plt.ylabel('|Sn - Diffusion|')
+plt.xlabel(r'$\epsilon$', fontsize=18)
+plt.ylabel('|Sn - Diffusion|', fontsize=18)
 plt.legend(loc='best')
 
-plt.figure()
-plt.loglog(eps, it00, '-o', label='00')
-plt.loglog(eps, it10, '-o', label='10')
-plt.loglog(eps, it01, '-o', label='01')
-plt.loglog(eps, it11, '-o', label='11')
-plt.loglog(eps, it20, '-o', label='20')
-plt.loglog(eps, it21, '-o', label='21')
+plt.subplot(2,1,2)
+plt.loglog(eps, it00, '-o', label='MHFEM Edges, No Gauss')
+plt.loglog(eps, it10, '-o', label='Maintain Slopes, No Gauss')
+plt.loglog(eps, it01, '-o', label='MHFEM Edges, Gauss')
+plt.loglog(eps, it11, '-o', label='Maintain Slopes, Gauss')
+plt.loglog(eps, it20, '-o', label='vanLeer, No Gauss')
+plt.loglog(eps, it21, '-o', label='vanLeer, Gauss')
 
-plt.xlabel(r'$\epsilon$')
-plt.ylabel('Number of Iterations')
+plt.axhline(200, color='k', alpha=.3)
+
+plt.xlabel(r'$\epsilon$', fontsize=18)
+plt.ylabel('Number of Iterations', fontsize=18)
 plt.legend(loc='best')
-plt.show()
+if (outfile != None):
+	plt.savefig(outfile)
+else:
+	plt.show()

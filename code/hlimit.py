@@ -38,11 +38,9 @@ Sigmat = lambda x: 1
 
 tol = 1e-10
 
-N = np.logspace(1, 4, 5) 
+N = np.logspace(1, 3, 5) 
 
-for i in range(len(N)):
-
-	N[i] = int(N[i])
+N = np.array([int(x) for x in N])
 
 ed00 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, np.ones((n, x)), OPT=0, GAUSS=0) for x in N]
@@ -56,16 +54,26 @@ ed10 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 ed11 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, np.ones((n, x)), OPT=1, GAUSS=1) for x in N]
 
-diff00 = getDiff(ed00)
-diff01 = getDiff(ed01)
-diff10 = getDiff(ed10)
-diff11 = getDiff(ed11)
+ed20 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
+	Sigmat, np.ones((n, x)), OPT=2, GAUSS=0) for x in N]
+
+ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
+	Sigmat, np.ones((n, x)), OPT=2, GAUSS=1) for x in N]
+
+diff00 = getDiff(ed00, tol)
+diff01 = getDiff(ed01, tol)
+diff10 = getDiff(ed10, tol)
+diff11 = getDiff(ed11, tol)
+diff20 = getDiff(ed20, tol)
+diff21 = getDiff(ed21, tol)
 
 fontsize=16
-plt.loglog(xb/N, diff00, '-o', clip_on=False, label='00')
-plt.loglog(xb/N, diff01, '-o', clip_on=False, label='01')
-plt.loglog(xb/N, diff10, '-o', clip_on=False, label='10')
-plt.loglog(xb/N, diff11, '-o', clip_on=False, label='11')
+plt.loglog(xb/N, diff00, '-o', clip_on=False, label='MHFEM Edges, No Gauss')
+plt.loglog(xb/N, diff01, '-o', clip_on=False, label='Maintain Slopes, No Gauss')
+plt.loglog(xb/N, diff10, '-o', clip_on=False, label='MHFEM Edges, Gauss')
+plt.loglog(xb/N, diff11, '-o', clip_on=False, label='Maintain Slopes, Gauss')
+plt.loglog(xb/N, diff20, '-o', clip_on=False, label='vanLeer, No Gauss')
+plt.loglog(xb/N, diff21, '-o', clip_on=False, label='vanLeer, Gauss')
 plt.xlabel(r'$h$', fontsize=fontsize)
 plt.ylabel('SN/MHFEM Convergence', fontsize=fontsize)
 plt.legend(loc='best', frameon=False)

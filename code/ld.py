@@ -285,7 +285,7 @@ class Eddington(LD):
 		# call LD initialization 
 		LD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
 
-		self.name = 'LD Edd' # name of method 
+		self.name = 'LD Edd' + str(OPT) + str(GAUSS) # name of method 
 
 		self.OPT = OPT # slope recovery method 
 
@@ -307,15 +307,15 @@ class Eddington(LD):
 
 		if (OPT == 0):
 
-			phiL, phiR = self.useHalf(phi)
+			phiL, phiR = self.useHalf(phi) # use edges from MHFEM 
 
 		elif (OPT == 1):
 
-			phiL, phiR = self.maintainSlopes(phi) 
+			phiL, phiR = self.maintainSlopes(phi) # recover slopes from edges
 
 		elif (OPT == 2):
 
-			phiL, phiR = self.reconstructSlopes(phi)
+			phiL, phiR = self.reconstructSlopes(phi) # recover slopes from centers only 
 
 		return phiL, phiR 
 

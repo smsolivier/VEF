@@ -14,7 +14,7 @@ from R2 import *
 
 import sys 
 
-''' Test MMS functions in LD and DD ''' 
+''' Test order of accuracy for LD options ''' 
 
 if (len(sys.argv) > 1):
 	outfile = sys.argv[1] 
@@ -52,13 +52,15 @@ def getOrder(sol, N, tol, label):
 	# R^2 value
 	r2 = rsquared(err, f(1/N))
 
-	print(fit[0], fit[1], r2)
+	print(fit[0], np.exp(fit[1]), r2)
 
 	plt.loglog(xb/N, err, '-o', clip_on=False, label=label)
 
 	return err
 
-N = np.array([80, 160, 320, 640])
+# N = np.array([80, 160, 320, 640, 1280])
+N = np.logspace(1.2, 3, 5)
+N = np.array([int(x) for x in N])
 
 n = 8 
 
@@ -70,6 +72,9 @@ xb = 5
 tol = 1e-10 
 
 # make solver objects 
+ed = [LD.LD(np.linspace(0, xb, x+1), n, Sigmaa, 
+	Sigmat, np.ones((n,x))) for x in N]
+
 ed00 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, np.ones((n, x)), OPT=0, GAUSS=0) for x in N]
 
@@ -89,6 +94,7 @@ ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 	Sigmat, np.ones((n, x)), OPT=2, GAUSS=1) for x in N]
 
 # get order of accuracy 
+# err = getOrder(ed, N, tol, 'LD')
 err00 = getOrder(ed00, N, tol, 'MHFEM Edges, No Gauss')
 err01 = getOrder(ed01, N, tol, 'Maintain Slopes, No Gauss')
 err10 = getOrder(ed10, N, tol, 'MHFEM Edges, Gauss')
@@ -96,8 +102,8 @@ err11 = getOrder(ed11, N, tol, 'Maintain Slopes, Gauss')
 err20 = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
 err21 = getOrder(ed21, N, tol, 'vanLeer, Gauss')
 
-plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
-	color='k', alpha=.7, label='Slope = 2')
+# plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
+	# color='k', alpha=.7, label='Slope = 2')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$h$', fontsize=20)
 plt.ylabel('Error', fontsize=20)

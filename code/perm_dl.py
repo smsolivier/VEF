@@ -16,8 +16,8 @@ if (len(sys.argv) > 1):
 else:
 	outfile = None 
 
-Nruns = 20
-eps = np.logspace(-4, -2, Nruns)
+Nruns = 10
+eps = np.logspace(-6, 0, Nruns)
 
 tol = 1e-12
 
@@ -76,8 +76,6 @@ plt.loglog(eps, it01, '-o', label='MHFEM Edges, Gauss')
 plt.loglog(eps, it11, '-o', label='Maintain Slopes, Gauss')
 plt.loglog(eps, it20, '-o', label='vanLeer, No Gauss')
 plt.loglog(eps, it21, '-o', label='vanLeer, Gauss')
-
-plt.axhline(200, color='k', alpha=.3)
 
 plt.xlabel(r'$\epsilon$', fontsize=18)
 plt.ylabel('Number of Iterations', fontsize=18)

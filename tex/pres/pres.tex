@@ -113,11 +113,10 @@
 	\begin{block}{Goal}
 		Develop a transport algorithm that 
 			\begin{enumerate} \vspace{-.05in}
-				\item Robustly reduces the number of source iterations in Discrete Ordinates calculations 
+				\item \alert<2>{Accelerates Discrete Ordinates Source Iteration}
 				\item Bridges Linear Discontinuous Galerkin (LDG) transport and MHFEM multiphysics
 			\end{enumerate}
 		\vspace{-.05in}
-		Show scheme works in 1D slab with lumped LDG transport
 	\end{block}
 
 \end{frame}
@@ -233,22 +232,21 @@
 	\begin{equation*}
 		\mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
 		\vphantom{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}} 
-		\only<2>{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}
-		\only<3->{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}}
+		\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}
 		 + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
 	\end{equation*}
-	\onslide<4->
+	\onslide<3->
 	$\phi^1(x) $ is the uncollided flux 
 
-	\onslide<5->
+	\onslide<4->
 	$\phi^2(x)$ is uncollided and once collided flux 
 
-	\onslide<6->
+	\onslide<5->
 	\ $\vdots$
 
 	$\phi^{\ell}(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions 
 
-	\onslide<7->
+	\onslide<6->
 	\textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
 
 \end{frame}
@@ -263,66 +261,20 @@
 
 \end{frame}
 
-% \begin{frame}{Diffusion Synthetic Acceleration}
-
-%     Large, highly scattering systems $\Rightarrow$ Diffusion Theory is accurate! 
-
-%     % bold acceleration additions
-
-%     \begin{exampleblock}{Diffusion Synthetic Acceleration}
-%     \begin{enumerate}
-%         \item Given previous estimate for $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1/2}$
-
-%         \item Compute $\phi^{\ell+1/2}(x) = 
-%             \sum_{n=1}^N w_n \psi_n^{\ell+1/2}(x)$ 
-
-%         \item \alert{Solve diffusion equation for a correction factor, $f^{\ell+1}(x)$}
-
-%         \item Update scattering term with 
-%             $\alert{\phi^{\ell+1}(x) = \phi^{\ell+1/2}(x) + f^{\ell+1}(x)}$ 
-%         and repeat until: 
-%              \begin{equation*}
-%                 \frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon 
-%              \end{equation*}
-
-%     \end{enumerate}
-%     \end{exampleblock}
-
-% \end{frame}
-
-% \begin{frame}{DSA Problems}
-
-%     Becomes non-convergent in highly scattering media with coarse spatial grids 
-
-%     Transport and Diffusion steps must be consistently differenced 
-
-%     Consistently differenced equations are more expensive to solve 
-
-%     Transport and MHFEM are not compatible
-
-%     \onslide<2>
-%     \vfill 
-%     \centerline{\textbf{A new acceleration scheme is needed!}}
-
-% \end{frame}
-
 \section{Eddington Acceleration}
 
-\begin{frame}{Zeroth Angular Moment}
+\begin{frame}{Conservative Form of Boltzmann Equation}
 
-	Find conservative form of Boltzmann equation
+	% \pause
+	% Boltzmann Equation
+	% \begin{equation*}
+	% 		\mu \dderiv{\psi}{x}(x, \mu) + 
+	% 		\Sigma_t(x) \psi(x,\mu) = 
+	% 		\frac{\Sigma_s(x)}{2} \phi(x) + 
+	% 		\frac{Q(x)}{2} 
+	% \end{equation*}
 
-	\pause
-	Boltzmann Equation
-	\begin{equation*}
-			\mu \dderiv{\psi}{x}(x, \mu) + 
-			\Sigma_t(x) \psi(x,\mu) = 
-			\frac{\Sigma_s(x)}{2} \phi(x) + 
-			\frac{Q(x)}{2} 
-	\end{equation*}
-
-	\pause
-	Integrate over all angles \footnotesize
+	Zeroth Moment: integrate over all angles \footnotesize
 	\begin{equation*}
 		\int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
 		\int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
@@ -342,9 +294,9 @@
 
 \end{frame}
 
-\begin{frame}{First Angular Moment}
+\begin{frame}{Conservative Form of the Boltzmann Equation}
 
-	Multiply by $\mu$ and integrate 
+	First Moment: multiply by $\mu$ and integrate 
 	{\footnotesize
 	\begin{equation*}
 		\only<1,2,3>{
@@ -484,6 +436,7 @@
 
 	Use \SN to compute $\edd(x)$ and Moment Equations to find $\phi(x)$ 
 
+	\pause
 	\begin{exampleblock}{Eddington Acceleration}
 	\begin{enumerate}
 		\item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1/2}(x)$
@@ -497,6 +450,7 @@
 	\end{enumerate}
 	\end{exampleblock}
 
+	\pause
 	Acceleration occurs because
 	\begin{enumerate}
 		\item Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
@@ -509,28 +463,22 @@
 
 \begin{frame}{Eddington Acceleration Properties}
 
-	% \footnotesize 
-	Non-linear scheme $\Rightarrow$ produces 2 solutions (\SN and Moment)
+	Produces 2 solutions (\SN and Moment)
 
 	\pause
 	Relaxes consistent differencing requirements important in linear acceleration 
 
-	\pause
-	Which solution is correct? 
+	\pause 
+	Transport can be LDG and Moment can be MHFEM 
+
+	\pause 
+	Moment Equations are conservative and relatively inexpensive to solve 
 
 	\pause
-	Benefits 
-	\begin{enumerate}
+	Downside: Which solution is correct? 
 
-		\item Transport can be LDG and Moment can be MHFEM
-
-		\item Moment Equations are conservative and relatively inexpensive compared to transport sweep 
-
-		% \item Can use Moment solution in MHFEM multiphysics iterations without needing a full transport sweep 
-
-		\item Difference between \SN and Moment solution can be used as a measure of spatial truncation error (measure of mesh convergence)
-
-	\end{enumerate}
+	\pause 
+	Difference between \SN and Moment solutions can be used as a measure of mesh convergence 
 
 \end{frame}
 
@@ -568,27 +516,8 @@
 
 % \end{frame}
 
-\begin{frame}{Diffusion Limit}
-
-	\footnotesize
-	Scale cross sections, source 
-	$$\Sigma_t \rightarrow \Sigma_t/\epsilon $$
-	$$\Sigma_a \rightarrow \epsilon \Sigma_a$$
-	$$Q \rightarrow \epsilon Q$$ 
-
-	System becomes diffusive as $\epsilon \rightarrow 0$ 
-
-	\centerline{\includegraphics[width=.5\paperwidth]{figs/diffLimit.pdf}}
-
-	Accelerates source iteration, survives diffusion limit 
-
-	Performs similarly to consistently differenced, linear acceleration (S$_2$SA)
-
-\end{frame}
-
 \begin{frame}{Convergence Rate Comparison}
 
-	
 	\begin{columns}
 	\begin{column}{.5\paperwidth}
 	\begin{figure} \centering
@@ -608,6 +537,27 @@
 	\pause
 	\vfill
 	\centerline{\textbf{Fast rate of convergence of $\edd(x)$ is transfered to $\phi(x)$}}
+
+\end{frame}
+
+\begin{frame}{Diffusion Limit}
+
+	\footnotesize
+	Scale cross sections, source 
+	$$\Sigma_t \rightarrow \Sigma_t/\epsilon $$
+	$$\Sigma_a \rightarrow \epsilon \Sigma_a$$
+	$$Q \rightarrow \epsilon Q$$ 
+
+	System becomes diffusive as $\epsilon \rightarrow 0$ 
+
+	\pause
+	\centerline{\includegraphics[width=.5\paperwidth]{figs/diffLimit.pdf}}
+
+	\pause
+	Survives diffusion limit 
+
+	\pause
+	Performs similarly to consistently differenced, linear acceleration (S$_2$SA)
 
 \end{frame}
 
@@ -654,15 +604,7 @@
 	\onslide<+->
 	Conclusions
 	\begin{itemize} \vspace{-.1in}
-		\item Scheme successfully accelerated source iteration in 1D slab geometry 
-
-		% \item Inherently compatible with rad-hydro multiphysics 
-
-		% \begin{itemize}
-		%     \item Transport and acceleration steps can be discretized with arbitrarily different methods 
-		%     \item Avoids consistency issues 
-		%     \item Provides less expensive, conservative solution 
-		% \end{itemize}
+		\item Scheme successfully accelerated source iteration in 1D slab geometry
 
 		\item Eddington Acceleration is uniquely suited for radiation hydrodynamics 
 		\begin{itemize}
@@ -678,17 +620,12 @@
 	\onslide<+->
 	Future Work 
 	\begin{itemize} \vspace{-.1in}
-		\item Develop a rad-hydro algorithm 
 
-		\begin{itemize}
-			\item Make use of inexpensive Moment solution in multiphysics iterations 
-		\end{itemize}
+		\item Add temperature for radiative transfer 
 
-		\item Add temperature 
+		\item Show still works in higher dimensions 
 
-		\item Higher order of accuracy 
-
-		\item Explore other multiphysics applications 
+		\item Develop an efficient rad hydro algorithm that makes use of the inexpensive Moment solution in multiphysics iterations 
 
 	\end{itemize}
 

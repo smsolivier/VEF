@@ -2,13 +2,14 @@ codedir = ../../code/
 figdir = figs/
 
 MAIN = pres
-FIGS = $(figdir)diffLimit.pdf $(figdir)converge_una.pdf $(figdir)converge_acc.pdf \
-	$(figdir)hlim.pdf $(figdir)ooa.pdf $(figdir)dvs.pdf $(figdir)edd.pdf $(figdir)corrected.pdf 
+FIGS = diffLimit converge_una converge_acc hlim ooa dvs edd exSol
+FIGS := $(addsuffix .pdf, $(FIGS))
+FIGS := $(addprefix $(figdir), $(FIGS))
 
 # generate all figures 
 .PHONY : all 
-all : $(figdir) $(FIGS) $(MAIN).pdf
-
+all : $(figdir) $(FIGS) $(MAIN).pdf 
+	
 $(figdir) : 
 	-mkdir $(figdir) 
 
@@ -35,6 +36,9 @@ $(figdir)edd.pdf : $(codedir)dvs.py
 
 $(figdir)corrected.pdf : $(codedir)dvs.py 
 	$< $(figdir)dvs.pdf $(figdir)edd.pdf $(figdir)corrected.pdf 
+
+$(figdir)exSol.pdf : exSol.py 
+	./$< $@ 
 
 # compile latex 
 $(MAIN).pdf: $(MAIN).tex $(FIGS)

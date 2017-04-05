@@ -2,7 +2,8 @@ codedir = ../../code/
 figdir = figs/
 
 MAIN = pres
-FIGS = diffLimit converge_una converge_acc hlim ooa dvs edd exSol
+FIGS = diffLimit converge_una converge_acc hlim ooa dvs edd exSol \
+	perm_dl
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
@@ -39,6 +40,9 @@ $(figdir)corrected.pdf : $(codedir)dvs.py
 
 $(figdir)exSol.pdf : exSol.py 
 	./$< $@ 
+
+$(figdir)perm_dl.pdf : perm_dl.py 
+	./$< $@
 
 # compile latex 
 $(MAIN).pdf: $(MAIN).tex $(FIGS)

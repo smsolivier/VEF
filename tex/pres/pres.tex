@@ -274,6 +274,9 @@
 	% 		\frac{Q(x)}{2} 
 	% \end{equation*}
 
+	Take moments of Boltzmann equation until have enough equations for the number of unknowns 
+
+	\pause 
 	Zeroth Moment: integrate over all angles \footnotesize
 	\begin{equation*}
 		\int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
@@ -413,13 +416,13 @@
 	\end{block}
 
 	\pause 
-	2 equations, 3 unknowns
+	3 unknowns ($\phi(x)$, $J(x)$, $\edd(x)$), 2 equations 
 
 	\pause 
 	Closure: $\edd(x)$ found through Boltzmann Equation  
 
 	\pause
-	Moment Equations = transport informed diffusion
+	Moment Equations = angular flux informed diffusion
 
 	\pause
 	Transport information passed through $\edd(x)$ and boundary conditions
@@ -431,7 +434,7 @@
 	Analytically pointless: if Boltzmann can be solved, don't need Moment Equations 
 
 	\pause 
-	Numerically: use \SN to compute $\edd(x)$, Moment Equations to find $\phi(x)$
+	Numerically: use \SN to compute estimate of $\edd(x)$, Moment Equations to find $\phi(x)$
 
 \end{frame}
 
@@ -518,19 +521,13 @@
 
 \begin{frame}{Test Problem}
 
-	\SN: lumped Linear Discontinuous Galerkin 
+	S$_8$ in 1D slab geometry 
 
 	\pause
-	Moment: Mixed Hybrid Finite Element 
-
-	\pause 
-	S$_8$ 
+	Lumped Linear Discontinuous Galerkin transport 
 
 	\pause
-	Reflecting left boundary, vacuum right boundary 
-
-	\pause
-	Isotropic source, constant cross sections 
+	Mixed Hybrid Finite Element Method Moment 
 
 	\pause 
 	\centerline{\includegraphics[width=.5\paperwidth]{figs/exSol.pdf}}
@@ -582,26 +579,9 @@
 
 \end{frame}
 
-\begin{frame}{Solution Convergence}
-
-	\onslide<+->
-	Compare 
-	\begin{equation*}
-		\frac{\| \phi_{\text{S}_N}(x) - 
-			\phi_\text{Moment}(x)\|}{\|\phi_\text{Moment}(x) \|}
-	\end{equation*}
-	as $h\rightarrow 0$ 
-
-	\onslide<+->
-	\centerline{\includegraphics[width=.5\paperwidth]{figs/hlim.pdf}}
-
-	\onslide<+->
-	\SN and Moment solutions converge as mesh is refined 
-
-\end{frame}
-
 \begin{frame}{Method of Manufactured Solutions Order of Accuracy} 
 
+	\footnotesize
 	Set $Q(x)$ to force solution to 
 	\begin{equation*}
 		\phi(x) = \sin\left(\frac{\pi x}{x_b}\right)
@@ -615,6 +595,37 @@
 
 	\pause
 	Eddington Acceleration did not effect the order of accuracy of lumped LDG 
+
+	\pause 
+	All slope recovery methods have similar accuracy 
+
+\end{frame}
+
+\begin{frame}{Data Reconstruction Solution Convergence}
+
+	Compare 
+	\begin{equation*}
+		\frac{\| \phi_{\text{S}_N}(x) - 
+			\phi_\text{Moment}(x)\|}{\|\phi_\text{Moment}(x) \|}
+	\end{equation*}
+	as $h\rightarrow 0$ 
+
+	\pause
+	\centerline{\includegraphics[width=.5\paperwidth]{figs/hlim.pdf}}
+
+	\pause
+	\SN and Moment solutions converge as mesh is refined 
+
+	\pause Slope recovery effects solution convergence but not accuracy 
+
+\end{frame}
+
+\begin{frame}{Data Reconstruction Diffusion Limit}
+
+	\centerline{\includegraphics[width=.6\paperwidth]{figs/perm_dl.pdf}}
+
+	\vfill
+	\centerline{All data reconstruction methods survived diffusion limit}
 
 \end{frame}
 
@@ -634,7 +645,7 @@
 			\item Provides inexpensive, conservative solution 
 		\end{itemize}
 
-		\item Showed MHFEM and lumped LDG can be paired 
+		\item Showed MHFEM/LLDG pairing is robust 
 
 	\end{itemize}
 

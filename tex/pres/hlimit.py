@@ -38,7 +38,7 @@ Sigmat = lambda x: 1
 
 tol = 1e-10
 
-N = np.logspace(1, 3, 3) 
+N = np.logspace(1, 3, 4) 
 
 N = np.array([int(x) for x in N])
 

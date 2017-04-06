@@ -65,10 +65,10 @@ diff21, it21 = getIt(eps, 2, 1)
 
 # plt.loglog(eps, it00, '-o', label='MHFEM Edges, No Gauss')
 # plt.loglog(eps, it10, '-o', label='Maintain Slopes, No Gauss')
-plt.loglog(eps, it01, '-o', label='No Slopes')
-plt.loglog(eps, it11, '-o', label='Slope from Edges')
+plt.semilogx(eps, it01, '-o', label='No Slopes', clip_on=False)
+plt.semilogx(eps, it11, '-*', label='Slope from Edges', clip_on=False)
 # plt.loglog(eps, it20, '-o', label='vanLeer, No Gauss')
-plt.loglog(eps, it21, '-o', label='vanLeer on Centers')
+plt.semilogx(eps, it21, '->', label='vanLeer on Centers', clip_on=False)
 
 plt.xlabel(r'$\epsilon$', fontsize=fontsize)
 plt.ylabel('Number of Iterations', fontsize=fontsize)

@@ -590,8 +590,8 @@
 	\pause
 	\centerline{\includegraphics[width=.5\paperwidth]{figs/ooa.pdf}}
 
-	\pause
-	Both second order accurate
+	\pause 
+	All second order as expected 
 
 	\pause
 	Eddington Acceleration did not effect the order of accuracy of lumped LDG 
@@ -624,8 +624,13 @@
 
 	\centerline{\includegraphics[width=.6\paperwidth]{figs/perm_dl.pdf}}
 
+	\pause
 	\vfill
-	\centerline{All data reconstruction methods survived diffusion limit}
+	All data reconstruction methods survived diffusion limit
+
+	\pause
+	\vfill
+	\centerline{\textbf{Eddington Acceleration is extemely robust}}
 
 \end{frame}
 
@@ -682,6 +687,34 @@
 
 \begin{frame}[standout]
   Questions?
+\end{frame}
+
+\begin{frame}{Data Reconstruction Methods}
+
+	MHFEM $\phi(x)$ is piecewise constant with discontinuous cell edges ($\phi_{i-1/2}$, $\phi_i$, $\phi_{i+1/2}$)
+
+	LLDG is linear discontinuous ($\phi_{i,L}$, $\phi_{i,R}$)
+
+	Need a way to recover slope information when \SN scattering term is updated with MHFEM $\phi(x)$ 
+
+	No Slopes: 
+	\begin{equation*}
+		\phi_{i,L/R} = \phi_{i\mp1/2}^*
+	\end{equation*}
+
+	Slopes from Edges: 
+	\begin{equation*}
+		\phi_{i,L/R} = \phi_i^* \mp \frac{1}{2} \left(
+		\phi_{i+1/2}^* - \phi_{i-1/2}^* \right)
+	\end{equation*}
+
+	vanLeer on Centers: 
+	\begin{equation*}
+		\phi_{i,L/R} = \phi_i^* \mp \frac{1}{2} \xi_\text{vanLeer} \left[ 
+			\left(\phi_{i+1}^* - \phi_i^*\right) + \left(\phi_{i}^* - \phi_{i-1}^*\right)
+		 \right]
+	\end{equation*}
+
 \end{frame}
 
 \begin{frame}{S$_8$ v. Diffusion}

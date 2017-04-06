@@ -38,7 +38,7 @@ Sigmat = lambda x: 1
 
 tol = 1e-10
 
-N = np.logspace(1, 3, 5) 
+N = np.logspace(1, 3, 3) 
 
 N = np.array([int(x) for x in N])
 
@@ -71,9 +71,9 @@ fontsize=20
 # plt.loglog(xb/N, diff00, '-o', clip_on=False, label='MHFEM Edges, No Gauss')
 plt.loglog(xb/N, diff01, '-o', clip_on=False, label='No Slopes')
 # plt.loglog(xb/N, diff10, '-o', clip_on=False, label='MHFEM Edges, Gauss')
-plt.loglog(xb/N, diff11, '-o', clip_on=False, label='Slopes from Edges')
+plt.loglog(xb/N, diff11, '-*', clip_on=False, label='Slopes from Edges')
 # plt.loglog(xb/N, diff20, '-o', clip_on=False, label='vanLeer, No Gauss')
-plt.loglog(xb/N, diff21, '-o', clip_on=False, label='vanLeer on Centers')
+plt.loglog(xb/N, diff21, '->', clip_on=False, label='vanLeer on Centers')
 plt.xlabel(r'$h$', fontsize=fontsize)
 plt.ylabel('SN/MHFEM Convergence', fontsize=fontsize)
 plt.legend(loc='best', frameon=False)

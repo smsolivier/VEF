@@ -55,8 +55,6 @@ def getOrder(sol, N, tol, label):
 
 	print(fit[0], np.exp(fit[1]), r2)
 
-	plt.loglog(xb/N, err, '-o', clip_on=False, label=label)
-
 	return err
 
 # N = np.array([80, 160, 320, 640, 1280])
@@ -95,7 +93,7 @@ ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 	Sigmat, np.ones((n, x)), OPT=2, GAUSS=1) for x in N]
 
 # get order of accuracy 
-# err = getOrder(ed, N, tol, 'LD')
+err = getOrder(ed, N, tol, 'Unaccelerated')
 # err00 = getOrder(ed00, N, tol, 'MHFEM Edges, No Gauss')
 err01 = getOrder(ed01, N, tol, 'No Slopes')
 # err10 = getOrder(ed10, N, tol, 'MHFEM Edges, Gauss')
@@ -105,6 +103,11 @@ err21 = getOrder(ed21, N, tol, 'vanLeer')
 
 # plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
 	# color='k', alpha=.7, label='Slope = 2')
+
+plt.loglog(xb/N, err, '-o', clip_on=False, label='Unaccelerated')
+plt.loglog(xb/N, err01, '-*', clip_on=False, label='No Slopes')
+plt.loglog(xb/N, err11, '->', clip_on=False, label='Slopes from Edges')
+plt.loglog(xb/N, err21, '-^', clip_on=False, label='vanLeer from Centers')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$h$', fontsize=20)
 plt.ylabel('Error', fontsize=20)

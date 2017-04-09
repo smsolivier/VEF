@@ -13,6 +13,7 @@
 \usepackage{float}
 \usepackage{subfigure}
 \usepackage{float}
+\usepackage{xspace}
 %\usepackage{subfigmat}
 %\usepackage{citesort}
 %\usepackage{cites}
@@ -227,6 +228,14 @@
     \renewcommand{\dblfloatpagefraction}{0.7}	% require fuller float pages
 
 	% remember to use [htp] or [htpb] for placement
+
+\newcommand{\SN}{S$_N$\xspace}
+\renewcommand{\vec}[1]{\bm{#1}} %vector is bold italic
+\newcommand{\vd}{\bm{\cdot}} % slightly bold vector dot
+\newcommand{\ud}{\mathop{}\!\mathrm{d}} % upright derivative symbol
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dderiv}[2]{\frac{\ud #1}{\ud #2}}
+\newcommand{\edd}{\langle \mu^2 \rangle} 
 	
 	
 % =================================================================================================
@@ -272,6 +281,7 @@ $ $\\
 \section{Introduction}
 
 \section{Variable Eddington Method}
+\input{methods}
 
 \section{Computational Results}
 \input{results}

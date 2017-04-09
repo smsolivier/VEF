@@ -2,7 +2,8 @@ codedir = ../../code/
 figdir = figs/
 
 MAIN = jctt
-FIGS = diffLimit.pdf mms.pdf hlimit.pdf
+FIGS = diffLimit diffError mms hlimit
+FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
 # generate all figures 
@@ -15,7 +16,10 @@ $(figdir) :
 
 # generate diffusion limit test 
 $(figdir)diffLimit.pdf : perm_dl.py 
-	./$< $@ 
+	./$< $@ $(figdir)diffError.pdf 
+
+$(figdir)diffError.pdf : perm_dl.py 
+	./$< $(figdir)diffLimit.pdf $@
 
 # generate mms plot 
 $(figdir)mms.pdf : mms.py 
@@ -44,3 +48,5 @@ clean :
 	rm -f $(MAIN).snm
 	rm -f $(MAIN).toc
 	rm -f $(MAIN).synctex.gz
+	rm -f $(MAIN).fff
+	

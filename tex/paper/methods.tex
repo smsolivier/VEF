@@ -78,5 +78,14 @@
 
 	Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the moment equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
-	In addition to acceleration, this scheme allows the \SN equations and Eddington equations to be solved with arbitrarily different spatial discretization methods. \SN can be spatially discretized using normal methods, such as Linear Discontinuous Galerkin, while the Eddington equations can be solved with MHFEM. 
+	In addition to acceleration, this scheme allows the \SN equations and Eddington equations to be solved with different spatial discretization methods. \SN can be spatially discretized using normal methods, such as Linear Discontinuous Galerkin, while the Eddington equations can be solved with MHFEM. 
 
+\subsection{Data Reconstruction}
+	Data reconstruction methods are required to recover the linear discontinuous representation in LDG from the piecewise constant with discontinuous jumps at the cell edges representation in MHFEM. Data reconstruction methods use neighboring cell centers or edges to extrapolate the MHFEM flux to determine the discontinuous cell edge values in LDG that maintain the average and slope. Two data reconstruction methods have been implemented: one that uses the slope between the MHFEM edge values and one that only uses cell centered values. 
+
+	The first method sets the LDG discontinuous left and right fluxes in cell $i$, $\phi_{i,L}$ and $\phi_{i,R}$ to 
+		\begin{equation}
+			\phi_{i,L/R} = \phi_i \mp \frac{1}{2} \left(\phi_{i+1/2} - \phi_{i-1/2}\right)
+		\end{equation}
+
+	The second method uses a van Leer slope limiter on the MHFEM cell centers. 

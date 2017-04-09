@@ -82,7 +82,7 @@
 
 \usepackage{glossaries}
 \makeglossaries
-\input{glossary}
+\input{../glossary}
 
 % custom commands 
 \newcommand{\SN}{S$_N$\xspace}
@@ -192,40 +192,40 @@
 
 \input{MHFEM}
 
-\section{Results}
-	As a proof of concept for Eddington acceleration, a \gls{dd} \gls{sn} code was created along with an \gls{mhfem} solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells. 
+% \section{Results}
+% 	As a proof of concept for Eddington acceleration, a \gls{dd} \gls{sn} code was created along with an \gls{mhfem} solver for Eqs. \ref{eq:zero} and \ref{eq:first}. The test problem of steady--state, one--group, isotropically--scattering, fixed--source radiation transport in slab geometry with a reflecting left boundary and vacuum right boundary was used to compare unaccelerated, Eddington accelerated, and DSA S$_8$ SI with 100 spatial cells. 
 
-	\begin{figure} % replace 't' with 'b' to force it to be on the bottom
-		\centering
-		\includegraphics[width=5in]{accel.pdf}
-		\caption{A comparison of the number of iterations until convergence for unaccelerated, Eddington accelerated, and DSA S$_8$ SI. }
-		\label{fig:comparison}
-	\end{figure}
+% 	\begin{figure} % replace 't' with 'b' to force it to be on the bottom
+% 		\centering
+% 		\includegraphics[width=5in]{accel.pdf}
+% 		\caption{A comparison of the number of iterations until convergence for unaccelerated, Eddington accelerated, and DSA S$_8$ SI. }
+% 		\label{fig:comparison}
+% 	\end{figure}
 
-	Figure \ref{fig:comparison} shows the number of iterations until the convergence criterion in  Eq. \ref{eq:converg} was met with $\epsilon = \num{1e-6}$ for varying ratios of $\Sigma_s$ to $\Sigma_t$. Aside from $\Sigma_s/\Sigma_t = 0$ where acceleration is not possible, the ratio of unaccelerated to Eddington accelerated iterations ranges between 2.5 and 750. This suggests that acceleration is occurring and that Eddington acceleration does not just do twice the amount of work in each iteration. 
+% 	Figure \ref{fig:comparison} shows the number of iterations until the convergence criterion in  Eq. \ref{eq:converg} was met with $\epsilon = \num{1e-6}$ for varying ratios of $\Sigma_s$ to $\Sigma_t$. Aside from $\Sigma_s/\Sigma_t = 0$ where acceleration is not possible, the ratio of unaccelerated to Eddington accelerated iterations ranges between 2.5 and 750. This suggests that acceleration is occurring and that Eddington acceleration does not just do twice the amount of work in each iteration. 
 
-	Figure \ref{fig:conv_si} shows the unaccelerated convergence criterion 
-		\begin{equation}
-			\frac{\|f^{\ell+1} - f^{\ell}\|}{\|f^{\ell+1}\|}
-		\end{equation}
-	as a function of iteration number for $f = \phi(x)$ and $f = \edd(x)$. The large drop in the convergence criterion between the first and second iterations supports the claim that $\edd(x)$ is a weak function of angular flux as it quickly converges despite a less convergent angular flux. When compared to Fig. \ref{fig:conv_edd}, a plot of the convergence criterion versus number of iterations for Eddington accelerated S$_8$, it is clear that Eddington acceleration transfers the fast rate of convergence of $\edd(x)$ to $\phi(x)$. 
+% 	Figure \ref{fig:conv_si} shows the unaccelerated convergence criterion 
+% 		\begin{equation}
+% 			\frac{\|f^{\ell+1} - f^{\ell}\|}{\|f^{\ell+1}\|}
+% 		\end{equation}
+% 	as a function of iteration number for $f = \phi(x)$ and $f = \edd(x)$. The large drop in the convergence criterion between the first and second iterations supports the claim that $\edd(x)$ is a weak function of angular flux as it quickly converges despite a less convergent angular flux. When compared to Fig. \ref{fig:conv_edd}, a plot of the convergence criterion versus number of iterations for Eddington accelerated S$_8$, it is clear that Eddington acceleration transfers the fast rate of convergence of $\edd(x)$ to $\phi(x)$. 
 
-	\begin{figure}
-		\centering
-		\begin{subfigure}{.49\textwidth} 
-			\centering
-			\includegraphics[width=\textwidth]{eddCon_si.pdf}
-			\caption{}
-			\label{fig:conv_si}
-		\end{subfigure}
-		\begin{subfigure}{.49\textwidth}
-			\centering
-			\includegraphics[width=\textwidth]{eddCon_mu.pdf}
-			\caption{}
-			\label{fig:conv_edd}
-		\end{subfigure}
-		\caption{The convergence rate of $\phi(x)$ compared to $\edd(x)$ for (a) unaccelerated and (b) Eddington accelerated S$_8$. }
-	\end{figure}
+% 	\begin{figure}
+% 		\centering
+% 		\begin{subfigure}{.49\textwidth} 
+% 			\centering
+% 			\includegraphics[width=\textwidth]{eddCon_si.pdf}
+% 			\caption{}
+% 			\label{fig:conv_si}
+% 		\end{subfigure}
+% 		\begin{subfigure}{.49\textwidth}
+% 			\centering
+% 			\includegraphics[width=\textwidth]{eddCon_mu.pdf}
+% 			\caption{}
+% 			\label{fig:conv_edd}
+% 		\end{subfigure}
+% 		\caption{The convergence rate of $\phi(x)$ compared to $\edd(x)$ for (a) unaccelerated and (b) Eddington accelerated S$_8$. }
+% 	\end{figure}
 
 	% add convergence rate of phi v edd 
 	% include discussion on acceleration v just doing 2 times as much work. ie actual acceleration is happening 

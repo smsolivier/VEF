@@ -116,7 +116,7 @@
 			\item Update the scalar flux estimate on the right side of Eq. \ref{eq:si} with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges. 
 		\end{enumerate}
 	% This process is one source iteration consisting of an \SN transport step to compute the Eddington factor and an MHFEM acceleration step to compute $\phi(x)$. The scalar flux from the acceleration step is used in the right hand side of Eq. \ref{eq:si} and steps 1--4 are repeated until the acceleration step's $\phi(x)$ converges according to Eq. \ref{eq:converg}.  
-
+W
 	Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the moment equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
 	In addition to acceleration, this scheme allows the \SN equations and moment equations to be solved with arbitrarily different spatial discretization methods. \SN can be spatially discretized using normal methods, such as Linear Discontinuous Galerkin or Diamond Difference, while the moment equations can be solved with MHFEM. 

@@ -1,5 +1,5 @@
 # Eddington Acceleration Python Code
-Test Test Test
+Code for implementing Eddington Acceleration into Linear Discontinuous Galerkin Sn 
 
 
 ## ld.py
@@ -48,10 +48,13 @@ Parent class for all spatial discretization methods and acceleration methods
 Regular finite element diffusion solver 
 
 ## mms.py
-Test MMS functions in LD and DD 
+Test order of accuracy for LD options 
 
-## dvs.py
-compares diffusion and transport 
+## hlimit.py
+compares difference between Sn and moment equations as cell width --> 0 
+
+## perm_dl.py
+compare the permuations of linear representation in diffusion limit 
 
 ## diffLimit.py
 compare number of iterations in LD and DD Eddington Acceleration 
@@ -59,20 +62,20 @@ compare number of iterations in LD and DD Eddington Acceleration
 in the Diffusion Limit (epsilon --> 0) 
 
 
-## hlimit.py
-compares difference between Sn and moment equations as cell width --> 0 
-
 ## checkAccel.py
 compare the number of iterations for unaccelerated, Eddington, and S2SA S8 
-
-## converge.py
-plot eddington and flux convergence for unaccelerated and accelerated Sn 
 
 ## exactDiff.py
 computes analytic diffusion solutions 
 
 ## diffMMS.py
 find order of accurracy of LD and DD Eddington acceleration in the diffusion limit 
+
+## testLD.py
+Plot error from MMS solution for LD 
+
+## reed.py
+Test LD with Reed's Problem 
 
 ## Timer.py
 Class for timing functions 

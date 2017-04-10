@@ -35,6 +35,7 @@ xb = 1
 
 Sigmaa = lambda x: .1 
 Sigmat = lambda x: 1 
+q = lambda x, mu: 1 
 
 tol = 1e-10
 
@@ -43,22 +44,22 @@ N = np.logspace(1, 3, 5)
 N = np.array([int(x) for x in N])
 
 ed00 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=0, GAUSS=0) for x in N]
+	Sigmat, q, OPT=0, GAUSS=0) for x in N]
 
 ed01 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=0, GAUSS=1) for x in N]
+	Sigmat, q, OPT=0, GAUSS=1) for x in N]
 
 ed10 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=1, GAUSS=0) for x in N]
+	Sigmat, q, OPT=1, GAUSS=0) for x in N]
 
 ed11 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=1, GAUSS=1) for x in N]
+	Sigmat, q, OPT=1, GAUSS=1) for x in N]
 
 ed20 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=2, GAUSS=0) for x in N]
+	Sigmat, q, OPT=2, GAUSS=0) for x in N]
 
 ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, np.ones((n, x)), OPT=2, GAUSS=1) for x in N]
+	Sigmat, q, OPT=2, GAUSS=1) for x in N]
 
 diff00 = getDiff(ed00, tol)
 diff01 = getDiff(ed01, tol)

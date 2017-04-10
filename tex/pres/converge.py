@@ -24,7 +24,7 @@ Sigmat = 1
 c = .75 
 Sigmaa = Sigmat*(1 - c)
 n = 8 
-q = np.ones((n, N))
+q = lambda x, mu: 1
 
 xb = 20 
 

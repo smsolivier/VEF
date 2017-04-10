@@ -58,18 +58,6 @@ class Transport:
 		self.Sigmaa = Sigmaa 
 		self.Sigmat = Sigmat 
 		self.Sigmas = lambda x: Sigmat(x) - Sigmaa(x)
-		# self.q = q 
-
-		# # ensure q is correct shape 
-		# if (np.shape(self.q)[0] != self.n):
-
-		# 	print('\n--- FATAL ERROR: Transport q must have correct angular dependence ---\n')
-		# 	sys.exit()
-
-		# if (np.shape(self.q)[1] != self.N):
-
-		# 	print('\n--- FATAL ERROR: Transport q must be cell centered ---')
-		# 	sys.exit()
 
 		# initialize psi and phi 
 		self.psi = np.zeros((self.n, self.Ne)) # cell edged flux 

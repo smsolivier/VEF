@@ -44,7 +44,7 @@ def getIt(eps, opt, gauss):
 	for i in range(len(eps)):
 
 		sol = LD.Eddington(x0, n, lambda x: eps[i], lambda x: 1/eps[i], 
-			np.ones((n,N))*eps[i], OPT=opt, GAUSS=gauss)
+			lambda x, mu: eps[i], OPT=opt, GAUSS=gauss)
 
 		x, phi, it[i] = sol.sourceIteration(tol, maxIter=200)
 

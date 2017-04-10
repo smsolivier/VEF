@@ -25,7 +25,7 @@ x = np.linspace(0, xb, N+1)
 Sigmaa = lambda x: .1 
 Sigmat = lambda x: 1 
 
-q = np.ones((n, N))
+q = lambda x, mu: 1 
 
 tol = 1e-10 
 

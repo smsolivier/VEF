@@ -19,7 +19,7 @@ def getError(N, solver):
 	Sigmaa = lambda x: .1*eps 
 
 	n = 8 
-	Q = np.ones((n,N-1))*eps 
+	Q = lambda x, mu: eps
 	xb = 2
 	x = np.linspace(0, xb, N)
 

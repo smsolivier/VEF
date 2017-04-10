@@ -34,6 +34,7 @@ def getIt(eps, opt, gauss):
 	x0 = np.linspace(0, xb, N+1)
 	Sigmat = lambda x: 1 
 	Sigmaa = lambda x: .1 
+	q = lambda x: 1
 
 	n = 8 
 
@@ -44,7 +45,7 @@ def getIt(eps, opt, gauss):
 	for i in range(len(eps)):
 
 		sol = LD.Eddington(x0, n, lambda x: eps[i], lambda x: 1/eps[i], 
-			np.ones((n,N))*eps[i], OPT=opt, GAUSS=gauss)
+			lambda x, mu: eps[i], OPT=opt, GAUSS=gauss)
 
 		x, phi, it[i] = sol.sourceIteration(tol, maxIter=200)
 

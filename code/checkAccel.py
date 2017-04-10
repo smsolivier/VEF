@@ -34,7 +34,7 @@ its2 = np.zeros(len(Sigmaa))
 n = 8
 
 x0 = np.linspace(0, xb, N+1)
-q = np.ones((n,N))
+q = lambda x, mu: 1
 
 maxIter = 10000
 

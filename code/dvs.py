@@ -26,18 +26,18 @@ n = 8
 Sigmaa = lambda x: .1 
 Sigmat = lambda x: 1
 
-q = 1 
+q = lambda x, mu: 1
 
 BCL = 0 
 BCR = 1 
 
 tol = 1e-8 
 
-ld = LD.LD(xe, n, Sigmaa, Sigmat, np.ones((n,N))*q, BCL, BCR) 
+ld = LD.LD(xe, n, Sigmaa, Sigmat, q, BCL, BCR) 
 
 mh = MH.MHFEM(xe, Sigmaa, Sigmat, BCL, BCR, CENT=1)
 mh.discretize(np.ones(N)/3, np.ones(N)/2)
-xd, phid = mh.solve(np.ones(N)*q, np.zeros(N))
+xd, phid = mh.solve(np.ones(N), np.zeros(N))
 
 x, phi, it = ld.sourceIteration(tol)
 
@@ -52,7 +52,7 @@ B = top/ld.zeroMoment(psiEdge)
 
 mhc = MH.MHFEM(xe, Sigmaa, Sigmat, BCL, BCR, CENT=1)
 mhc.discretize(edd, B)
-xc, phic = mhc.solve(np.ones(N)*q, np.zeros(N))
+xc, phic = mhc.solve(np.ones(N), np.zeros(N))
 
 fsize = 20
 

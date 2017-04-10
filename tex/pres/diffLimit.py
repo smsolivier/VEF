@@ -32,7 +32,7 @@ def getDiff(eps, solver):
 
 	N = 31
 	n = 8 
-	Q = np.ones((n,N-1))*eps
+	Q = lambda x, mu: eps
 	xb = 1
 	x = np.linspace(0, xb, N)
 

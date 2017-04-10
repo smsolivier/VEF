@@ -161,6 +161,9 @@ class LD(Transport):
 				self.psiR[i,j] = ans[1] 
 
 	def centPsi(self):
+		''' Get cell centered psi
+			psi_i = .5*(psi_i,L + psi_i,R)
+		''' 
 
 		psi = .5 * (self.psiL + self.psiR) 
 
@@ -209,7 +212,7 @@ class LD(Transport):
 
 	def sourceIteration(self, tol, maxIter=200):
 		''' LD source iteration 
-			converges phiL and phiR 
+			converges phiL and phiR separately 
 		''' 
 
 		it = 0 # store number of iterations 
@@ -270,12 +273,13 @@ class LD(Transport):
 		return self.x, phi, it 
 
 class Eddington(LD):
-	''' Eddington Acceleration ''' 
+	''' Eddington accelerated LD ''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=1, GAUSS=1):
 		''' OPT: controls how LD left and right fluxes are recovered
 				0: use cell centers
 				1: maintain slopes by using the cell edges from MHFEM 
+				2: van Leer slope reconstruction on centers only 
 			GAUSS: use gauss quad for <mu^2> in MHFEM 
 				0: computes <mu^2> from edge and center psi 
 				1: uses gauss quad to compute centers for linear <mu^2> 
@@ -303,6 +307,7 @@ class Eddington(LD):
 			OPT: determine which recovery scheme to use 
 				0: use edges (calls useHalf)
 				1: maintain average and slope (calls maintainSlopes)
+				2: van Leer on centers (calls reconstructSlopes)
 		'''
 
 		if (OPT == 0):
@@ -517,6 +522,9 @@ class Eddington(LD):
 		return mu2 
 
 	def sweep(self, phiL, phiR):
+		''' one source iteration sweep 
+			Overwrites sweep in LD class to include eddington acceleration 
+		''' 
 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
 
@@ -548,7 +556,7 @@ class Eddington(LD):
 		B = top/self.zeroMoment(psiEdge) 
 
 		# discretize MHFEM
-		self.mhfem.discretizeGauss(mu2, B)
+		self.mhfem.discretize(mu2, B)
 
 		# solve for phi, get edges and centers 
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
@@ -558,42 +566,6 @@ class Eddington(LD):
 		phiL, phiR = self.ldRecovery(phi, OPT=self.OPT)
 
 		return phiL, phiR # return accelerated flux 
-
-class Eddington_old(Eddington):
-
-	def sweep(self, phiL, phiR):
-		''' one source iteration ''' 
-
-		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
-
-		psiEdge = self.edgePsi() # get edge values of psi 
-		psiCent = self.centPsi() # get center values of psi 
-
-		# store SN flux 
-		self.phi_SN = self.zeroMoment(psiCent)
-
-		# compute eddington factor with cell CENTERS 
-		mu2 = self.getEddington(psiCent)
-
-		# generate boundary eddington for consistency between drift and transport 
-		top = 0 
-		for i in range(self.n):
-
-			top += np.fabs(self.mu[i])*psiEdge[i,:] * self.w[i] 
-
-		B = top/self.zeroMoment(psiEdge)
-
-		# discretize MHFEM with mu^2 and B 
-		self.mhfem.discretize(mu2, B)
-
-		# solve for phi, get edges and centers 
-		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
-			self.firstMoment(self.q)/2)
-
-		# get LD left and right fluxes 
-		phiL, phiR = self.ldRecovery(phi, OPT=self.OPT)
-
-		return phiL, phiR # return accelerated flux 	
 
 if __name__ == '__main__':
 

@@ -1,4 +1,4 @@
- #!/usr/bin/env python3
+#!/usr/bin/env python3
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -606,16 +606,8 @@ if __name__ == '__main__':
 
 	Sigmaa = lambda x: .1
 	Sigmat = lambda x: .83
+	q = lambda x, mu: 1*(x<xb/2)
 
-	# qf = lambda x: (x > xb/2)
-
-	# q = np.ones((n,N-1)) * eps
-
-	# for i in range(n):
-
-	# 	q[i,:] = qf(np.linspace(xb/N/2, xb - xb/N/2, N-1))
-
-	q = np.ones((n, N))
 	tol = 1e-6
 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)

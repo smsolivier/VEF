@@ -95,11 +95,13 @@ ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 	Sigmat, np.ones((n, x)), OPT=2, GAUSS=1) for x in N]
 
 # get order of accuracy 
+fit = np.zeros(6)
+name = np.zeros(6)
 # err = getOrder(ed, N, tol, 'LD')
-err00 = getOrder(ed00, N, tol, 'MHFEM Edges, No Gauss')
-err01 = getOrder(ed01, N, tol, 'Maintain Slopes, No Gauss')
-err10 = getOrder(ed10, N, tol, 'MHFEM Edges, Gauss')
-err11 = getOrder(ed11, N, tol, 'Maintain Slopes, Gauss')
+err00 = getOrder(ed00, N, tol, 'No Slopes, No Gauss')
+err01 = getOrder(ed01, N, tol, 'No Slopes, Gauss')
+err10 = getOrder(ed10, N, tol, 'Slope from Edges, No Gauss')
+err11 = getOrder(ed11, N, tol, 'Slopes from Edges, Gauss')
 err20 = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
 err21 = getOrder(ed21, N, tol, 'vanLeer, Gauss')
 

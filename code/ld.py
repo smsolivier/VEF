@@ -320,7 +320,9 @@ class Eddington(LD):
 		return phiL, phiR 
 
 	def maintainSlopes(self, phi):
-		''' maintain cell center value and slopes ''' 
+		''' maintain cell center value and slopes 
+			Reconstructs from cell edges 
+		''' 
 
 		phiL = np.zeros(self.N) # left flux 
 		phiR = np.zeros(self.N) # right flux 
@@ -363,7 +365,7 @@ class Eddington(LD):
 				omega: controls left/right weighting of difference 
 			''' 
 
-		omega = 0
+		omega = 0 # weighting factor for slope reconstruction 
 
 		# extract cell centers 
 		phiC = self.mhfem.getCenters(phi)

@@ -20,14 +20,14 @@ class Transport:
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
 		''' Inputs:
-				xe: cell edges 
+				xe: array of cell edges
 				n: number of discrete ordinates 
 				Sigmaa: absorption XS (function)
 				Sigmat: total XS (function)
-				q: fixed source array of mu and cell center spatial dependence 
+				q: fixed source (function of x and mu)  
 		''' 
 
-		self.name = None # store name of methods
+		self.name = None # store name of method
 
 		self.N = np.shape(xe)[0] - 1 # number of cell centers 
 		self.Ne = np.shape(xe)[0] # number of cell edges 
@@ -79,6 +79,7 @@ class Transport:
 			force phi = sin(pi*x/xb)
 		''' 
 
+		# mms solution 
 		self.phi_mms = lambda x: np.sin(np.pi*x/self.xb)
 
 		# ensure correct BCs 
@@ -91,6 +92,7 @@ class Transport:
 			# loop through space 
 			for j in range(self.N):
 
+				# set q 
 				self.q[i,j] = self.mu[i]*np.pi/self.xb * \
 					np.cos(np.pi*self.xc[j]/self.xb) + (self.Sigmat(self.xc[j]) - 
 						self.Sigmas(self.xc[j]))*np.sin(np.pi*self.xc[j]/self.xb)
@@ -135,7 +137,9 @@ class Transport:
 		return mu2
 
 	def sourceIteration(self, tol, maxIter=50, PLOT=None):
-		''' lag RHS of transport equation and iterate until flux converges ''' 
+		''' lag RHS of transport equation and iterate until flux converges 
+			PLOT: if true, makes a video of the flux converging 
+		''' 
 
 		it = 0 # store number of iterations 
 

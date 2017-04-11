@@ -12,18 +12,18 @@ where $\mu = \cos\theta$ is the cosine of the angle of flight $\theta$ relative 
 		\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N \,,
 	\end{equation}
 where $\psi_n(x) = \psi(x, \mu_n)$ is the discrete angular flux. The scalar flux is computed using an $N$-point quadrature rule where the quadrature weights, $w_n$, sum to two. In other words, 
-	\begin{equation} 
-		\phi(x) = \sum_{n=1}^N w_n \psi_n(x)
+	\begin{equation} \label{eq:phiquad}
+		\phi(x) = \sum_{n=1}^N w_n \psi_n(x) \,.
 	\end{equation}
 The Source Iteration (SI) scheme lags the flux in the scattering term resulting in a system of $N$ independent, first-order, ordinary differential equations: 
 	\begin{equation} \label{eq:si}
 			\mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
 			\frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N \,,
 		\end{equation}
-where the superscripts indicate the iteration index. 
+where the superscripts indicate the iteration index. The SI scheme is then: solve Eq. \ref{eq:si} for $\psi_n^{\ell+1}(x)$, use Eq. \ref{eq:phiquad} to compute $\phi^{\ell+1}(x)$, update the the scattering term on the right hand side of Eq. \ref{eq:si}, and repeat until the scalar flux converges. 
 
-\subsection{Variable Eddington Factor Acceleration}
-The Eddington equations are found by taking the first two angular moments of Eq. \ref{eq:bte}: 
+\subsection{}
+The VEF drift diffusion equations are found by taking the first two angular moments of Eq. \ref{eq:bte}: 
 	\begin{subequations} 
 	\begin{equation} \label{eq:zero}
 		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) \,,

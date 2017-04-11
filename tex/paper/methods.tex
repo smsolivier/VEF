@@ -1,91 +1,107 @@
 %!TEX root = ./jctt.tex
 
 \subsection{Source Iteration}
-
-	The steady-state, mono-energetic, isotropically-scattering, fixed-source Linear Boltzmann Equation in slab geometry is: 
-		\begin{equation} \label{eq:bte}
-			\mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
-			\frac{\Sigma_s(x)}{2} \int_{-1}^{1} \psi(x, \mu') d\mu' + \frac{Q(x)}{2} \,,
-		\end{equation}
-	where $\mu = \cos\theta$ is the cosine of the angle of flight $\theta$ relative to the $x$--axis, $\Sigma_t(x)$ and $\Sigma_s(x)$ the total and scattering macroscopic cross sections, $Q(x)$ the isotropic fixed-source and $\psi(x, \mu)$ the angular flux \cite{adams}. The factors of 1/2 are consistent with the following definition of the scalar flux:
-		\begin{equation} \label{eq:phiDef}
-			\phi(x) = \int_{-1}^1 \psi(x, \mu) \ud \mu \,.
-		\end{equation}
-	Equation \ref{eq:bte} is an integro-differential equation due to the placement of the unknown, $\psi(x,\mu)$, under both a derivative and an integral.
-
-	The Discrete Ordinates (\SN) angular discretization sets $\mu$ to discrete values stipulated by an $N$--point Gauss quadrature rule. The scalar flux is then 
-		\begin{equation} \label{eq:quad}
-			\phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
-				\xrightarrow{\text{S}_N} \sum_{n=1}^N w_n \psi_n(x) \,,
-		\end{equation}
-	where $\psi_n(x) = \psi(x,\mu_n)$ and the $w_n$ are the quadrature weights corresponding to each $\mu_n$ \cite{llnl}. To remain consistent with Eq. \ref{eq:phiDef}, the quadrature weights sum to 2. The \SN equations are then 
-		\begin{equation} \label{eq:sn}
-			\mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
-			\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, 
-		\end{equation}
-	where $n = 1, 2, \dots, N$ and $\phi(x)$ is defined by Eq. \ref{eq:quad}. This is now a system of $N$ coupled, ordinary differential equations. 
-
-	The Source Iteration (SI) solution method decouples the \SN equations by lagging the right side of Eq. \ref{eq:si}. In other words, 
-		\begin{equation} \label{eq:si}
+The steady-state, mono-energetic, isotropically-scattering, fixed-source Linear Boltzmann Equation in slab geometry is: 
+	\begin{equation} \label{eq:bte}
+		\mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
+		\frac{\Sigma_s(x)}{2} \int_{-1}^{1} \psi(x, \mu') d\mu' + \frac{Q(x)}{2} \,,
+	\end{equation}
+where $\mu = \cos\theta$ is the cosine of the angle of flight $\theta$ relative to the $x$--axis, $\Sigma_t(x)$ and $\Sigma_s(x)$ the total and scattering macroscopic cross sections, $Q(x)$ the isotropic fixed-source and $\psi(x, \mu)$ the angular flux \cite{adams}. Applying the Discrete Ordinates (\SN) angular discretization yields the following system of $N$ coupled, ordinary differential equations: 
+	\begin{equation} \label{eq:sn}
+		\mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
+		\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N \,,
+	\end{equation}
+where $\psi_n(x) = \psi(x, \mu_n)$ is the discrete angular flux. The scalar flux is computed using an $N$-point quadrature rule where the quadrature weights, $w_n$, sum to two. In other words, 
+	\begin{equation} 
+		\phi(x) = \sum_{n=1}^N w_n \psi_n(x)
+	\end{equation}
+The Source Iteration (SI) scheme lags the flux in the scattering term resulting in a system of $N$ independent, first-order, ordinary differential equations: 
+	\begin{equation} \label{eq:si}
 			\mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
 			\frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N \,,
 		\end{equation}
-	where the superscripts indicate the iteration index. 
-	Equation \ref{eq:si} represents $N$ independent, first-order, ordinary differential equations each of which are easily solved by the well-known sweeping process. 
+where the superscripts indicate the iteration index. 
 
-	The iteration process begins with an initial guess for the scalar flux, $\phi^0(x)$. Equation \ref{eq:si} is solved, using $\phi^0(x)$ on the right side, for $\psi_n^1(x)$. $\phi^1(x)$ is then computed using Eq. \ref{eq:quad} and is used to update the right side of Eq. \ref{eq:si}. 
-	This process is repeated until 
-		\begin{equation} \label{eq:converg}
-			\frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon \,,
-		\end{equation}
-	where $\epsilon$ is a sufficiently small tolerance. 
+\subsection{Variable Eddington Factor Acceleration}
+The Eddington equations are found by taking the first two angular moments of Eq. \ref{eq:bte}: 
+	\begin{subequations} 
+	\begin{equation} \label{eq:zero}
+		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) \,,
+	\end{equation} 
+	\begin{equation} \label{eq:first}
+		\frac{\ud}{\ud x} \edd(x) \phi(x) + \Sigma_t(x) J(x) = 0 \,,
+	\end{equation}
+	\end{subequations}
+where $\phi(x) = \int_{-1}^1 \psi(x,\mu) \ud \mu$ is the scalar flux, $J(x) = \int_{-1}^{1} \mu \psi(x, \mu) \ud \mu$ the current and 
+	\begin{equation} \label{eq:eddington} 
+		\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x, \mu) \ud \mu}{\int_{-1}^1 \psi(x, \mu) \ud \mu}
+		% \xrightarrow{\text{S}_N} \frac{\sum_{n=1}^N \mu_n^2 w_n\psi_n(x)}{\sum_{n=1}^N w_n \psi_n(x)} 
+	\end{equation}
+the Eddington factor. 
 
-	If $\phi^0(x) = 0$, then $\phi^\ell(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions \cite{adams}. Thus, the number of iterations until convergence is directly linked to the number of collisions in a particle's lifetime. Typically, SI becomes increasingly slow to converge as the ratio of $\Sigma_s$ to $\Sigma_t$ approaches unity and the amount of particle leakage from the system goes to zero. SI is slowest in large, optically thick systems with small losses to absorption. In full radiation transport simulations each iteration could involve solving for hundreds of millions of unknowns. To minimize computational expense, acceleration schemes must be developed to rapidly increase the rate of convergence of SI. 
+This formulation is beneficial because Eq. \ref{eq:zero} is a conservative balance equation and---if $\edd(x)$ is known---the Eddington equations' system of two first-order, ordinary differential equations can be solved directly with well-established methods. However, computing $\edd(x)$ requires knowledge of the angular flux. 
 
-\subsection{Eddington Acceleration}
-	The Eddington equations are found by taking the zeroth and first angular moments of Eq. \ref{eq:bte}: 
-		\begin{subequations} 
-		\begin{equation} \label{eq:zero}
-			\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) \,,
-		\end{equation} 
-		\begin{equation} \label{eq:first}
-			\frac{\ud}{\ud x} \edd(x) \phi(x) + \Sigma_t(x) J(x) = 0 \,,
-		\end{equation}
-		\end{subequations}
-	where $J(x) = \int_{-1}^{1} \mu \ \psi(x, \mu) \ud \mu$ is the current and 
-		\begin{equation} \label{eq:eddington} 
-			\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x, \mu) \ud \mu}{\int_{-1}^1 \psi(x, \mu) \ud \mu}
-			% \xrightarrow{\text{S}_N} \frac{\sum_{n=1}^N \mu_n^2 w_n\psi_n(x)}{\sum_{n=1}^N w_n \psi_n(x)} 
-		\end{equation}
-	the Eddington factor. In \SN, the Eddington factor is 
-		\begin{equation} \label{eq:edd_sn}
-			\edd(x) = \frac{\sum_{n=1}^N \mu_n^2 w_n\psi_n(x)}{\sum_{n=1}^N w_n \psi_n(x)} \,.
-		\end{equation}
-	Note that no approximations have been made to arrive at Eqs. \ref{eq:zero} and \ref{eq:first}. The Eddington factor is the true angular flux weighted average of $\mu^2$ and therefore Eqs. \ref{eq:zero} and \ref{eq:first} are just as accurate as Eq. \ref{eq:bte}. 
+In VEF, \SN is used to compute the Eddington factor needed to solve the Eddington equations. Source iteration is then:  
+	\begin{enumerate}
+		\item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve Eq. \ref{eq:si} for $\psi_n^{\ell+1/2}(x)$. 
+		\item Compute $\edd^{\ell+1/2}(x)$ with Eq. \ref{eq:edd_sn}. 
+		% \item Interpolate $\edd(x)$ onto the MFEM grid 
+		\item Solve the Eddington equations for $\phi^{\ell+1}(x)$ using $\edd^{\ell+1/2}(x)$. 
+		% \item Use the Eddington equations' $\phi(x)$ on the right hand side of Eq. \ref{eq:si}.  
+		\item Update the scalar flux estimate on the right side of Eq. \ref{eq:si} with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges. 
+	\end{enumerate}
+% This process is one source iteration consisting of an \SN transport step to compute the Eddington factor and an MFEM acceleration step to compute $\phi(x)$. The scalar flux from the acceleration step is used in the right hand side of Eq. \ref{eq:si} and steps 1--4 are repeated until the acceleration step's $\phi(x)$ converges according to Eq. \ref{eq:converg}.  
 
-	This formulation is beneficial because Eq. \ref{eq:zero} is a conservative balance equation and---if $\edd(x)$ is known---the Eddington equations' system of two first-order, ordinary differential equations can be solved directly with well-established methods. However, computing $\edd(x)$ requires knowledge of the angular flux. 
+Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the Eddington equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the Eddington equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
-	In Eddington Acceleration, \SN is used to compute the Eddington factor needed to solve the Eddington equations. Source iteration is then:  
-		\begin{enumerate}
-			\item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve Eq. \ref{eq:si} for $\psi_n^{\ell+1/2}(x)$. 
-			\item Compute $\edd^{\ell+1/2}(x)$ with Eq. \ref{eq:edd_sn}. 
-			% \item Interpolate $\edd(x)$ onto the MHFEM grid 
-			\item Solve the moment equations for $\phi^{\ell+1}(x)$ using $\edd^{\ell+1/2}(x)$. 
-			% \item Use the moment equations' $\phi(x)$ on the right hand side of Eq. \ref{eq:si}.  
-			\item Update the scalar flux estimate on the right side of Eq. \ref{eq:si} with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges. 
-		\end{enumerate}
-	% This process is one source iteration consisting of an \SN transport step to compute the Eddington factor and an MHFEM acceleration step to compute $\phi(x)$. The scalar flux from the acceleration step is used in the right hand side of Eq. \ref{eq:si} and steps 1--4 are repeated until the acceleration step's $\phi(x)$ converges according to Eq. \ref{eq:converg}.  
+In addition to acceleration, this scheme allows the \SN equations and Eddington equations to be solved with different spatial discretization methods. \SN can be spatially discretized using normal methods, such as Linear Discontinuous Galerkin, while the Eddington equations can be solved with MFEM. 
 
-	Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the moment equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
+\subsection{Lumped Linear Discontinuous Galerkin \SN}
+The LLDG discretization of Eq. \ref{eq:sn} is:
+	\begin{subequations} \label{eq:lldg}
+	\begin{equation} 
+		\mu_n \left(\psi_{n,i} - \psi_{n, i-1/2}\right) + \frac{\Sigma_{t,i} h_i}{2} \psi_{n,i}^L
+		= \frac{\Sigma_{s,i} h_i}{4} \phi_i^L + \frac{h_i}{4} Q_i^L \,, 1 \leq n \leq N \,, 1 \leq i \leq I\,, 
+	\end{equation}
+	\begin{equation}
+		\mu_n \left(\psi_{n,i+1/2} - \psi_{n,i}\right) + \frac{\Sigma_{t,i} h_i}{2} \psi_{n,i}^R
+		= \frac{\Sigma_{s,i} h_i}{4} \phi_i^R + \frac{h_i}{4} Q_i^R \,, 1 \leq n \leq N \,, 1 \leq i \leq I\,,
+	\end{equation}
+	\end{subequations}
+where $h_i$, $\Sigma_{t,i}$, and $\Sigma_{s,i}$ are the cell width, total cross section, and scattering cross section in cell $i$. The cell-edged angular fluxes are found through upwinding: 
+	\begin{subequations}
+	\begin{equation}
+		\psi_{n,i-1/2} = \begin{cases}
+			\psi_{n,i-1}^R & \mu_n > 0 \\
+			\psi_{n,i}^L & \mu_n < 0
+		\end{cases}
+	\end{equation}
+	\begin{equation}
+		\psi_{n,i+1/2} = \begin{cases}
+			\psi_{n,i}^R & \mu_n > 0 \\
+			\psi_{n,i+1}^L & \mu_n < 0
+		\end{cases}
+	\end{equation}
+	\end{subequations}
+and the cell-centered angular flux is computed with:
+	\begin{equation} \label{eq:psicent}
+		\psi_{n,i} = \half \left(\psi_{n,i}^L + \psi_{n,i}^R\right) \,. 
+	\end{equation}
 
-	In addition to acceleration, this scheme allows the \SN equations and Eddington equations to be solved with different spatial discretization methods. \SN can be spatially discretized using normal methods, such as Linear Discontinuous Galerkin, while the Eddington equations can be solved with MHFEM. 
+In \SN, the Eddington factor is 
+	\begin{equation} \label{eq:edd_sn}
+		\edd(x) = \frac{\sum_{n=1}^N \mu_n^2 w_n\psi_n(x)}{\sum_{n=1}^N w_n \psi_n(x)} \,.
+	\end{equation}
+
+\subsection{Mixed Finite Element Method Eddington}
+
 
 \subsection{Data Reconstruction}
-	Data reconstruction methods are required to recover the linear discontinuous representation in LDG from the piecewise constant with discontinuous jumps at the cell edges representation in MHFEM. Data reconstruction methods use neighboring cell centers or edges to extrapolate the MHFEM flux to determine the discontinuous cell edge values in LDG that maintain the average and slope. Two data reconstruction methods have been implemented: one that uses the slope between the MHFEM edge values and one that only uses cell centered values. 
+	Data reconstruction methods are required to recover the linear discontinuous representation in LDG from the piecewise constant with discontinuous jumps at the cell edges representation in MFEM. Data reconstruction methods use neighboring cell centers or edges to extrapolate the MFEM flux to determine the discontinuous cell edge values in LDG that maintain the average and slope. Two data reconstruction methods have been implemented: one that uses the slope between the MFEM edge values and one that only uses cell centered values. 
 
 	The first method sets the LDG discontinuous left and right fluxes in cell $i$, $\phi_{i,L}$ and $\phi_{i,R}$ to 
 		\begin{equation}
 			\phi_{i,L/R} = \phi_i \mp \frac{1}{2} \left(\phi_{i+1/2} - \phi_{i-1/2}\right)
 		\end{equation}
 
-	The second method uses a van Leer slope limiter on the MHFEM cell centers. 
+	The second method uses a van Leer slope limiter on the MFEM cell centers. 

@@ -88,28 +88,28 @@ class LD(Transport):
 				h = self.h[j] # cell width 
 
 				# left equation 
-				A[0,0] = self.mu[i]/2 + self.Sigmat(self.xc[j])*h/2 # psiL 
-				A[0,1] = self.mu[i]/2 # psiR 
+				A[0,0] = self.mu[i] + self.Sigmat(self.xc[j])*h # psiL 
+				A[0,1] = self.mu[i] # psiR 
 
 				# right equation 
-				A[1,0] = -self.mu[i]/2 # psiL
-				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.xc[j])*h/2 + self.mu[i] # psiR 
+				A[1,0] = -self.mu[i] # psiL
+				A[1,1] = self.mu[i] + self.Sigmat(self.xc[j])*h # psiR 
 
 				# rhs 
-				b[0] = self.Sigmas(self.xc[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
+				b[0] = self.Sigmas(self.xc[j])*h/2*phiL[j] + self.q[i,j]*h/2 # left 
 				if (j == 0): # boundary condition 
 
 					# default to vacuum 
 
 					if (self.BCL == 0): # reflecting 
 
-						b[0] += self.mu[i]*self.psiL[self.mu == -self.mu[i],0]
+						b[0] += 2*self.mu[i]*self.psiL[self.mu == -self.mu[i],0]
 
 				else: # normal sweep 
 
-					b[0] += self.mu[i]*self.psiR[i,j-1] # upwind term 
+					b[0] += 2*self.mu[i]*self.psiR[i,j-1] # upwind term 
 
-				b[1] = self.Sigmas(self.xc[j])*h/4*phiR[j] + self.q[i,j]*h/4 # right 
+				b[1] = self.Sigmas(self.xc[j])*h/2*phiR[j] + self.q[i,j]*h/2 # right 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
 
@@ -132,16 +132,16 @@ class LD(Transport):
 				h = self.h[j] # cell width 
 
 				# left equation 
-				A[1,0] = -self.mu[i]/2 # psiL
-				A[1,1] = -self.mu[i]/2 + self.Sigmat(self.xc[j])*h/2 # psiR 
+				A[1,0] = -self.mu[i] # psiL
+				A[1,1] = -self.mu[i] + self.Sigmat(self.xc[j])*h # psiR 
 
 				# right equation 
-				A[0,0] = self.mu[i]/2 + self.Sigmat(self.xc[j])*h/2 - self.mu[i] # psiL 
-				A[0,1] = self.mu[i]/2 
+				A[0,0] = -self.mu[i] + self.Sigmat(self.xc[j])*h # psiL 
+				A[0,1] = self.mu[i]
 
 				# rhs 
-				b[0] = self.Sigmas(self.xc[j])*h/4*phiL[j] + self.q[i,j]*h/4 # left 
-				b[1] = self.Sigmas(self.xc[j])*h/4*phiR[j] + self.q[i,j]*h/4 # right 
+				b[0] = self.Sigmas(self.xc[j])*h/2*phiL[j] + self.q[i,j]*h/2 # left 
+				b[1] = self.Sigmas(self.xc[j])*h/2*phiR[j] + self.q[i,j]*h/2 # right 
 
 				if (j == self.N-1): # boundary condition 
 					
@@ -149,10 +149,11 @@ class LD(Transport):
 
 					if (self.BCR == 0): # reflecting 
 
-						b[1] -= self.mu[i]*self.psiR[self.mu == -self.mu[i],-1]
+						b[1] -= 2*self.mu[i]*self.psiR[self.mu == -self.mu[i],-1]
 	
 				else: # normal sweep
-					b[1] -= self.mu[i]*self.psiL[i,j+1] # downwind term 
+				
+					b[1] -= 2*self.mu[i]*self.psiL[i,j+1] # downwind term 
 
 				ans = np.linalg.solve(A, b) # solve for psiL, psiR 
 

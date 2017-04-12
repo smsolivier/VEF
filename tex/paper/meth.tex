@@ -37,13 +37,13 @@ where the superscripts indicate the iteration index. The Lumped Linear Discontin
 	\begin{equation}
 		\psi_{n,i}^{\ell+1} = \half\left(\psi_{n,i,L}^{\ell+1} + \psi_{n,i,R}^{\ell+1}\right) \,,
 	\end{equation}
-	\begin{equation}
+	\begin{equation} \label{eq:downwind}
 		\psi_{n,i-1/2}\elll = \begin{cases}
 			\psi_{n,i-1,R}\elll \,, & \mu_n > 0 \\ 
 			\psi_{n,i,L}\elll \,, & \mu_n < 0 
 		\end{cases} \,,
 	\end{equation}
-	\begin{equation}
+	\begin{equation} \label{eq:upwind}
 		\psi_{n,i+1/2}\elll = \begin{cases}
 			\psi_{n,i,R}\elll \,, & \mu_n > 0 \\
 			\psi_{n,i+1,L}\elll \,, & \mu_n < 0 
@@ -54,7 +54,7 @@ where $h_i$, $\Sigma_{t,i}$, and $\Sigma_{s,i}$ are the cell width, total cross 
 	\begin{equation} \label{eq:sweepLR}
 		\left[\begin{matrix}
 			\mu_n + \Sigma_{t,i} h_i & \mu_n  \\ 
-			\mu_n & \Sigma_{t,i} + \mu_n \\ 
+			-\mu_n & \Sigma_{t,i} + \mu_n \\ 
 		\end{matrix}\right]
 		\left[\begin{matrix}
 			\psi_{n,i,L}\elll \\ \psi_{n,i,R}\elll
@@ -67,8 +67,8 @@ where $h_i$, $\Sigma_{t,i}$, and $\Sigma_{s,i}$ are the cell width, total cross 
 for sweeping from left to right ($\mu_n > 0$) and 
 	\begin{equation} \label{eq:sweepRL}
 		\left[\begin{matrix} 
-			|\mu_n| + \Sigma_{t,i}h_i & \mu_n \\ 
-			|\mu_n| & |\mu_n| + \Sigma_{t,i}h_i \\ 
+			-\mu_n + \Sigma_{t,i}h_i & \mu_n \\ 
+			-\mu_n & -\mu_n + \Sigma_{t,i}h_i \\ 
 		\end{matrix} \right]
 		\left[\begin{matrix}
 			\psi_{n,i,L}\elll \\ \psi_{n,i,R}\elll
@@ -81,4 +81,46 @@ for sweeping from left to right ($\mu_n > 0$) and
 	\end{equation}
 for sweeping from right to left ($\mu_n < 0$). The right hand sides of Eqs. \ref{eq:sweepLR} and \ref{eq:sweepRL} are known as the scalar flux from the previous iteration, the fixed source, and the angular flux entering from the previous cell are all known values. 
 
-SI is then: solve Eq. \ref{eq:si} for $\psi_n\elll(x)$, compute the scalar flux with Eq. \ref{eq:phiquad}, update the scattering term on the right hand side of Eq. \ref{eq:si}, and repeat until the scalar flux converges. 
+SI is then: conduct a transport sweep using Eqs. \ref{eq:sweepLR} and \ref{eq:sweepRL} to find $\{\psi_{n,i}\}$, compute $\{\phi_i\}$ using Gauss quadrature, update the scalar flux on the right hand side of Eqs. \ref{eq:sweepLR} and \ref{eq:sweepRL}, and repeat until both $\phi_{i,L}$ and $\phi_{i,R}$ converge. 
+
+The VEF acceleration method alters the above SI scheme by adding a drift diffusion solve. The VEF drift diffusion equations are found by taking the first two moments of Eq. \ref{eq:bte}: 
+	\begin{subequations} 
+	\begin{equation} \label{eq:zero}
+		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) \,,
+	\end{equation} 
+	\begin{equation} \label{eq:first}
+		\frac{\ud}{\ud x} \edd(x) \phi(x) + \Sigma_t(x) J(x) = 0 \,,
+	\end{equation}
+	\end{subequations}
+where $J(x) = \int_{-1}^1 \mu \psi_(x, \mu) \ud \mu$ and 
+	\begin{equation} \label{eq:eddington} 
+		\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x, \mu) \ud \mu}{\int_{-1}^1 \psi(x, \mu) \ud \mu}
+	\end{equation}
+the Eddington factor. In the context of VEF acceleration, the drift diffusion equations are 
+	\begin{subequations} 
+	\begin{equation} 
+		\dderiv{}{x} J\elll(x) + \Sigma_a(x) \phi\elll(x) = Q(x) \,,
+	\end{equation} 
+	\begin{equation} 
+		\frac{\ud}{\ud x} \edd^{\ell+1/2}(x) \phi\elll(x) + \Sigma_t(x) J\elll(x) = 0 \,,
+	\end{equation}
+	\end{subequations}
+
+Applying the MFEM and enforcing continuity of current yields: 
+	\begin{subequations} \label{eq:mfem}
+	\begin{equation}
+		-\frac{6}{\Sigma_{t,i}h_i} \edd_{i-1/2} \phi_{i-1/2} 
+		+ \left(\frac{12}{\Sigma_{t,i}h_i} \edd_i + \Sigma_{a,i} h_i\right) \phi_i 
+		- \frac{6}{\Sigma_{t,i} h_i} \edd_{i+1/2} \phi_{i+1/2} = Q_i h_i 
+	\end{equation}
+	\begin{multline}
+		-\frac{2}{\Sigma_{t,i} h_i} \edd_{i-1/2}\phi_{i-1/2} + 
+		\frac{6}{\Sigma_{t,i} h_i} \edd_i \phi_i 
+		- 4\left(\frac{1}{\Sigma_{t,i} h_i} + \frac{1}{\Sigma_{t,i+1} h_{i+1}}\right) 
+			\edd_{i+1/2} \phi_{i+1/2}
+		\\ + \frac{6}{\Sigma_{t,i+1} h_{i+1}} \edd_{i+1} \phi_{i+1} 
+		- \frac{2}{\Sigma_{t,i+1} h_{i+1}} \edd_{i+3/2} \phi_{i+3/2} 
+		= 0 \,.
+	\end{multline}
+	\end{subequations}
+Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. A more consistent representation will be presented later. 

@@ -1,0 +1,11 @@
+Introduction 
+VEF Method
+	Analytic description of VEF method 
+	LLDG discretized Sn 
+	MFEM discretized drift diffusion 
+Computational Results
+	Order of accuracy 
+	diffusion limit 
+	solution convergence 
+	Comparison to S2SA 
+Conclusions and Future Work 

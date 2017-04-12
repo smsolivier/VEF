@@ -9,3 +9,6 @@ Computational Results
 	solution convergence 
 	Comparison to S2SA 
 Conclusions and Future Work 
+
+switch to not explaining traditional SI
+	just explain VEF method (change ell + 1 to ell + 1/2)

@@ -3,6 +3,9 @@ VEF Method
 	Analytic description of VEF method 
 	LLDG discretized Sn 
 	MFEM discretized drift diffusion 
+		Eddington representation 
+		Boundary conditions 
+		scattering reconstruction 
 Computational Results
 	Order of accuracy 
 	diffusion limit 

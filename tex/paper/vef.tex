@@ -145,27 +145,47 @@ Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continu
 where the Eddington factor is evaluated at iteration $\ell+1/2$ and the scalar flux at $\ell+1$. 
 Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edge angular flux using Eqs. and \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
 
-A more consistent way to transfer the Eddington factor is to represent it as a linear function using the MFEM basis functions:
-	\begin{equation} \label{eq:eddquad}
-		\edd_i(x) = \frac{
-			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
+The transport consistent vacuum boundary condition is: 
+	\begin{equation} \label{eq:tcboundary}
+		J_{1/2} = \frac{
+			\sum_{n=1}^N |\mu_n| w_n \psi_{n,1/2} 
 		}
 		{
-			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
-		}
-	\end{equation}
+			\sum_{n=1}^N w_n \psi_{n,1/2}
+		} \phi_{1/2}
+	\end{equation} 
+
+Transport consistent boundary conditions are applied through a modified Marshak boundary condition: 
+	\begin{equation} 
+		J(x) = B(x) \phi(x) 
+	\end{equation} 
 where 
-	\begin{equation}
-		B_{i,L}(x) = \begin{cases}
-			\frac{x_{i+1/2} - x}{h_i} & ,\, x \in [x_{i-1/2}, x_{i+1/2}] \\ 
-			0 & ,\,\text{otherwise}
-		\end{cases}
+	\begin{equation} 
+		B(x) = \frac{\int_{-1}^1 |\mu| \psi(x, \mu) \ud \mu}
+		{\int_{-1}^1 \psi(x, \mu) \ud \mu} \,. 
 	\end{equation}
-and 
-	\begin{equation}
-		B_{i,R}(x) = \begin{cases}
-			\frac{x - x_{i-1/2}}{h_i} & ,\, x \in [x_{i-1/2}, x_{i+1/2}] \\ 
-			0 & ,\,\text{otherwise}
-		\end{cases} \,.
-	\end{equation}
-When MFEM is applied, the integral over cell $i$ of Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. 
+
+% A more consistent way to transfer the Eddington factor is to represent it as a linear function using the MFEM basis functions:
+% 	\begin{equation} \label{eq:eddquad}
+% 		\edd_i(x) = \frac{
+% 			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
+% 		}
+% 		{
+% 			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
+% 		}
+% 	\end{equation}
+% where 
+% 	\begin{equation}
+% 		B_{i,L}(x) = \begin{cases}
+% 			\frac{x_{i+1/2} - x}{h_i} & ,\, x \in [x_{i-1/2}, x_{i+1/2}] \\ 
+% 			0 & ,\,\text{otherwise}
+% 		\end{cases}
+% 	\end{equation}
+% and 
+% 	\begin{equation}
+% 		B_{i,R}(x) = \begin{cases}
+% 			\frac{x - x_{i-1/2}}{h_i} & ,\, x \in [x_{i-1/2}, x_{i+1/2}] \\ 
+% 			0 & ,\,\text{otherwise}
+% 		\end{cases} \,.
+% 	\end{equation}
+% When MFEM is applied, the integral over cell $i$ of Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. 

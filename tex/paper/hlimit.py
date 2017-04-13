@@ -41,7 +41,7 @@ q = lambda x, mu: 1
 
 tol = 1e-10
 
-N = np.logspace(1, 3, 5) 
+N = np.logspace(2, 3, 5) 
 
 N = np.array([int(x) for x in N])
 
@@ -63,19 +63,19 @@ ed20 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, q, OPT=2, GAUSS=1) for x in N]
 
-diff00 = getDiff(ed00, tol)
+# diff00 = getDiff(ed00, tol)
 diff01 = getDiff(ed01, tol)
-diff10 = getDiff(ed10, tol)
+# diff10 = getDiff(ed10, tol)
 diff11 = getDiff(ed11, tol)
-diff20 = getDiff(ed20, tol)
+# diff20 = getDiff(ed20, tol)
 diff21 = getDiff(ed21, tol)
 
 fontsize=16
-plt.loglog(xb/N, diff00, '-o', clip_on=False, label='No Slopes, No Gauss')
+# plt.loglog(xb/N, diff00, '-o', clip_on=False, label='No Slopes, No Gauss')
 plt.loglog(xb/N, diff01, '-o', clip_on=False, label='No Slopes, Gauss')
-plt.loglog(xb/N, diff10, '-o', clip_on=False, label='MHFEM Edges, No Gauss')
+# plt.loglog(xb/N, diff10, '-o', clip_on=False, label='MHFEM Edges, No Gauss')
 plt.loglog(xb/N, diff11, '-o', clip_on=False, label='MHFEM Edges, Gauss')
-plt.loglog(xb/N, diff20, '-o', clip_on=False, label='vanLeer, No Gauss')
+# plt.loglog(xb/N, diff20, '-o', clip_on=False, label='vanLeer, No Gauss')
 plt.loglog(xb/N, diff21, '-o', clip_on=False, label='vanLeer, Gauss')
 plt.xlabel(r'$h$', fontsize=fontsize)
 plt.ylabel('SN/MHFEM Convergence', fontsize=fontsize)

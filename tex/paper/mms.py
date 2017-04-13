@@ -15,6 +15,8 @@ from hidespines import *
 
 from R2 import * 
 
+import texTools as tex
+
 ''' Test order of accuracy for LD options ''' 
 
 if (len(sys.argv) > 1):
@@ -57,7 +59,7 @@ def getOrder(sol, N, tol, label):
 
 	plt.loglog(xb/N, err, '-o', clip_on=False, label=label)
 
-	return err
+	return err, fit[0], np.exp(fit[1]), r2
 
 # N = np.array([80, 160, 320, 640, 1280])
 N = np.logspace(1.2, 3, 5)
@@ -68,7 +70,9 @@ n = 8
 Sigmaa = lambda x: .1
 Sigmat = lambda x: 1
 
-xb = 5
+xb = 1
+
+print(xb/N)
 
 q = lambda x, mu: 1
 
@@ -97,23 +101,40 @@ ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 	Sigmat, q, OPT=2, GAUSS=1) for x in N]
 
 # get order of accuracy 
-fit = np.zeros(6)
-name = np.zeros(6)
+err = np.zeros((6, len(N)))
+order = np.zeros(6)
+b = np.zeros(6)
+r = np.zeros(6)
+name = ['00', '01', '10', '11', '20', '21']
+
 # err = getOrder(ed, N, tol, 'LD')
-err00 = getOrder(ed00, N, tol, 'No Slopes, No Gauss')
-err01 = getOrder(ed01, N, tol, 'No Slopes, Gauss')
-err10 = getOrder(ed10, N, tol, 'Slope from Edges, No Gauss')
-err11 = getOrder(ed11, N, tol, 'Slopes from Edges, Gauss')
-err20 = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
-err21 = getOrder(ed21, N, tol, 'vanLeer, Gauss')
+err[0,:], order[0], b[0], r[0] = getOrder(ed00, N, tol, 'No Slopes, No Gauss')
+err[1,:], order[1], b[1], r[1] = getOrder(ed01, N, tol, 'No Slopes, Gauss')
+err[2,:], order[2], b[2], r[2] = getOrder(ed10, N, tol, 'Slope from Edges, No Gauss')
+err[3,:], order[3], b[3], r[3] = getOrder(ed11, N, tol, 'Slopes from Edges, Gauss')
+err[4,:], order[4], b[4], r[4] = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
+err[5,:], order[5], b[5], r[5] = getOrder(ed21, N, tol, 'vanLeer, Gauss')
 
 # plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
 	# color='k', alpha=.7, label='Slope = 2')
-plt.legend(loc='best', frameon=False)
-plt.xlabel(r'$h$', fontsize=20)
-plt.ylabel('Error', fontsize=20)
-hidespines(plt.gca())
-if (outfile != None):
-	plt.savefig(outfile, transparent=True)
-else:
-	plt.show()
+# plt.legend(loc='best', frameon=False)
+# plt.xlabel(r'$h$', fontsize=20)
+# plt.ylabel('Error', fontsize=20)
+# hidespines(plt.gca())
+# if (outfile != None):
+# 	plt.savefig(outfile, transparent=True)
+# else:
+# 	plt.show()
+
+# make latex table 
+table = tex.table() 
+for i in range(len(name)):
+
+	table.addLine(
+		name[i], 
+		tex.utils.writeNumber(order[i], '{:.4}'),
+		tex.utils.writeNumber(b[i]),
+		tex.utils.writeNumber(r[i], '{:.4e}')
+		)
+
+table.save(outfile)

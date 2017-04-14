@@ -368,7 +368,6 @@ class Eddington(LD):
 		''' Reconstruct phiL, phiR from MHFEM cell centers only 
 			Inputs:
 				phi: MHFEM scalar flux (edges and centers) 
-				omega: controls left/right weighting of difference 
 			''' 
 
 		omega = 0 # weighting factor for slope reconstruction 
@@ -535,11 +534,11 @@ class Eddington(LD):
 		# create eddington for MHFEM 
 		if (self.GAUSS == 0):
 
-			mu2 = self.makeEddingtonConst()
+			self.mu2 = self.makeEddingtonConst()
 
 		elif(self.GAUSS == 1):
 
-			mu2 = self.makeEddingtonGauss()
+			self.mu2 = self.makeEddingtonGauss()
 
 		else:
 
@@ -557,7 +556,7 @@ class Eddington(LD):
 		B = top/self.zeroMoment(psiEdge) 
 
 		# discretize MHFEM
-		self.mhfem.discretize(mu2, B)
+		self.mhfem.discretize(self.mu2, B)
 
 		# solve for phi, get edges and centers 
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 

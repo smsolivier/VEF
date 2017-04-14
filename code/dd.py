@@ -273,13 +273,7 @@ if __name__ == '__main__':
 	Sigmaa = lambda x: .1 * eps
 	Sigmat = lambda x: .83 / eps 
 
-	qf = lambda x: (x > xb/2)
-
-	q = np.ones((n,N-1)) * eps
-
-	for i in range(n):
-
-		q[i,:] = qf(np.linspace(xb/N/2, xb - xb/N/2, N-1)) 
+	q = lambda x, mu: eps
 
 	BCL = 0
 
@@ -287,19 +281,19 @@ if __name__ == '__main__':
 
 	dd = DD(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 	# dd.setMMS()
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
+	# ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 	# ed.setMMS()
 	# dsa = DSA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
-	# s2sa = S2SA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
+	s2sa = S2SA(x, n, Sigmaa, Sigmat, q, BCL=BCL, BCR=1)
 
 	x, phi, it = dd.sourceIteration(tol, maxIter=1000, PLOT=None)
-	xe, phie, ite = ed.sourceIteration(tol, PLOT=None)
+	# xe, phie, ite = ed.sourceIteration(tol, PLOT=None)
 	# xd, phid, itd = dsa.sourceIteration(tol)
-	# xs, phis, its = s2sa.sourceIteration(tol, PLOT=None)
+	xs, phis, its = s2sa.sourceIteration(tol, PLOT=None)
 
 	plt.plot(x, phi, label=dd.name)
-	plt.plot(xe, phie, label=ed.name)
+	# plt.plot(xe, phie, label=ed.name)
 	# plt.plot(xd, phid, label=dsa.name)
-	# plt.plot(xs, phis, label=s2sa.name)
+	plt.plot(xs, phis, label=s2sa.name)
 	plt.legend(loc='best')
 	plt.show()

@@ -578,13 +578,13 @@ if __name__ == '__main__':
 
 	Sigmaa = lambda x: .1
 	Sigmat = lambda x: .83
-	q = lambda x, mu: 1*(x<xb/2)
+	q = lambda x, mu: 1
 
 	tol = 1e-6
 
-	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
 	# ld.setMMS()
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=2)
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1, OPT=2)
 	# ed.setMMS()
 
 	x, phi, it = ld.sourceIteration(tol)

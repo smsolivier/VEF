@@ -7,6 +7,8 @@ from transport import * # general transport class
 
 from mhfem_acc import * 
 
+from directld import * 
+
 ''' Lumped Linear Discontinuous Galerkin spatial discretization of Sn 
 	Inherits from transport.py 
 	Includes 
@@ -240,6 +242,7 @@ class LD(Transport):
 			phiL_old = np.copy(self.phiL)
 			phiR_old = np.copy(self.phiR)
 
+			# store old eddington 
 			edd_old = np.copy(edd)
 
 			# sweep to update flux 
@@ -249,7 +252,7 @@ class LD(Transport):
 			convL = conv_f(self.phiL, phiL_old) # left convergence 
 			convR = conv_f(self.phiR, phiR_old) # right convergence 
 
-
+			# store eddington convergence 
 			edd = self.getEddington(.5*(self.psiL + self.psiR))
 			self.eddConv.append(conv_f(edd, edd_old))
 
@@ -263,6 +266,7 @@ class LD(Transport):
 			# update iteration count 
 			it += 1 
 
+			# print to terminal: number of iterations, distance until tolerance is reached 
 			print('{} {}'.format(it, .5*(convL + convR)/tol), end='\r')
 
 		print('Number of Iterations =', it, end=', ')
@@ -567,9 +571,39 @@ class Eddington(LD):
 
 		return phiL, phiR # return accelerated flux 
 
+class S2SA(LD):
+
+	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+
+		# call LD initialization 
+		LD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
+
+		self.name = 'LD S2SA'
+
+		# create direct solve object 
+		self.direct = Direct(self.xe, self.Sigmaa, self.Sigmat, BCL, BCR)
+
+	def sweep(self, phiL, phiR):
+
+		# do normal sweep 
+		self.fullSweep(phiL, phiR)
+
+		# compute scalar flux 
+		phihalfL = self.zeroMoment(self.psiL)
+		phihalfR = self.zeroMoment(self.psiR)
+
+		# s2sa source 
+		qL = self.Sigmas(self.xc)*(phihalfL - phiL)
+		qR = self.Sigmas(self.xc)*(phihalfR - phiR)
+
+		# solve for update factor 
+		x, fL, fR = self.direct.solve(qL, qR)
+
+		return phihalfL + fL, phihalfR + fR
+
 if __name__ == '__main__':
 
-	N = 100
+	N = 20
 	n = 8
 	xb = 2 
 	x = np.linspace(0, xb, N+1)
@@ -577,25 +611,29 @@ if __name__ == '__main__':
 	eps = 1
 
 	Sigmaa = lambda x: .1
-	Sigmat = lambda x: .83
+	Sigmat = lambda x: 1
 	q = lambda x, mu: 1
 
 	tol = 1e-6
 
-	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1)
+	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ld.setMMS()
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=1, BCR=1, OPT=2)
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=2)
 	# ed.setMMS()
+	s2 = S2SA(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 
 	x, phi, it = ld.sourceIteration(tol)
 
 	xe, phie, ite = ed.sourceIteration(tol)
 
+	x2, phi2, it2 = s2.sourceIteration(tol)
+
 	plt.figure()
 	plt.plot(x, phi, label='LD')
 	plt.plot(xe, phie, label='LD Edd')
+	plt.plot(x2, phi2, label='S2SA')
 	plt.legend(loc='best')
 
-	plt.figure()
-	plt.semilogy(x, np.fabs(phi - phie)/phi)
+	# plt.figure()
+	# plt.semilogy(x, np.fabs(phi - phie)/phi)
 	plt.show()

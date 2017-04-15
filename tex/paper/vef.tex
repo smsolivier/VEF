@@ -35,7 +35,7 @@ The VEF method adds a drift diffusion acceleration step to increase the rate of 
 		\frac{\ud}{\ud x} \edd(x) \phi(x) + \Sigma_t(x) J(x) = 0 \,,
 	\end{equation}
 	\end{subequations}
-where $J(x) = \int_{-1}^1 \mu \psi_(x, \mu) \ud \mu$ and 
+where $J(x) = \int_{-1}^1 \mu \psi_(x, \mu) \ud \mu$ is the current and 
 	\begin{equation} \label{eq:eddington} 
 		\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x, \mu) \ud \mu}{\int_{-1}^1 \psi(x, \mu) \ud \mu}
 	\end{equation}
@@ -53,7 +53,7 @@ the Eddington factor. By computing the Eddington factor from the \SN angular flu
 	\end{enumerate}
 Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the moment equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
-In addition to acceleration, this scheme allows the \SN equations and drift diffusion equations to be solved with arbitrarily different spatial discretization methods. The following sections will present the application of the Lumped Linear Discontinuous Galerkin (LLDG) spatial discretization to the \SN equations and the Mixed Finite Element Method to the VEF drift diffusion equations. 
+In addition to acceleration, this scheme allows the \SN equations and drift diffusion equations to be solved with arbitrarily different spatial discretization methods. The following sections will present the application of the Lumped Linear Discontinuous Galerkin (LLDG) spatial discretization to the \SN equations and the Mixed Finite Element Method (MFEM) to the VEF drift diffusion equations. 
 
 \subsection{Lumped Linear Discontinuous Galerkin \SN}
 The LLDG equations are: 
@@ -73,7 +73,7 @@ The LLDG equations are:
 		% 1 \leq i \leq I\,,
 	\end{equation}
 	\end{subequations}
-where $h_i$, $\Sigma_{t,i}$, and $\Sigma_{s,i}$ are the cell width, total cross section and scattering cross section in cell $i$ and the $i,L$ and $i,R$ subscripts indicate the the subscripted value is the left and right discontinuous edge value. The cell centered angular flux is found through:
+where $h_i$, $\Sigma_{t,i}$, and $\Sigma_{s,i}$ are the cell width, total cross section and scattering cross section in cell $i$. The $i,L$ and $i,R$ subscripts indicate the the subscripted value is the left or right discontinuous edge value. The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
 	\begin{equation} \label{eq:lldg_i}
 		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,,
 	\end{equation}
@@ -121,7 +121,7 @@ for sweeping from left to right ($\mu_n > 0$) and
 		\end{matrix} \right]
 		\,, 
 	\end{equation}
-for sweeping from right to left ($\mu_n < 0$). The right hand sides of Eqs. \ref{eq:sweepLR} and \ref{eq:sweepRL} are known as the scalar flux from the previous iteration, the fixed source, and the angular flux entering from the previous cell are all known values. Thus, by supplying the flux entering the left side of the first cell, the positive-angled solution can be propagated cell by cell from left to right by solving Eq. \ref{eq:sweepLR}. Similarly, supplying the incident flux on the right boundary allows the negative-angled solution to be propagated from right to left with Eq. \ref{eq:sweepRL}. 
+for sweeping from right to left ($\mu_n < 0$). The right hand sides of Eqs. \ref{eq:sweepLR} and \ref{eq:sweepRL} are known as the scalar flux from the previous iteration, the fixed source, and the angular flux entering from the previous cell are all known. By supplying the flux entering the left side of the first cell, the positive-angled solution can be propagated from left to right by solving Eq. \ref{eq:sweepLR}. Similarly, supplying the incident flux on the right boundary allows the negative-angled solution to be propagated from right to left with Eq. \ref{eq:sweepRL}. 
 
 \subsection{Mixed Finite Element Method VEF Drift Diffusion}
 Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continuity of current yields: 
@@ -144,16 +144,6 @@ Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continu
 	\end{subequations}
 where the Eddington factor is evaluated at iteration $\ell+1/2$ and the scalar flux at $\ell+1$. 
 Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edge angular flux using Eqs. and \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
-
-The transport consistent vacuum boundary condition is: 
-	\begin{equation} \label{eq:tcboundary}
-		J_{1/2} = \frac{
-			\sum_{n=1}^N |\mu_n| w_n \psi_{n,1/2} 
-		}
-		{
-			\sum_{n=1}^N w_n \psi_{n,1/2}
-		} \phi_{1/2}
-	\end{equation} 
 
 Transport consistent boundary conditions are applied through a modified Marshak boundary condition: 
 	\begin{equation} 

@@ -56,7 +56,7 @@ def getDiff(eps, solver):
 	# return np.fabs(phi_f(xb/2) - diff(xb/2)), it
 
 N = 10
-eps = np.logspace(-2, 0, N)
+eps = np.logspace(-1, 0, N)
 
 LD = np.zeros(N)
 ED = np.zeros(N)

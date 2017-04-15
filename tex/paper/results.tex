@@ -1,22 +1,27 @@
 %!TEX root = ./jctt.tex
 
-The order of accuracy, diffusion limit, and solution convergence were tested in 1D slab geometry with two Eddington factor representations and three scattering term reconstruction methods. The Eddington factor was represented as a piecewise constant with discontinuous jumps at the cell edges and as linear function using the MFEM basis functions. The scattering term reconstruction methods were: no reconstruction, maintaining slopes from the MFEM edge scalar flux, and using the van Leer slope limiter on the slopes from the MFEM cell centers only. The no reconstruction method set the the left and right discontinuous scalar flux to the MFEM edge scalar flux. Maintaining slopes with the MFEM edge values was done according to: 
-	\begin{equation} \label{eq:edgeReconstruction}
-		\phi_{i,L/R} = \phi_i \mp \half\left(\phi_{i+1/2} - \phi_{i-1/2}\right) \,,
+The order of accuracy, diffusion limit, and solution convergence were tested in 1D slab geometry with two Eddington factor representations and three scattering term reconstruction methods. The Eddington factor was represented as a piecewise constant with discontinuous jumps at the cell edges and as linear function using the MFEM basis functions. The scattering term reconstruction methods were: no reconstruction, maintaining slopes from the MFEM edge scalar flux, and van Leer limited slopes from the MFEM cell centered flux. The no reconstruction method set the the left and right discontinuous scalar flux to the MFEM edge scalar flux:
+	\begin{equation} 
+		\phi_{i,L/R} = \phi_{i\mp1/2} \,,
 	\end{equation}
-where the left hand side is the flux using in the LLDG scattering term and the right hand side the resulting scalar fluxes from MFEM drift diffusion. Lastly, the van Leer cell centered reconstruction is: 
+where the left hand side is the flux used in the LLDG scattering term and the right hand side the MFEM drift diffusion scalar flux. 
+Maintaining slopes with the MFEM edge values was done according to: 
+	\begin{equation} \label{eq:edgeReconstruction}
+		\phi_{i,L/R} = \phi_i \mp \half\left(\phi_{i+1/2} - \phi_{i-1/2}\right) \,.
+	\end{equation}
+Finally, the van Leer cell centered reconstruction is: 
 	\begin{equation} \label{eq:vanLeer}
 		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_\text{van Leer} \left[ \left(\phi_{i+1} - \phi_{i}\right) + 
 			\left(\phi_{i} - \phi_{i-1}\right)\right] \,
 	\end{equation}
-where $\xi_\text{van Leer}$ is the van Leer slope limiter given in van Leer reference.
+where $\xi_\text{van Leer}$ is the van Leer slope limiter given in van Leer reference. This reconstruction method is especially important for radiative transfer calculations because the MFEM discretized temperature equation will only have cell centered values. 
 
 \subsection{Order of Accuracy}
 The Method of Manufactured Solutions (MMS) was used to compare the accuracy of the VEF method as the cell width was decreased. The L2 norm of the difference between the numerical and MMS solution was compared at five logarithmically spaced cell widths between \SI{0.5}{mm} and \SI{0.01}{mm}. A line of best fit of the form 
 	\begin{equation} 
 		E = C h^n 
 	\end{equation}
-was fit to find the order of accuracy, $n$, and the constant of proportionality, $C$. These values along with the coefficient of correlation are provided in Table \ref{tab:mms} for all six permutations of the two Eddington representation methods and three slope reconstruction methods. All of the permutations are second order accurate and have similar accuracy. 
+was used to find the order of accuracy, $n$, and the constant of proportionality, $C$, of the numerical error, $E$. These values along with the coefficient of correlation are provided in Table \ref{tab:mms} for all six permutations of the two Eddington representation methods and three slope reconstruction methods. All of the permutations are second order accurate and have similar overall accuracy. This suggests that Eddington representation and slope reconstruction do not affect numerical accuracy. It is also a testament to the robustness of the VEF method as the inconsistent, partially consistent, and fully consistent variations all performed similarly. 
 	\begin{table}[!h] \centering
 	\begin{tabular}{|c|c|c|c|}
 	\hline
@@ -64,5 +69,7 @@ In the limit as $\epsilon \rightarrow 0$, the system becomes diffusive. Figure \
 	\caption{}
 	\label{fig:hlimit}
 \end{figure}
-A plot of the \SN and drift diffusion convergence as a function of cell spacing is provided in Fig. \ref{fig:hlimit}. 
+A plot of the L2 norm of the difference between the \SN and drift diffusion solutions as a function of cell spacing is provided in Fig. \ref{fig:hlimit}. VEF without slope reconstruction is the least convergent method regardless of the Eddington representation method. Slope reconstruction with edges and centers are equally convergent. Discontinuous constant Eddington representation was 1.65 times more convergent than the linear representation method. 
+
+\subsection{Comparison to S$_2$SA}
 

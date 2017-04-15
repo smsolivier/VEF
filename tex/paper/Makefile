@@ -2,7 +2,7 @@ codedir = ../../code/
 figdir = figs/
 
 MAIN = jctt
-FIGS = diffLimit diffError hlimit acceleration
+FIGS = diffLimit diffError hlimit acceleration s2sa
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
@@ -35,6 +35,9 @@ $(figdir)hlimit.pdf : hlimit.py
 
 $(figdir)acceleration.pdf : acceleration.py 
 	./$< $@ 
+
+$(figdir)s2sa.pdf : s2sa.py 
+	./$< $@
 
 # compile latex 
 $(MAIN).pdf: $(MAIN).tex $(FIGS) $(TABS)

@@ -59,7 +59,7 @@ def getOrder(sol, N, tol, label):
 	return err
 
 # N = np.array([80, 160, 320, 640, 1280])
-N = np.logspace(1.2, 3, 5)
+N = np.logspace(1.2, 2.5, 3)
 N = np.array([int(x) for x in N])
 
 n = 8 
@@ -75,6 +75,9 @@ tol = 1e-10
 # make solver objects 
 ed = [LD.LD(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat,q) for x in N]
+
+s2 = [LD.S2SA(np.linspace(0, xb, x+1), n, Sigmaa, 
+	Sigmat, q) for x in N]
 
 ed00 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, q, OPT=0, GAUSS=0) for x in N]
@@ -96,15 +99,14 @@ ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 
 # get order of accuracy 
 # err = getOrder(ed, N, tol, 'LD')
-err00 = getOrder(ed00, N, tol, 'MHFEM Edges, No Gauss')
-err01 = getOrder(ed01, N, tol, 'Maintain Slopes, No Gauss')
-err10 = getOrder(ed10, N, tol, 'MHFEM Edges, Gauss')
-err11 = getOrder(ed11, N, tol, 'Maintain Slopes, Gauss')
-err20 = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
-err21 = getOrder(ed21, N, tol, 'vanLeer, Gauss')
+# err00 = getOrder(ed00, N, tol, 'MHFEM Edges, No Gauss')
+# err01 = getOrder(ed01, N, tol, 'Maintain Slopes, No Gauss')
+# err10 = getOrder(ed10, N, tol, 'MHFEM Edges, Gauss')
+# err11 = getOrder(ed11, N, tol, 'Maintain Slopes, Gauss')
+# err20 = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
+# err21 = getOrder(ed21, N, tol, 'vanLeer, Gauss')
+err = getOrder(s2, N, tol, 'S2SA')
 
-# plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
-	# color='k', alpha=.7, label='Slope = 2')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$h$', fontsize=20)
 plt.ylabel('Error', fontsize=20)

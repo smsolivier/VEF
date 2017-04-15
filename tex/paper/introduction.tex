@@ -8,16 +8,16 @@ Galerkin (DG) since classic discretization schemes such as step and diamond are 
 calculations in the high-energy density physics regime or coupled electron-photon calculations.  Diffusion discretizations consistent 
 with the DG S$_n$ discretizations cannot actually be expressed in diffusion form, but rather must be expressed in 
 first-order or P$_1$ form, and are much more difficult to solve than standard diffusion discretizations.   Considerable 
-effort has gone into the development of ``partially consistent’’ diffusion discretizations that yield a stable DSA 
+effort has gone into the development of ``partially consistent'' diffusion discretizations that yield a stable DSA 
 algorithm with some degree of degraded effectiveness, but such discretizations are also generally difficult to develop. A 
 great advantage of the VEF method is that the drift-diffusion equation that accelerates the S$_n$ source iterations can be 
 discretized in any valid manner without concern for consistency with the S$_n$ discretization.  When the VEF 
-drift-diffusion equation is discretized in a way that is ``non-consistent,’’ the S$_n$ and VEF drift-diffusion solutions 
+drift-diffusion equation is discretized in a way that is ``non-consistent,'' the S$_n$ and VEF drift-diffusion solutions 
 for the scalar flux do not necessarily become identical when the iterative process converges.  However, they do become 
 identical in the limit as the spatial mesh is refined, and the difference between the two solutions is proportional to 
 the spatial truncation errors associated the S$_n$ and drift-diffusion discretizations.  In general the order accuracy 
 of the S$_n$ and VEF drift-diffusion solutions will be the lowest order accuracy of their respective independent \
-discretizations.  Although the S$_n$ solution obtained with such a ``non-consistent’’ VEF method is not conservative, 
+discretizations.  Although the S$_n$ solution obtained with such a ``non-consistent'' VEF method is not conservative, 
 the VEF drift-diffusion solution is in fact conservative.  This is particularly useful in multiphysics calculations 
 where the low-order VEF equation can be coupled to the other physics components rather than the high-order S$_n$ 
 equations.  Another advantage of the non-consistent approach is that even if the S$_n$ spatial discretization 

@@ -159,26 +159,29 @@ if __name__ == '__main__':
 	import ld as LD 
 
 	N = 100 
-	xb = 2 
+	xb = 50
 	x = np.linspace(0, xb, N+1)
 
-	Sigmaa = lambda x: .95
-	Sigmat = lambda x: 1 
+	eps = 1e-5
 
-	qL = np.ones(N)
-	qR = np.zeros(N) 
+	Sigmaa = lambda x: eps
+	Sigmat = lambda x: 1/eps
+
+	qL = np.ones(N)*eps
+	qR = np.zeros(N)*eps
 
 	di = Direct(x, Sigmaa, Sigmat, BCL=0)
 
-	si = LD.LD(x, 2, Sigmaa, Sigmat, lambda x, mu: 1)
+	si = LD.Eddington(x, 2, Sigmaa, Sigmat, lambda x, mu: eps)
 
 	xc, phiL, phiR = di.solve(qL, qR)
 
 	xsi, phisi, itsi = si.sourceIteration(1e-10)
 
-	phi_diff = exactDiff(Sigmaa(0), Sigmat(0), 1, xb, BCL=0)
+	phi_diff = exactDiff(Sigmaa(0), Sigmat(0), eps, xb, BCL=0)
 
-	plt.plot(xc, (phiL + phiR))
-	plt.plot(xsi, phisi)
-	plt.plot(xc, phi_diff(xc))
+	plt.plot(xc, (phiL + phiR), label='Direct')
+	plt.plot(xsi, phisi, label='SI')
+	plt.plot(xc, phi_diff(xc), label='Diff')
+	plt.legend(loc='best')
 	plt.show()

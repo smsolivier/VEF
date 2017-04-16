@@ -17,12 +17,12 @@ else:
 
 N = 100
 n = 8 
-xb = 2 
+xb = 50
 
 tol = 1e-6
 
 nruns = 20 
-eps = np.logspace(-5, 0, nruns)
+eps = np.logspace(-6, 0, nruns)
 
 ite = np.zeros(nruns)
 its = np.zeros(nruns)

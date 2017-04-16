@@ -28,13 +28,13 @@ def getDiff(eps, solver):
 
 	print('{:.6e}'.format(eps))
 
-	N = 31
+	N = 50
 	n = 8 
 	Q = lambda x, mu: eps
 	xb = 1
 	x = np.linspace(0, xb, N)
 
-	tol = 1e-6
+	tol = 1e-10
 
 	sn = solver(x, n, Sigmaa, Sigmat, Q, BCL=0, BCR=1)
 
@@ -54,7 +54,7 @@ def getDiff(eps, solver):
 	# return np.fabs(phi_f(xb/2) - diff(xb/2)), it
 
 N = 10
-eps = np.logspace(-2, 0, N)
+eps = np.logspace(-4, 0, N)
 
 LD = np.zeros(N)
 ED = np.zeros(N)
@@ -66,20 +66,22 @@ itS2 = np.zeros(N)
 
 for i in range(N):
 
-	LD[i], itLD[i] = getDiff(eps[i], ld.LD)
+	# LD[i], itLD[i] = getDiff(eps[i], ld.LD)
 	ED[i], itED[i] = getDiff(eps[i], ld.Eddington)
-	S2[i], itS2[i] = getDiff(eps[i], dd.S2SA)
+	S2[i], itS2[i] = getDiff(eps[i], ld.S2SA)
 
 print(itLD/itED)
 
-plt.loglog(eps, itLD, '-o', label='Unaccelerated')
+# plt.loglog(eps, itLD, '-o', label='Unaccelerated')
 plt.loglog(eps, itED, '-*', label='Edd. Accelerated')
 plt.loglog(eps, itS2, '->', label='S$_2$SA')
 plt.legend(loc='best', frameon=False)
 plt.xlabel(r'$\epsilon$', fontsize=20)
 plt.ylabel('Number of Iterations', fontsize=20)
 hidespines(plt.gca())
-if (outfile != None):
-	plt.savefig(outfile, transparent=True)
-else:
-	plt.show()
+
+plt.figure()
+plt.loglog(eps, ED, '-o')
+plt.loglog(eps, S2, '-o')
+
+plt.show()

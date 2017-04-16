@@ -35,7 +35,6 @@ class Direct(Transport):
 			hi = self.h[ii] # cell i width 
 
 			# --- psi_+,i,L equation ---
-
 			# psi_+,i,L
 			A[i,i] = self.mu[1] + Sigmati*hi - Sigmasi*hi/2 
 
@@ -58,7 +57,7 @@ class Direct(Transport):
 				if (self.BCL == 0): # reflecting 
 
 					# reflecting: set psi_+,i-1,R = psi_-,1,L
-					A[i,i+2] += -2*self.mu[1] 
+					A[i,i+3] += -2*self.mu[1] 
 
 			# --- psi_+,i,R equation --- 
 			i += 1 # update matrix location 
@@ -100,6 +99,15 @@ class Direct(Transport):
 
 				# psi_-,i+1,L
 				A[i,i+3] = 2*self.mu[0] 
+
+			else:
+
+				# default to vacuum 
+
+				if (self.BCR == 0): # reflecting 
+
+					# psi_+,i,R
+					A[i,i-3] += 2*self.mu[0] 
 
 			ii += 1 # update cell center
 
@@ -148,21 +156,23 @@ class Direct(Transport):
 		# compute psi_+ and psi_- 
 		psiP = .5 * (psiPL + psiPR)
 		psiM = .5 * (psiML + psiMR) 
-
+		
 		# compute scalar flux 
 		phi = psiP + psiM  
 
 		return self.xc, psiPL + psiML, psiPR + psiMR 
 
+		# return self.xc, 2*phi
+
 if __name__ == '__main__':
 	from exactDiff import * 
 	import ld as LD 
 
-	N = 100 
+	N = 100
 	xb = 50
 	x = np.linspace(0, xb, N+1)
 
-	eps = 1e-5
+	eps = .05
 
 	Sigmaa = lambda x: eps
 	Sigmat = lambda x: 1/eps
@@ -170,18 +180,20 @@ if __name__ == '__main__':
 	qL = np.ones(N)*eps
 	qR = np.zeros(N)*eps
 
-	di = Direct(x, Sigmaa, Sigmat, BCL=0)
+	di = Direct(x, Sigmaa, Sigmat, BCL=0, BCR=1)
+	# di.setMMS()
 
-	si = LD.Eddington(x, 2, Sigmaa, Sigmat, lambda x, mu: eps)
+	si = LD.Eddington(x, 2, Sigmaa, Sigmat, lambda x, mu: eps, BCL=0, BCR=1)
 
 	xc, phiL, phiR = di.solve(qL, qR)
+	# xc, phi = di.solve(di.q[0,:], di.q[0,:])
 
 	xsi, phisi, itsi = si.sourceIteration(1e-10)
 
 	phi_diff = exactDiff(Sigmaa(0), Sigmat(0), eps, xb, BCL=0)
 
-	plt.plot(xc, (phiL + phiR), label='Direct')
+	plt.plot(xc, phiL + phiR, label='Direct')
 	plt.plot(xsi, phisi, label='SI')
-	plt.plot(xc, phi_diff(xc), label='Diff')
+	# plt.plot(xc, phi_diff(xc), label='Diff')
 	plt.legend(loc='best')
 	plt.show()

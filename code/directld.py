@@ -56,7 +56,7 @@ class Direct(Transport):
 
 				if (self.BCL == 0): # reflecting 
 
-					# reflecting: set psi_+,i-1,R = psi_-,1,L
+					# reflecting: set psi_+,i-1,R = psi_-,1,R
 					A[i,i+3] += -2*self.mu[1] 
 
 			# --- psi_+,i,R equation --- 
@@ -106,7 +106,7 @@ class Direct(Transport):
 
 				if (self.BCR == 0): # reflecting 
 
-					# psi_+,i,R
+					# psi_+,N,L
 					A[i,i-3] += 2*self.mu[0] 
 
 			ii += 1 # update cell center
@@ -156,7 +156,7 @@ class Direct(Transport):
 		# compute psi_+ and psi_- 
 		psiP = .5 * (psiPL + psiPR)
 		psiM = .5 * (psiML + psiMR) 
-		
+
 		# compute scalar flux 
 		phi = psiP + psiM  
 

@@ -31,16 +31,16 @@ def getDiff(sol, tol=1e-6):
 N = 100 
 n = 8 
 
-xb = 1
-Sigmaa = lambda x: .1 
-Sigmat = lambda x: 1 
-q = lambda x, mu: 1
+# xb = 1
+# Sigmaa = lambda x: .1 
+# Sigmat = lambda x: 1 
+# q = lambda x, mu: 1
 
-# xb = 8 
-# Sigmat = lambda x: 50*(x<2) + .001*(x>=2)*(x<4) + \
-# 	1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + 1*(x>=7)*(x<=8)
-# Sigmaa = lambda x: 50*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)*(x<=8) 
-# q = lambda x, mu: 50*(x<2) + 1*(x>=7)*(x<=8)
+xb = 8 
+Sigmat = lambda x: 50*(x<2) + .001*(x>=2)*(x<4) + \
+	1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + 1*(x>=7)*(x<=8)
+Sigmaa = lambda x: 50*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)*(x<=8) 
+q = lambda x, mu: 50*(x<2) + 1*(x>=7)*(x<=8)
 
 tol = 1e-10
 

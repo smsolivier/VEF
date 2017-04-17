@@ -88,11 +88,11 @@ ed00 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 ed01 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, q, OPT=0, GAUSS=1) for x in N]
 
-ed10 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, q, OPT=1, GAUSS=0) for x in N]
+# ed10 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
+	# Sigmat, q, OPT=1, GAUSS=0) for x in N]
 
-ed11 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
-	Sigmat, q, OPT=1, GAUSS=1) for x in N]
+# ed11 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
+	# Sigmat, q, OPT=1, GAUSS=1) for x in N]
 
 ed20 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat,q, OPT=2, GAUSS=0) for x in N]
@@ -101,20 +101,20 @@ ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 	Sigmat, q, OPT=2, GAUSS=1) for x in N]
 
 # get order of accuracy 
-err = np.zeros((6, len(N)))
-order = np.zeros(6)
-b = np.zeros(6)
-r = np.zeros(6)
-reconstruct = ['None', 'None', 'Edge', 'Edge', 'Center', 'Center']
-gauss = ['Constant', 'Linear', 'Constant', 'Linear', 'Constant', 'Linear']
+err = np.zeros((4, len(N)))
+order = np.zeros(4)
+b = np.zeros(4)
+r = np.zeros(4)
+reconstruct = ['None', 'None', 'Center', 'Center']
+gauss = ['Constant', 'Linear', 'Constant', 'Linear']
 
 # err = getOrder(ed, N, tol, 'LD')
 err[0,:], order[0], b[0], r[0] = getOrder(ed00, N, tol, 'No Slopes, No Gauss')
 err[1,:], order[1], b[1], r[1] = getOrder(ed01, N, tol, 'No Slopes, Gauss')
-err[2,:], order[2], b[2], r[2] = getOrder(ed10, N, tol, 'Slope from Edges, No Gauss')
-err[3,:], order[3], b[3], r[3] = getOrder(ed11, N, tol, 'Slopes from Edges, Gauss')
-err[4,:], order[4], b[4], r[4] = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
-err[5,:], order[5], b[5], r[5] = getOrder(ed21, N, tol, 'vanLeer, Gauss')
+# err[2,:], order[2], b[2], r[2] = getOrder(ed10, N, tol, 'Slope from Edges, No Gauss')
+# err[3,:], order[3], b[3], r[3] = getOrder(ed11, N, tol, 'Slopes from Edges, Gauss')
+err[2,:], order[2], b[2], r[2] = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
+err[3,:], order[3], b[3], r[3] = getOrder(ed21, N, tol, 'vanLeer, Gauss')
 
 # plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
 # 	color='k', alpha=.7, label='Slope = 2')

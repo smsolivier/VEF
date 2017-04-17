@@ -24,25 +24,31 @@ def getDiff(sol, tol=1e-6):
 
 		x, phi, it = sol[i].sourceIteration(tol)
 
-		# diff[i] = np.linalg.norm(phi - sol[i].phi_SN, 2)/np.linalg.norm(sol[i].phi_SN, 2)
 		diff[i] = np.linalg.norm(phi - sol[i].phi_SN, 2)/np.linalg.norm(sol[i].phi_SN, 2)
 
 	return diff 
 
 N = 100 
 n = 8 
-xb = 1
 
+xb = 1
 Sigmaa = lambda x: .1 
 Sigmat = lambda x: 1 
-
 q = lambda x, mu: 1
+
+# xb = 8 
+# Sigmat = lambda x: 50*(x<2) + .001*(x>=2)*(x<4) + \
+# 	1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + 1*(x>=7)*(x<=8)
+# Sigmaa = lambda x: 50*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)*(x<=8) 
+# q = lambda x, mu: 50*(x<2) + 1*(x>=7)*(x<=8)
 
 tol = 1e-10
 
-N = np.logspace(2, 3, 5) 
+h = np.logspace(-2, -1.1, 3)
 
-N = np.array([int(x) for x in N])
+N = np.array([int(xb/x) for x in h])
+
+print(N)
 
 ed00 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, q, OPT=0, GAUSS=0) for x in N]
@@ -63,21 +69,21 @@ ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 	Sigmat, q, OPT=2, GAUSS=1) for x in N]
 
 diff00 = getDiff(ed00, tol)
-diff01 = getDiff(ed01, tol)
+# diff01 = getDiff(ed01, tol)
 diff10 = getDiff(ed10, tol)
-diff11 = getDiff(ed11, tol)
+# diff11 = getDiff(ed11, tol)
 diff20 = getDiff(ed20, tol)
-diff21 = getDiff(ed21, tol)
+# diff21 = getDiff(ed21, tol)
 
-print(diff21/diff20)
+# print(diff21/diff20)
 
 fontsize=16
-plt.loglog(xb/N, diff00, '-o', clip_on=False, label='No Slopes, No Gauss')
-plt.loglog(xb/N, diff01, '-v', clip_on=False, label='No Slopes, Gauss')
-plt.loglog(xb/N, diff10, '-^', clip_on=False, label='MHFEM Edges, No Gauss')
-plt.loglog(xb/N, diff11, '-<', clip_on=False, label='MHFEM Edges, Gauss')
-plt.loglog(xb/N, diff20, '->', clip_on=False, label='vanLeer, No Gauss')
-plt.loglog(xb/N, diff21, '-s', clip_on=False, label='vanLeer, Gauss')
+plt.loglog(xb/N, diff00, '-o', clip_on=False, label='None, Constant')
+# plt.loglog(xb/N, diff01, '-v', clip_on=False, label='None, Linear')
+plt.loglog(xb/N, diff10, '-^', clip_on=False, label='Edge, Constant')
+# plt.loglog(xb/N, diff11, '-<', clip_on=False, label='Edge, Linear')
+plt.loglog(xb/N, diff20, '->', clip_on=False, label='Center, Constant')
+# plt.loglog(xb/N, diff21, '-s', clip_on=False, label='Center, Linear')
 plt.xlabel(r'$h$', fontsize=fontsize)
 plt.ylabel('Convergence', fontsize=fontsize)
 plt.legend(loc='best', frameon=False)

@@ -39,7 +39,7 @@ where $J(x) = \int_{-1}^1 \mu \psi_(x, \mu) \ud \mu$ is the current and
 	\begin{equation} \label{eq:eddington} 
 		\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x, \mu) \ud \mu}{\int_{-1}^1 \psi(x, \mu) \ud \mu}
 	\end{equation}
-the Eddington factor. By computing the Eddington factor from the \SN angular flux, Eqs. \ref{eq:zero} and \ref{eq:first} can be solved directly for the scalar flux. The drift diffusion scalar flux can then be used to update the scattering term on the right side of Eq. \ref{eq:si}. The VEF method is: 
+the Eddington factor. By computing the Eddington factor with the \SN angular flux, Eqs. \ref{eq:zero} and \ref{eq:first} can be solved directly for the scalar flux. The drift diffusion scalar flux can then be used to update the scattering term on the right side of Eq. \ref{eq:si}. The VEF method is: 
 	\begin{enumerate}
 		\item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve Eq. \ref{eq:si} for $\psi_n^{\ell+1/2}(x)$. 
 		\item Compute $\edd^{\ell+1/2}(x)$ with: 
@@ -51,12 +51,12 @@ the Eddington factor. By computing the Eddington factor from the \SN angular flu
 		% \item Use the moment equations' $\phi(x)$ on the right hand side of Eq. \ref{eq:si}.  
 		\item Update the scalar flux estimate on the right side of Eq. \ref{eq:si} with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges. 
 	\end{enumerate}
-Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the moment equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the moment equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
+Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the VEF equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the VEF equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
-In addition to acceleration, this scheme allows the \SN equations and drift diffusion equations to be solved with arbitrarily different spatial discretization methods. The following sections will present the application of the Lumped Linear Discontinuous Galerkin (LLDG) spatial discretization to the \SN equations and the Mixed Finite Element Method (MFEM) to the VEF drift diffusion equations. 
+In addition to acceleration, this scheme allows the \SN equations and drift diffusion equations to be solved with arbitrarily different spatial discretization methods. The following sections  present the application of the Lumped Linear Discontinuous Galerkin (LLDG) spatial discretization to the \SN equations and the Mixed Finite Element Method (MFEM) to the VEF drift diffusion equations. 
 
 \subsection{Lumped Linear Discontinuous Galerkin \SN}
-The LLDG equations are: 
+The LLDG discretization of Eq. \ref{eq:si} is: 
 	\begin{subequations} 
 	\begin{equation} \label{eq:lldg_l}
 		\mu_n \left(\psi_{n,i}\rellh - \psi_{n, i-1/2}\rellh\right) 
@@ -77,7 +77,7 @@ where $h_i$, $\Sigma_{t,i}$, and $\Sigma_{s,i}$ are the cell width, total cross 
 	\begin{equation} \label{eq:lldg_i}
 		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,,
 	\end{equation}
-and the cell edged angular fluxes are defined by upwinding: 
+and the cell edged angular fluxes are defined through upwinding: 
 	\begin{subequations}
 	\begin{equation} \label{eq:downwind}
 		\psi_{n,i-1/2}\rellh = \begin{cases}
@@ -143,7 +143,41 @@ Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continu
 	\end{multline}
 	\end{subequations}
 where the Eddington factor is evaluated at iteration $\ell+1/2$ and the scalar flux at $\ell+1$. 
-Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edge angular flux using Eqs. and \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
+Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. 
+The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edge angular fluxes using Eqs. and \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
+
+A more consistent way to transfer the Eddington factor is to represent it as a linear function using the MFEM basis functions:
+	\begin{equation} \label{eq:eddquad}
+		\edd_i(x) = \frac{
+			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
+		}
+		{
+			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
+		}
+	\end{equation}
+where 
+	\begin{equation}
+		B_{i,L}(x) = \begin{cases}
+			\frac{x_{i+1/2} - x}{h_i} \,, & x \in [x_{i-1/2}, x_{i+1/2}] \\ 
+			0 \,, & \text{otherwise}
+		\end{cases}
+	\end{equation}
+and 
+	\begin{equation}
+		B_{i,R}(x) = \begin{cases}
+			\frac{x - x_{i-1/2}}{h_i} \,, & x \in [x_{i-1/2}, x_{i+1/2}] \\ 
+			0 \,, & \text{otherwise}
+		\end{cases} \,.
+	\end{equation}
+When MFEM is applied, the integral over cell $i$ of Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. The cell centered Eddington factors used in Eq. \ref{eq:mfem} are then: 
+	\begin{equation} 
+		\edd_i = \half \left[ \edd_i(x_L) + \edd_i(x_R) \right]
+	\end{equation}
+where 
+	\begin{equation}
+		x_{L/R} = \frac{x_{i+1/2} - x_{i-1/2}}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}}
+	\end{equation}
+are the transformed quadrature points. 
 
 Transport consistent boundary conditions are applied through a modified Marshak boundary condition: 
 	\begin{equation} 
@@ -155,27 +189,3 @@ where
 		{\int_{-1}^1 \psi(x, \mu) \ud \mu} \,. 
 	\end{equation}
 
-% A more consistent way to transfer the Eddington factor is to represent it as a linear function using the MFEM basis functions:
-% 	\begin{equation} \label{eq:eddquad}
-% 		\edd_i(x) = \frac{
-% 			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
-% 		}
-% 		{
-% 			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
-% 		}
-% 	\end{equation}
-% where 
-% 	\begin{equation}
-% 		B_{i,L}(x) = \begin{cases}
-% 			\frac{x_{i+1/2} - x}{h_i} & ,\, x \in [x_{i-1/2}, x_{i+1/2}] \\ 
-% 			0 & ,\,\text{otherwise}
-% 		\end{cases}
-% 	\end{equation}
-% and 
-% 	\begin{equation}
-% 		B_{i,R}(x) = \begin{cases}
-% 			\frac{x - x_{i-1/2}}{h_i} & ,\, x \in [x_{i-1/2}, x_{i+1/2}] \\ 
-% 			0 & ,\,\text{otherwise}
-% 		\end{cases} \,.
-% 	\end{equation}
-% When MFEM is applied, the integral over cell $i$ of Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. 

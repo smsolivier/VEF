@@ -23,10 +23,10 @@ The Method of Manufactured Solutions (MMS) was used to compare the accuracy of t
 	\end{equation}
 was used to find the order of accuracy, $n$, and the constant of proportionality, $C$, of the numerical error, $E$. These values along with the coefficient of correlation are provided in Table \ref{tab:mms} for all six permutations of the two Eddington representation methods and three slope reconstruction methods. All of the permutations are second order accurate and have similar overall accuracy. This suggests that Eddington representation and slope reconstruction do not affect numerical accuracy. It is also a testament to the robustness of the VEF method as the inconsistent, partially consistent, and fully consistent variations all performed similarly. 
 	\begin{table}[!h] \centering
-	\begin{tabular}{|c|c|c|c|}
+	\begin{tabular}{|c|c|c|c|c|}
 	\hline
 	\hline
-	Method & Order & $C$ & $R^2$ \\ 
+	Reconstruction Method & Edd. Representation & Order & $C$ & $R^2$ \\ 
 	\hline
 		\input{figs/mmsTable}
 	\hline
@@ -52,24 +52,42 @@ To test the algorithm in the diffusion limit, the cross sections and source were
 	\end{subequations}
 In the limit as $\epsilon \rightarrow 0$, the system becomes diffusive. Figure \ref{fig:diffLim_iterations} shows the number of iterations needed for the VEF method to converge for all six permutations and Fig. \ref{fig:diffLim_error} shows the L2 error of the VEF method solution to the exact diffusion solution. These plots show that all of the VEF methods survive the diffusion limit. 
 
-\begin{figure} \centering
-	\includegraphics[width=5in]{figs/diffLimit.pdf}
-	\caption{Test}
-	\label{fig:diffLim_iterations}
-\end{figure}
-\begin{figure} \centering
-	\includegraphics[width=6in]{figs/diffError.pdf}
-	\caption{}
-	\label{fig:diffLim_error}
-\end{figure}
+	\begin{figure} \centering
+		\includegraphics[width=.75\textwidth]{figs/diffLimit.pdf}
+		\caption{}
+		\label{fig:diffLim_iterations}
+	\end{figure}
+	\begin{figure} \centering
+		\includegraphics[width=.75\textwidth]{figs/diffError.pdf}
+		\caption{}
+		\label{fig:diffLim_error}
+	\end{figure}
 
 \subsection{Solution Convergence}
-\begin{figure} \centering
-	\includegraphics[width=6in]{figs/hlimit.pdf}
-	\caption{}
-	\label{fig:hlimit}
-\end{figure}
-A plot of the L2 norm of the difference between the \SN and drift diffusion solutions as a function of cell spacing is provided in Fig. \ref{fig:hlimit}. VEF without slope reconstruction is the least convergent method regardless of the Eddington representation method. Slope reconstruction with edges and centers are equally convergent. Discontinuous constant Eddington representation was 1.65 times more convergent than the linear representation method. 
+The convergence between unaccelerated SI and the VEF method was compared as a function of cell width for a simple homogeneous slab and for a variant of Reed's problem. In both cases, the slab had a reflecting left boundary and vacuum right boundary. The homogeneous slab had a scattering ratio of 0.75. The cross sections and source for Reed's problem are provided in Table \ref{tab:reedXS}. Figure \ref{fig:reed} shows the L2 norm of the difference between unaccelerated and VEF accelerated S$_8$ for the two test problems. 
+
+	\begin{table} \centering
+		\begin{tabular}{|c|c|c|c|c|c|}
+			\hline
+			& Region 1 & Region 2 & Region 3 & Region 4 & Region 5 \\ 
+			\hline 
+			$q$ & 50 & 0 & 0 & 0 & 1 \\ 
+			$\Sigma_t$ & 50 & 0.001 & 1 & 5 & 1 \\ 
+			$\Sigma_a$ & 50 & 0 & 0.1 & 0 & 0.1 \\ 
+			\hline 
+			Domain & $0 \leq x < 2$ & $2 \leq x < 4$ & $4\leq x < 6$ &
+				$6 \leq x < 7$ & $7 \leq x \leq 8$\\ 
+			\hline 
+		\end{tabular}
+		\caption{The cross sections used for Reed's problem.}
+		\label{tab:reedXS}
+	\end{table}
+
+	\begin{figure} \centering
+		\includegraphics[width=.75\textwidth]{figs/convergence.pdf}
+		\caption{The L2 norm of the difference between unaccelerated and VEF S$_8$ for a homogeneous slab and Reed's problem. }
+		\label{fig:reed}
+	\end{figure}
 
 \subsection{Comparison to S$_2$SA}
 

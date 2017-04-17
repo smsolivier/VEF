@@ -12,7 +12,10 @@ Computational Results
 	solution convergence 
 	Reed's problem (comparison to unaccelerated Sn)
 	Comparison to S2SA 
+	Morel:
+		accuracy comparison to unaccelerated Sn for several test problems
+		convergence rate comparison to S2SA 
 Conclusions and Future Work 
 
-switch to not explaining traditional SI
-	just explain VEF method (change ell + 1 to ell + 1/2)
+mention S8 and other problem details 
+add units 

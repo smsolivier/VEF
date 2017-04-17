@@ -105,14 +105,15 @@ err = np.zeros((6, len(N)))
 order = np.zeros(6)
 b = np.zeros(6)
 r = np.zeros(6)
-name = ['00', '01', '10', '11', '20', '21']
+reconstruct = ['None', 'None', 'Edge', 'Edge', 'Center', 'Center']
+gauss = ['Constant', 'Linear', 'Constant', 'Linear', 'Constant', 'Linear']
 
 # err = getOrder(ed, N, tol, 'LD')
-# err[0,:], order[0], b[0], r[0] = getOrder(ed00, N, tol, 'No Slopes, No Gauss')
+err[0,:], order[0], b[0], r[0] = getOrder(ed00, N, tol, 'No Slopes, No Gauss')
 err[1,:], order[1], b[1], r[1] = getOrder(ed01, N, tol, 'No Slopes, Gauss')
-# err[2,:], order[2], b[2], r[2] = getOrder(ed10, N, tol, 'Slope from Edges, No Gauss')
+err[2,:], order[2], b[2], r[2] = getOrder(ed10, N, tol, 'Slope from Edges, No Gauss')
 err[3,:], order[3], b[3], r[3] = getOrder(ed11, N, tol, 'Slopes from Edges, Gauss')
-# err[4,:], order[4], b[4], r[4] = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
+err[4,:], order[4], b[4], r[4] = getOrder(ed20, N, tol, 'vanLeer, No Gauss')
 err[5,:], order[5], b[5], r[5] = getOrder(ed21, N, tol, 'vanLeer, Gauss')
 
 # plt.loglog(xb/N, err20[-1]/(xb/N[-1])**2*(xb/N)**2, 
@@ -128,12 +129,13 @@ err[5,:], order[5], b[5], r[5] = getOrder(ed21, N, tol, 'vanLeer, Gauss')
 
 # make latex table 
 table = tex.table() 
-for i in range(len(name)):
+for i in range(len(reconstruct)):
 
 	table.addLine(
-		name[i], 
+		reconstruct[i], 
+		gauss[i], 
 		tex.utils.writeNumber(order[i], '{:.4}'),
-		tex.utils.writeNumber(b[i]),
+		tex.utils.writeNumber(b[i], '{:.3}'),
 		tex.utils.writeNumber(r[i], '{:.4e}')
 		)
 

@@ -5,7 +5,7 @@ and nonlinear forms of Diffusion-Synthetic Acceleration (DSA), but it offers muc
 Stability can only be guaranteed with DSA if the diffusion equation is differenced in a manner consistent with that 
 of the S$_n$ equations \cite{*}. Modern S$_n$ codes often use advanced discretization schemes such as discontinuous 
 Galerkin (DG) since classic discretization schemes such as step and diamond are not suitable for radiative transfer 
-calculations in the high-energy density physics regime or coupled electron-photon calculations.  Diffusion discretizations consistent 
+calculations in the high-energy density laboratory physics (HEDLP) regime or coupled electron-photon calculations.  Diffusion discretizations consistent 
 with the DG S$_n$ discretizations cannot actually be expressed in diffusion form, but rather must be expressed in 
 first-order or P$_1$ form, and are much more difficult to solve than standard diffusion discretizations.   Considerable 
 effort has gone into the development of ``partially consistent'' diffusion discretizations that yield a stable DSA 
@@ -15,8 +15,8 @@ discretized in any valid manner without concern for consistency with the S$_n$ d
 drift-diffusion equation is discretized in a way that is ``non-consistent,'' the S$_n$ and VEF drift-diffusion solutions 
 for the scalar flux do not necessarily become identical when the iterative process converges.  However, they do become 
 identical in the limit as the spatial mesh is refined, and the difference between the two solutions is proportional to 
-the spatial truncation errors associated the S$_n$ and drift-diffusion discretizations.  In general the order accuracy 
-of the S$_n$ and VEF drift-diffusion solutions will be the lowest order accuracy of their respective independent \
+the spatial truncation errors associated with the S$_n$ and drift-diffusion discretizations.  In general the order of accuracy 
+of the S$_n$ and VEF drift-diffusion solutions will be the lowest order accuracy of their respective independent
 discretizations.  Although the S$_n$ solution obtained with such a ``non-consistent'' VEF method is not conservative, 
 the VEF drift-diffusion solution is in fact conservative.  This is particularly useful in multiphysics calculations 
 where the low-order VEF equation can be coupled to the other physics components rather than the high-order S$_n$ 
@@ -24,7 +24,7 @@ equations.  Another advantage of the non-consistent approach is that even if the
 scheme does not preserve the thick diffusion limit \cite{*}, that limit will generally be preserved using the VEF method. 
  
 The purpose of this paper is to investigate the application of the VEF method with the 1-D S$_n$ equations 
-discretized with the lumped linear-discontinuous method (LDG) and the drift-diffusion equation discretized using the 
+discretized with the lumped linear-discontinuous method (LLDG) and the drift-diffusion equation discretized using the 
 constant-linear mixed finite-element method (MFEM).  To our knowledge, this combination has not been previously 
 investigated.  Our motivation for this investigation is that MFEM methods are now being used for high-order hydrodynamics 
 calculations at Lawrence Livermore National Laboratory \cite{*}.  A radiation transport method compatible with MFEM 
@@ -34,11 +34,10 @@ transport equation, and are problematic even for the even-parity form. \cite{*}.
 Thus the use of the VEF method with a DG S$_n$ discretization and a MFEM drift-diffusion discretization suggests itself.
 Here we define a VEF method that should exhibit second-order accuracy since both the transport and drift-diffusion 
 discretizations are second-order accurate in isolation.  In addition, our VEF method should preserve the thick diffusion 
-limit \cite{*}, which is essential for radiative transfer calculations in the High-Energy Density Laboratory Physics 
-(HEDLP) regime. We use the lumped 
+limit \cite{*}, which is essential for radiative transfer calculations in the HEDLP regime. We use the lumped 
 rather than the standard LDG discretization because lumping yields a much more robust scheme, and robustness is essential 
-for radiative transfer calculations in the HEDLP regime.   Because this is an initial study, we simplify the investigation by considering only 
-by considering only one-group neutron transport rather than the full radiative transfer equations, which include a 
+for radiative transfer calculations in the HEDLP regime.   Because this is an initial study, we simplify the investigation by considering 
+only one-group neutron transport rather than the full radiative transfer equations, which include a 
 material temperature equation as well as the radiation transport equation.  The vast majority of relevant properties of  
 a VEF method for radiative transfer can be tested with an analogous method for one-group neutron transport.  Furthermore, 
 a high-order DG-MFEM VEF method could be of interest for neutronics in addition to radiative transfer calculations. 
@@ -47,9 +46,9 @@ A full investigation for radiative transfer calculations will be carried out in 
 The remainder of this paper is organized as follows.  First, we describe the VEF method analytically. Then we describe 
 our discretized S$_n$ equations, followed by a description of the discretized VEF drift-diffusion equation.  We next give 
 computational results.  More specifically, we describe 
-two ways to represent the S$_n$ variable Eddington factor in the MHEM drift-diffusion equation and several ways to 
+two ways to represent the S$_n$ variable Eddington factor in the MFEM drift-diffusion equation and several ways to 
 construct the S$_n$ scattering source from the drift-diffusion solution for the scalar flux. Each of these options 
 yields a different VEF method.  The accuracy of these methods is then compared to that of the standard lumped LDG 
 S$_n$ solution for several test problems, and the iterative convergence rate of these methods is compared to that of the 
-lumped LDG S$_n$ equations with fully-consistent DSA acceleration. Finally, we give conclusions and 
+lumped LDG S$_n$ equations with fully-consistent S$_2$ Synthetic Acceleration (S$_2$SA). Finally, we give conclusions and 
 recommendations for future work.

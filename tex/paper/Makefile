@@ -2,7 +2,8 @@ codedir = ../../code/
 figdir = figs/
 
 MAIN = jctt
-FIGS = diffLimit diffError hlimit acceleration s2sa
+
+FIGS = diffLimit diffError hlimit s2sa convergence
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
@@ -33,11 +34,11 @@ $(figdir)mmsTable.tex : mms.py
 $(figdir)hlimit.pdf : hlimit.py 
 	./$< $@ 
 
-$(figdir)acceleration.pdf : acceleration.py 
-	./$< $@ 
-
 $(figdir)s2sa.pdf : s2sa.py 
 	./$< $@
+
+$(figdir)convergence.pdf : comparison.py 
+	./$< $@ 
 
 # compile latex 
 $(MAIN).pdf: $(MAIN).tex $(FIGS) $(TABS)

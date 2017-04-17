@@ -428,7 +428,9 @@ class Eddington(LD):
 
 		for i in range(self.N):
 
-			r[i] = delta[i]/delta[i+1] 
+			if (delta[i+1] != 0):
+
+				r[i] = delta[i]/delta[i+1] 
 
 		for i in range(self.N):
 

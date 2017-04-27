@@ -1,0 +1,54 @@
+%!TEX root = ./jctt.tex
+
+\section{Computational Results}
+
+Figure \ref{fig:si} shows the convergence criterion
+	\begin{equation}
+		\frac{\| f\relll - f^\ell \|}{\| f\relll \|} 
+	\end{equation}
+as a function of unaccelerated iteration number for $f = \phi(x)$ and $f = \edd(x)$. The large drop in the convergence criterion between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig. \ref{fig:vef}, a plot of the convergence criterion versus number of iterations for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figs/si.pdf}
+		\caption{The convergence rate for $\phi(x)$ and $\edd(x)$ for unaccelerated S$_8$ Source Iteration. }
+		\label{fig:si}
+	\end{figure}
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figs/vef.pdf} 
+		\caption{The convergence rate for $\phi(x)$ and $\edd(x)$ for VEF accelerated S$_8$. }
+		\label{fig:vef}
+	\end{figure}
+
+Figure \ref{fig:si_vef_s2sa} compares Source Iteration, the VEF method, and consistently differenced S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. The convergence tolerance was set to \num{1e-10}. The VEF method performs similarly to S$_2$SA. 
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figs/si_vef_s2sa.pdf} 
+		\caption{A comparison of the number of iterations required for Source Iteration, VEF acceleration, and S$_2$SA to converge for varying ratios of $\sigma_s$ to $\sigma_t$. } 
+		\label{fig:si_vef_s2sa}
+	\end{figure}
+
+The Method of Manufactured Solutions (MMS) was used to compare the accuracy of the VEF method as the cell width was decreased. The L2 norm of the difference between the numerical and MMS solutions was compared to five logarithmically spaced cell widths between \SI{0.5}{mm} and \SI{0.01}{mm}. A line of best fit of the form 
+	\begin{equation}
+		E = C H^n
+	\end{equation}
+was used to find the order of accuracy, $n$, and the constant of proportionality, $C$, of the numerical error, $E$. These values along are provided in Table \ref{tab:mms} for all 
+
+	\begin{table} \centering
+	\begin{tabular}{|c|c|c|c|c|}
+	\hline
+	\hline
+	Reconstruction Method & $\psi$ Representation & Order & $C$ & $R^2$ \\ 
+	\hline
+		\input{figs/mms}
+	\hline
+	\hline
+	\end{tabular}
+	\caption{The order of accuracy, error, and $R^2$ values for the permutations of the two Eddington representation methods and two slope reconstruction methods. }
+	\label{tab:mms}
+	\end{table}
+	\afterpage{\clearpage}
+

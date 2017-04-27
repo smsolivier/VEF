@@ -3,41 +3,32 @@ figdir = figs/
 
 MAIN = jctt
 
-FIGS = diffLimit diffError hlimit s2sa convergence
+FIGS = si_vef_s2sa si vef
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
-TABS = mmsTable
+TABS = mms
 TABS := $(addsuffix .tex, $(TABS))
 TABS := $(addprefix $(figdir), $(TABS))
 
 # generate all figures 
 .PHONY : all 
-all : $(figdir) $(FIGS) $(MAIN).pdf
+all : $(figdir) $(FIGS) $(TABS) $(MAIN).pdf
 
 # make figure directory 
 $(figdir) : 
 	-mkdir $(figdir) 
 
-# generate diffusion limit test 
-$(figdir)diffLimit.pdf : perm_dl.py 
-	./$< $@ $(figdir)diffError.pdf 
-
-$(figdir)diffError.pdf : perm_dl.py 
-	./$< $(figdir)diffLimit.pdf $@
-
-# generate mms plot 
-$(figdir)mmsTable.tex : mms.py 
-	./$< $@
-
-# generate hlimit plot 
-$(figdir)hlimit.pdf : hlimit.py 
+# plot SI v VEF v S2SA
+$(figdir)si_vef_s2sa.pdf : acceleration.py 
 	./$< $@ 
 
-$(figdir)s2sa.pdf : s2sa.py 
-	./$< $@
+# plot convergence of phi and edd for VEF and SI 
+$(figdir)si.pdf : converge.py 
+	./$< $@ $(figdir)vef.pdf 
 
-$(figdir)convergence.pdf : comparison.py 
+# create table of MMS errors 
+$(figdir)mms.tex : mms.py 
 	./$< $@ 
 
 # compile latex 

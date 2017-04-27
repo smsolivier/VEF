@@ -1,20 +1,6 @@
 %!TEX root = ./jctt.tex
 
-The order of accuracy, diffusion limit, and solution convergence were tested in 1D slab geometry with two Eddington factor representations and two scattering term reconstruction methods. The Eddington factor was represented as a piecewise constant with discontinuous jumps at the cell edges and as linear function using the MFEM basis functions. The scattering term reconstruction methods were no reconstruction and maintaining van Leer limited slopes with the MFEM cell centers. The no reconstruction method set the the left and right discontinuous scalar flux to the MFEM edge scalar flux:
-	\begin{equation} 
-		\phi_{i,L/R} = \phi_{i\mp1/2} \,,
-	\end{equation}
-where the left hand side is the flux used in the LLDG scattering term and the right hand side the MFEM drift diffusion scalar flux. 
-% Maintaining slopes with the MFEM edge values was done according to: 
-% 	\begin{equation} \label{eq:edgeReconstruction}
-% 		\phi_{i,L/R} = \phi_i \mp \half\left(\phi_{i+1/2} - \phi_{i-1/2}\right) \,.
-% 	\end{equation}
-The van Leer cell centered reconstruction is: 
-	\begin{equation} \label{eq:vanLeer}
-		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_\text{van Leer} \left[ \left(\phi_{i+1} - \phi_{i}\right) + 
-			\left(\phi_{i} - \phi_{i-1}\right)\right] \,
-	\end{equation}
-where $\xi_\text{van Leer}$ is the van Leer slope limiter given in \cite{}. This reconstruction method is especially important for radiative transfer calculations because the MFEM discretized temperature equation will only have cell centered values. 
+The order of accuracy, diffusion limit, and solution convergence were tested in 1D slab geometry with two Eddington factor representations and two scattering term reconstruction methods. 
 
 \subsection{Order of Accuracy}
 The Method of Manufactured Solutions (MMS) was used to compare the accuracy of the VEF method as the cell width was decreased. The L2 norm of the difference between the numerical and MMS solutions was compared at five logarithmically spaced cell widths between \SI{0.5}{mm} and \SI{0.01}{mm}. A line of best fit of the form 

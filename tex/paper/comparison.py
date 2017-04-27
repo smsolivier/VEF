@@ -20,7 +20,7 @@ def compare(h, Sigmaa, Sigmat, Q, label):
 	err_f = lambda a, b: np.linalg.norm(a - b, 2)/np.linalg.norm(b, 2)
 
 	xb = 8
-	N = np.array([Sigmat(0)*int(xb/x) for x in h]) 
+	N = np.array([int(xb/x) for x in h]) 
 
 	print(N)
 
@@ -34,7 +34,7 @@ def compare(h, Sigmaa, Sigmat, Q, label):
 
 		x = np.linspace(0, xb, N[i]+1)
 
-		ld = LD.LD(x, n, Sigmaa, Sigmat, Q)
+		ld = LD.S2SA(x, n, Sigmaa, Sigmat, Q)
 		ed = LD.Eddington(x, n, Sigmaa, Sigmat, Q, GAUSS=1, OPT=2)
 
 		x, phi, it = ld.sourceIteration(tol, maxIter=1000)
@@ -42,9 +42,13 @@ def compare(h, Sigmaa, Sigmat, Q, label):
 
 		err[i] = err_f(phie, phi)
 
-	plt.loglog(Sigmat(0)*xb/N, err, '-o', clip_on=False, label=label)
+	fit = np.polyfit(np.log(xb/N), np.log(err), 1)
 
-h = np.logspace(-.2, -.05, 3)
+	print(fit[0])
+
+	plt.loglog(xb/N, err, '-o', clip_on=False, label=label)
+
+h = np.logspace(-2, -1, 3)
 
 Sigmat = lambda x: 1 
 Sigmaa = lambda x: .25 
@@ -52,10 +56,11 @@ Q = lambda x, mu: 1
 
 compare(h, Sigmaa, Sigmat, Q, 'Homogeneous Slab')
 
-Sigmat = lambda x: 50*(x<2) + .001*(x>=2)*(x<4) + \
+Sigmamax = 1
+Sigmat = lambda x: Sigmamax*(x<2) + .001*(x>=2)*(x<4) + \
 	1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + 1*(x>=7)*(x<=8)
-Sigmaa = lambda x: 50*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)*(x<=8) 
-q = lambda x, mu: 50*(x<2) + 1*(x>=7)*(x<=8)
+Sigmaa = lambda x: Sigmamax*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)*(x<=8) 
+q = lambda x, mu: Sigmamax*(x<2) + 1*(x>=7)*(x<=8)
 
 compare(h, Sigmaa, Sigmat, q, 'Reed\'s Problem')
 

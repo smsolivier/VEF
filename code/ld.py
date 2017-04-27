@@ -230,6 +230,9 @@ class LD(Transport):
 
 		edd = np.zeros(self.N) # cell centered eddington 
 
+		# spectal radius 
+		self.rho = [] # store spectral radius 
+
 		while (True):
 
 			# check if max reached 
@@ -258,6 +261,11 @@ class LD(Transport):
 
 			# store average of left and right 
 			self.phiConv.append((convL + convR)/2) 
+
+			rhoL = np.linalg.norm(self.phiL, 1)/np.linalg.norm(phiL_old, 1)
+			rhoR = np.linalg.norm(self.phiR, 1)/np.linalg.norm(phiR_old, 1)
+
+			self.rho.append(.5*(rhoL + rhoR))
 
 			if (convL < tol and convR < tol):
 

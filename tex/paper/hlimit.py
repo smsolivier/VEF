@@ -44,7 +44,7 @@ q = lambda x, mu: 50*(x<2) + 1*(x>=7)*(x<=8)
 
 tol = 1e-10
 
-h = np.logspace(-2, -1.1, 3)
+h = np.logspace(-1.5, -1.1, 3)
 
 N = np.array([int(xb/x) for x in h])
 
@@ -68,22 +68,22 @@ ed20 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa,
 ed21 = [LD.Eddington(np.linspace(0, xb, x+1), n, Sigmaa, 
 	Sigmat, q, OPT=2, GAUSS=1) for x in N]
 
-diff00 = getDiff(ed00, tol)
+# diff00 = getDiff(ed00, tol)
 # diff01 = getDiff(ed01, tol)
 diff10 = getDiff(ed10, tol)
-# diff11 = getDiff(ed11, tol)
+diff11 = getDiff(ed11, tol)
 diff20 = getDiff(ed20, tol)
-# diff21 = getDiff(ed21, tol)
+diff21 = getDiff(ed21, tol)
 
 # print(diff21/diff20)
 
 fontsize=16
-plt.loglog(xb/N, diff00, '-o', clip_on=False, label='None, Constant')
+# plt.loglog(xb/N, diff00, '-o', clip_on=False, label='None, Constant')
 # plt.loglog(xb/N, diff01, '-v', clip_on=False, label='None, Linear')
 plt.loglog(xb/N, diff10, '-^', clip_on=False, label='Edge, Constant')
-# plt.loglog(xb/N, diff11, '-<', clip_on=False, label='Edge, Linear')
+plt.loglog(xb/N, diff11, '-<', clip_on=False, label='Edge, Linear')
 plt.loglog(xb/N, diff20, '->', clip_on=False, label='Center, Constant')
-# plt.loglog(xb/N, diff21, '-s', clip_on=False, label='Center, Linear')
+plt.loglog(xb/N, diff21, '-s', clip_on=False, label='Center, Linear')
 plt.xlabel(r'$h$', fontsize=fontsize)
 plt.ylabel('Convergence', fontsize=fontsize)
 plt.legend(loc='best', frameon=False)

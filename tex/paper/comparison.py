@@ -20,7 +20,7 @@ def compare(h, Sigmaa, Sigmat, Q, label):
 	err_f = lambda a, b: np.linalg.norm(a - b, 2)/np.linalg.norm(b, 2)
 
 	xb = 8
-	N = np.array([int(xb/x) for x in h]) 
+	N = np.array([Sigmat(0)*int(xb/x) for x in h]) 
 
 	print(N)
 
@@ -42,9 +42,9 @@ def compare(h, Sigmaa, Sigmat, Q, label):
 
 		err[i] = err_f(phie, phi)
 
-	plt.loglog(xb/N, err, '-o', clip_on=False, label=label)
+	plt.loglog(Sigmat(0)*xb/N, err, '-o', clip_on=False, label=label)
 
-h = np.logspace(-2, -1.1, 5)
+h = np.logspace(-.2, -.05, 3)
 
 Sigmat = lambda x: 1 
 Sigmaa = lambda x: .25 

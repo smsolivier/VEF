@@ -26,18 +26,20 @@ else:
 def getDiff(c, solver):
 
 	Sigmat = lambda x: 1
-	Sigmas = c*Sigmat(0)
-	Sigmaa = lambda X: Sigmat(0) - Sigmas 
+	Sigmas = lambda x: c*Sigmat(0)
+	Sigmaa = lambda x: Sigmat(x) - Sigmas(x)
 
 	print('{}'.format(c))
 
-	N = 100
+	N = 50
 	n = 8 
 	Q = lambda x, mu: 1
 	xb = 1
 	x = np.linspace(0, xb, N+1)
 
-	tol = 1e-10
+	print('Sigmat*h =', Sigmat(0)*xb/N)
+
+	tol = 1e-6
 
 	sn = solver(x, n, Sigmaa, Sigmat, Q, BCL=0, BCR=1)
 
@@ -75,12 +77,13 @@ for i in range(N):
 
 print(itLD/itED)
 
+fsize = 20 
 plt.semilogy(c, itLD, '-o', clip_on=False, label='SI')
 plt.semilogy(c, itED, '-*', clip_on=False, label='VEF')
 plt.semilogy(c, itS2, '->', clip_on=False, label='S$_2$SA')
 plt.legend(loc='best', frameon=False)
-plt.xlabel(r'$\sigma_s/\sigma_t$', fontsize=16)
-plt.ylabel('Number of Iterations', fontsize=16)
+plt.xlabel(r'$\sigma_s/\sigma_t$', fontsize=fsize)
+plt.ylabel('Number of Iterations', fontsize=fsize)
 hidespines(plt.gca())
 if (outfile != None):
 	plt.savefig(outfile, transparent=True)

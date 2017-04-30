@@ -3,7 +3,7 @@ figdir = figs/
 
 MAIN = jctt
 
-FIGS = si_vef_s2sa si vef
+FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
@@ -30,6 +30,14 @@ $(figdir)si.pdf : converge.py
 # create table of MMS errors 
 $(figdir)mms.tex : mms.py 
 	./$< $@ 
+
+# plot of solution convergence for homogeneous and Reed's problem 
+$(figdir)solconv_homo.pdf : solconv.py 
+	./$< $@ $(figdir)solconv_reed.pdf 
+
+# diff limit of 4 permutations 
+$(figdir)dl_it.pdf : perm_dl.py 
+	./$< $@ $(figdir)dl_err.pdf 
 
 # compile latex 
 $(MAIN).pdf: $(MAIN).tex $(FIGS) $(TABS)

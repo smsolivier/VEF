@@ -40,7 +40,7 @@ x, phi, it = unac.sourceIteration(tol)
 
 xac, phiac, itac = acc.sourceIteration(tol)
 
-fontsize = 16
+fontsize = 20
 
 # unaccelerated 
 plt.figure()

@@ -152,7 +152,7 @@ Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continu
 	\end{subequations}
 where the Eddington factor is evaluated at iteration $\ell+1/2$ and the scalar flux at $\ell+1$. 
 Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. 
-The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edge angular fluxes using Eqs. and \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
+The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edged angular fluxes using Eqs. \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
 
 A more consistent way to transfer the Eddington factor is to represent the LLDG angular flux as a linear function using the MFEM basis functions: 
 	\begin{equation} \label{eq:eddquad}
@@ -179,7 +179,7 @@ and
 	\end{equation}
 When MFEM is applied, the integral over cell $i$ of Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. The cell centered Eddington factors used in Eq. \ref{eq:mfem} are then: 
 	\begin{equation} 
-		\edd_i = \half \left[ \edd_i(x_L) + \edd_i(x_R) \right]
+		\edd_i = \half \left[ \edd_i(x_L) + \edd_i(x_R) \right] \,,
 	\end{equation}
 where 
 	\begin{equation}
@@ -201,7 +201,7 @@ Once the MFEM scalar flux has been found, the LLDG scattering term must be recon
 	\begin{equation} 
 		\phi_{i,L/R} = \phi_{i\mp1/2} \,,
 	\end{equation} 
-where the left hand side is reconstructed LLDG flux used in the scattering term of Eq. \ref{eq:si} and the right hand side the MFEM drift diffusion flux. The van Leer cell centered reconstruction is: 
+where the left hand side is the reconstructed LLDG flux used in the scattering term of Eq. \ref{eq:si} and the right hand side the MFEM drift diffusion flux. The van Leer cell centered reconstruction is: 
 	\begin{equation} 
 		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_\text{van Leer} \left[\left(\phi_{i+1} - \phi_i\right) + \left(\phi_i - \phi_{i-1}\right) \right] \,,
 	\end{equation}

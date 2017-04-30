@@ -23,7 +23,7 @@ else:
 Nruns = 10
 eps = np.logspace(-6, 0, Nruns)
 
-tol = 1e-12
+tol = 1e-10
 
 def getIt(eps, opt, gauss):
 
@@ -63,12 +63,12 @@ diff20, it20 = getIt(eps, 2, 0)
 diff21, it21 = getIt(eps, 2, 1)
 
 plt.figure()
-plt.loglog(eps, it00, '-o', clip_on=False, label='None, Constant')
-plt.loglog(eps, it01, '-v', clip_on=False, label='None, Linear')
-plt.loglog(eps, it10, '-^', clip_on=False, label='Edge, Constant')
-plt.loglog(eps, it11, '-<', clip_on=False, label='Edge, Linear')
-plt.loglog(eps, it20, '->', clip_on=False, label='Center, Constant')
-plt.loglog(eps, it21, '-s', clip_on=False, label='Center, Linear')
+plt.loglog(eps, it00, '-', clip_on=False, label='None, Constant')
+plt.loglog(eps, it01, '-.', clip_on=False, label='None, Linear')
+# plt.loglog(eps, it10, '-^', clip_on=False, label='Edge, Constant')
+# plt.loglog(eps, it11, '-<', clip_on=False, label='Edge, Linear')
+plt.loglog(eps, it20, ':', clip_on=False, label='van Leer, Constant')
+plt.loglog(eps, it21, '--', clip_on=False, label='van Leer, Linear')
 
 plt.xlabel(r'$\epsilon$', fontsize=18)
 plt.ylabel('Number of Iterations', fontsize=18)
@@ -78,15 +78,15 @@ if (outfile != None):
 	plt.savefig(outfile[0])
 
 plt.figure()
-plt.loglog(eps, diff00, '-o', clip_on=False, label='None, Constant')
-plt.loglog(eps, diff01, '-v', clip_on=False, label='None, Linear')
-plt.loglog(eps, diff10, '-^', clip_on=False, label='Edge, Constant')
-plt.loglog(eps, diff11, '-<', clip_on=False, label='Edge, Linear')
-plt.loglog(eps, diff20, '->', clip_on=False, label='Center, Constant')
-plt.loglog(eps, diff21, '-s', clip_on=False, label='Center, Linear')
+plt.loglog(eps, diff00, '-', clip_on=False, label='None, Constant')
+plt.loglog(eps, diff01, '-.', clip_on=False, label='None, Linear')
+# plt.loglog(eps, diff10, '-^', clip_on=False, label='Edge, Constant')
+# plt.loglog(eps, diff11, '-<', clip_on=False, label='Edge, Linear')
+plt.loglog(eps, diff20, ':', clip_on=False, label='van Leer, Constant')
+plt.loglog(eps, diff21, '--', clip_on=False, label='van Leer, Linear')
 
 plt.xlabel(r'$\epsilon$', fontsize=18)
-plt.ylabel('|Sn - Diffusion|', fontsize=18)
+plt.ylabel('Error', fontsize=18)
 plt.legend(loc='best', frameon=False)
 hidespines(plt.gca())
 if (outfile != None):

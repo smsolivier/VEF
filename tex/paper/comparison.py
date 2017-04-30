@@ -15,7 +15,7 @@ if (len(sys.argv) > 1):
 else:
 	outfile = None 
 
-def compare(h, Sigmaa, Sigmat, Q, label):
+def compare(h, Sigmaa, Sigmat, Q, OPT, GAUSS, label):
 
 	err_f = lambda a, b: np.linalg.norm(a - b, 2)/np.linalg.norm(b, 2)
 
@@ -35,7 +35,7 @@ def compare(h, Sigmaa, Sigmat, Q, label):
 		x = np.linspace(0, xb, N[i]+1)
 
 		ld = LD.S2SA(x, n, Sigmaa, Sigmat, Q)
-		ed = LD.Eddington(x, n, Sigmaa, Sigmat, Q, GAUSS=1, OPT=2)
+		ed = LD.Eddington(x, n, Sigmaa, Sigmat, Q, GAUSS=GAUSS, OPT=OPT)
 
 		x, phi, it = ld.sourceIteration(tol, maxIter=1000)
 		xe, phie, ite = ed.sourceIteration(tol)
@@ -54,15 +54,15 @@ Sigmat = lambda x: 1
 Sigmaa = lambda x: .25 
 Q = lambda x, mu: 1 
 
-compare(h, Sigmaa, Sigmat, Q, 'Homogeneous Slab')
+compare(h, Sigmaa, Sigmat, Q, 0, 0, '00')
 
-Sigmamax = 1
+Sigmamax = 50
 Sigmat = lambda x: Sigmamax*(x<2) + .001*(x>=2)*(x<4) + \
 	1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + 1*(x>=7)*(x<=8)
 Sigmaa = lambda x: Sigmamax*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)*(x<=8) 
 q = lambda x, mu: Sigmamax*(x<2) + 1*(x>=7)*(x<=8)
 
-compare(h, Sigmaa, Sigmat, q, 'Reed\'s Problem')
+# compare(h, Sigmaa, Sigmat, q, 'Reed\'s Problem')
 
 labelsize = 16 
 plt.legend(loc='best', frameon=False)

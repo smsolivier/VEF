@@ -144,7 +144,7 @@ Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continu
 	\end{subequations}
 where the Eddington factor is evaluated at iteration $\ell+1/2$ and the scalar flux at $\ell+1$. 
 Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. 
-The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edge angular fluxes using Eqs. and \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
+The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edged angular fluxes using Eqs. \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
 
 A more consistent way to transfer the Eddington factor is to represent it as a linear function using the MFEM basis functions:
 	\begin{equation} \label{eq:eddquad}

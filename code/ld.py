@@ -225,6 +225,8 @@ class LD(Transport):
 		# lambda function to compute convergence criterion 
 		conv_f = lambda new, old: np.linalg.norm(new - old, 2)/np.linalg.norm(new, 2)
 
+		self.diff = [] # store || phi^ell+1 - phi^ell || 
+
 		self.phiConv = [] # store convergence of flux 
 		self.eddConv = [] # store convergence of eddington 
 
@@ -258,6 +260,10 @@ class LD(Transport):
 
 			# store average of left and right 
 			self.phiConv.append((convL + convR)/2) 
+
+			# spectral radius 
+			self.diff.append(np.linalg.norm(.5*(self.phiL + self.phiR) - 
+				.5*(phiL_old + phiR_old), 1))
 
 			if (convL < tol and convR < tol):
 

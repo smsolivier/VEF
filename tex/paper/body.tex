@@ -8,7 +8,7 @@
 
 \section{The VEF Method}
 \subsection{The Algorithm}
-Here, we describe the VEF method for a planar geometry fixed-source problem:
+Here, we describe the VEF method for a planar geometry, fixed-source problem:
 	\begin{equation} 
 		\mu \pderiv{\psi}{x} \paren{x, \mu} + \sigma_t(x) \psi(x,\mu) = 
 			\frac{\sigma_s(x)}{2} \int_{-1}^1 \psi(x,\mu') \ud \mu' + \frac{Q(x)}{2} \,,
@@ -29,7 +29,7 @@ The VEF method decouples Eq. \ref{eq:sn} by lagging the scattering term:
 		\mu_n \dderiv{\psi_n\rellh}{x}(x) + \sigma_t(x) \psi_n\rellh(x) = 
 		\frac{\sigma_s(x)}{2} \phi^\ell(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N \,,
 	\end{equation}
-where the superscripts indicate the iteration index. In Source Iteration, the update 
+where the superscripts indicate the iteration index. In Source Iteration (SI), the update 
 	\begin{equation} \label{eq:siupdate}
 		\phi(x)\relll = \phi(x)\rellh
 	\end{equation}
@@ -68,24 +68,24 @@ The LLDG discretization of Eq. \ref{eq:si} is:
 	\begin{subequations} 
 	\begin{equation} \label{eq:lldg_l}
 		\mu_n \left(\psi_{n,i}\rellh - \psi_{n, i-1/2}\rellh\right) 
-		+ \frac{\Sigma_{t,i} h_i}{2} \psi_{n,i,L}\rellh
-		= \frac{\Sigma_{s,i} h_i}{4} \phi_{i,L}\rell + \frac{h_i}{4} Q_{i,L} \,, 
+		+ \frac{\sigma_{t,i} h_i}{2} \psi_{n,i,L}\rellh
+		= \frac{\sigma_{s,i} h_i}{4} \phi_{i,L}\rell + \frac{h_i}{4} Q_{i,L} \,, 
 		% 1 \leq n \leq N \,, 
 		% 1 \leq i \leq I\,, 
 	\end{equation}
 	\begin{equation} \label{eq:lldg_r}
 		\mu_n \left(\psi_{n,i+1/2}\rellh - \psi_{n,i}\rellh\right) 
-		+ \frac{\Sigma_{t,i} h_i}{2} \psi_{n,i,R}\rellh
-		= \frac{\Sigma_{s,i} h_i}{4} \phi_{i,R}\rell + \frac{h_i}{4} Q_{i,R} \,, 
+		+ \frac{\sigma_{t,i} h_i}{2} \psi_{n,i,R}\rellh
+		= \frac{\sigma_{s,i} h_i}{4} \phi_{i,R}\rell + \frac{h_i}{4} Q_{i,R} \,, 
 		% 1 \leq n \leq N \,, 
 		% 1 \leq i \leq I\,,
 	\end{equation}
 	\end{subequations}
-where $h_i$, $\Sigma_{t,i}$, and $\Sigma_{s,i}$ are the cell width, total cross section and scattering cross section in cell $i$. The $i,L$ and $i,R$ subscripts indicate the the subscripted value is the left or right discontinuous edge value. The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
+where $h_i$, $\sigma_{t,i}$, and $\sigma_{s,i}$ are the cell width, total cross section and scattering cross section in cell $i$. The $i,L$ and $i,R$ subscripts indicate the the subscripted value is the left or right discontinuous edge value. The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
 	\begin{equation} \label{eq:lldg_i}
-		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,,
+		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,.
 	\end{equation}
-and the cell edged angular fluxes are defined through upwinding: 
+The cell edged angular fluxes are defined through upwinding: 
 	\begin{subequations}
 	\begin{equation} \label{eq:downwind}
 		\psi_{n,i-1/2}\rellh = \begin{cases}
@@ -103,29 +103,29 @@ and the cell edged angular fluxes are defined through upwinding:
 Equations \ref{eq:lldg_l}, \ref{eq:lldg_r}, \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind} can be combined and rewritten as 
 	\begin{equation} \label{eq:sweepLR}
 		\left[\begin{matrix}
-			\mu_n + \Sigma_{t,i} h_i & \mu_n  \\ 
-			-\mu_n & \Sigma_{t,i} + \mu_n \\ 
+			\mu_n + \sigma_{t,i} h_i & \mu_n  \\ 
+			-\mu_n & \sigma_{t,i} + \mu_n \\ 
 		\end{matrix}\right]
 		\left[\begin{matrix}
 			\psi_{n,i,L}\rellh \\ \psi_{n,i,R}\rellh
 		\end{matrix}\right]
 		= \left[\begin{matrix}
-			\frac{\Sigma_{s,i}h_i}{2} \phi_{i,L}\rell + \frac{h_i}{2} Q_{i,L} + 2\mu_n \psi_{n,i-1,R}\rellh \\
-			\frac{\Sigma_{s,i}h_i}{2} \phi_{i,R}\rell + \frac{h_i}{2} Q_{i,R} 
+			\frac{\sigma_{s,i}h_i}{2} \phi_{i,L}\rell + \frac{h_i}{2} Q_{i,L} + 2\mu_n \psi_{n,i-1,R}\rellh \\
+			\frac{\sigma_{s,i}h_i}{2} \phi_{i,R}\rell + \frac{h_i}{2} Q_{i,R} 
 		\end{matrix}\right] \,, 
 	\end{equation}
 for sweeping from left to right ($\mu_n > 0$) and 
 	\begin{equation} \label{eq:sweepRL}
 		\left[\begin{matrix} 
-			-\mu_n + \Sigma_{t,i}h_i & \mu_n \\ 
-			-\mu_n & -\mu_n + \Sigma_{t,i}h_i \\ 
+			-\mu_n + \sigma_{t,i}h_i & \mu_n \\ 
+			-\mu_n & -\mu_n + \sigma_{t,i}h_i \\ 
 		\end{matrix} \right]
 		\left[\begin{matrix}
 			\psi_{n,i,L}\rellh \\ \psi_{n,i,R}\rellh
 		\end{matrix} \right]
 		= \left[\begin{matrix}
-			\frac{\Sigma_{s,i}h_i}{2} \phi_{i,L}\rell + \frac{h_i}{2} Q_{i,L} \\ 
-			\frac{\Sigma_{s,i}h_i}{2} \phi_{i,R}\rell + \frac{h_i}{2} Q_{i,R} - 2\mu_n \psi_{n,i+1,L}\rellh
+			\frac{\sigma_{s,i}h_i}{2} \phi_{i,L}\rell + \frac{h_i}{2} Q_{i,L} \\ 
+			\frac{\sigma_{s,i}h_i}{2} \phi_{i,R}\rell + \frac{h_i}{2} Q_{i,R} - 2\mu_n \psi_{n,i+1,L}\rellh
 		\end{matrix} \right]
 		\,, 
 	\end{equation}
@@ -135,33 +135,31 @@ for sweeping from right to left ($\mu_n < 0$). The right hand sides of Eqs. \ref
 Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continuity of current yields: 
 	\begin{subequations} \label{eq:mfem}
 	\begin{equation}
-		-\frac{6}{\Sigma_{t,i}h_i} \edd_{i-1/2} \phi_{i-1/2}
-		+ \left(\frac{12}{\Sigma_{t,i}h_i} \edd_i + \Sigma_{a,i} h_i\right) \phi_i 
-		- \frac{6}{\Sigma_{t,i} h_i} \edd_{i+1/2} \phi_{i+1/2} 
+		-\frac{6}{\sigma_{t,i}h_i} \edd_{i-1/2} \phi_{i-1/2}
+		+ \left(\frac{12}{\sigma_{t,i}h_i} \edd_i + \sigma_{a,i} h_i\right) \phi_i 
+		- \frac{6}{\sigma_{t,i} h_i} \edd_{i+1/2} \phi_{i+1/2} 
 		= Q_i h_i \,,
 	\end{equation}
 	\begin{multline}
-		-\frac{2}{\Sigma_{t,i} h_i} \edd_{i-1/2}\phi_{i-1/2} + 
-		\frac{6}{\Sigma_{t,i} h_i} \edd_i \phi_i 
-		- 4\left(\frac{1}{\Sigma_{t,i} h_i} + \frac{1}{\Sigma_{t,i+1} h_{i+1}}\right) 
+		-\frac{2}{\sigma_{t,i} h_i} \edd_{i-1/2}\phi_{i-1/2} + 
+		\frac{6}{\sigma_{t,i} h_i} \edd_i \phi_i 
+		- 4\left(\frac{1}{\sigma_{t,i} h_i} + \frac{1}{\sigma_{t,i+1} h_{i+1}}\right) 
 			\edd_{i+1/2} \phi_{i+1/2}
-		\\ + \frac{6}{\Sigma_{t,i+1} h_{i+1}} \edd_{i+1} \phi_{i+1} 
-		- \frac{2}{\Sigma_{t,i+1} h_{i+1}} \edd_{i+3/2} \phi_{i+3/2} 
+		\\ + \frac{6}{\sigma_{t,i+1} h_{i+1}} \edd_{i+1} \phi_{i+1} 
+		- \frac{2}{\sigma_{t,i+1} h_{i+1}} \edd_{i+3/2} \phi_{i+3/2} 
 		= 0 \,,
 	\end{multline}
 	\end{subequations}
 where the Eddington factor is evaluated at iteration $\ell+1/2$ and the scalar flux at $\ell+1$. 
 Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. 
-The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edged angular fluxes using Eqs. \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. 
-
-A more consistent way to transfer the Eddington factor is to represent the LLDG angular flux as a linear function using the MFEM basis functions: 
+The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edged angular fluxes using Eqs. \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. A more consistent way to transfer the Eddington factor is to represent the LLDG angular flux as a linear function using the MFEM basis functions: 
 	\begin{equation} \label{eq:eddquad}
 		\edd_i(x) = \frac{
 			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
 		}
 		{
 			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
-		}
+		} \,,
 	\end{equation}
 where 
 	\begin{equation}
@@ -177,7 +175,7 @@ and
 			0 \,, & \text{otherwise}
 		\end{cases} \,.
 	\end{equation}
-When MFEM is applied, the integral over cell $i$ of Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. The cell centered Eddington factors used in Eq. \ref{eq:mfem} are then: 
+When MFEM is applied, the integral over cell $i$ of the irrational polynomial given in Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. The cell centered Eddington factors used in Eq. \ref{eq:mfem} are then: 
 	\begin{equation} 
 		\edd_i = \half \left[ \edd_i(x_L) + \edd_i(x_R) \right] \,,
 	\end{equation}
@@ -189,7 +187,7 @@ are the transformed quadrature points.
 
 Transport consistent boundary conditions are applied through a modified Marshak boundary condition: 
 	\begin{equation} 
-		J(x) = B(x) \phi(x) 
+		J(x) = B(x) \phi(x) \,,
 	\end{equation} 
 where 
 	\begin{equation} 
@@ -197,7 +195,7 @@ where
 		{\int_{-1}^1 \psi(x, \mu) \ud \mu} \,. 
 	\end{equation}
 
-Once the MFEM scalar flux has been found, the LLDG scattering term must be reconstructed. Two methods have been tested: no reconstruction and van Leer cell centered slope reconstruction. The no reconstruction method sets the LLDG discontinuous left and right scalar flux to the MFEM edge scalar flux: 
+Once the MFEM scalar flux has been found, the LLDG scattering term must be reconstructed. Two methods have been tested: no reconstruction and van Leer limited cell centered slope reconstruction. The no reconstruction method sets the LLDG discontinuous left and right scalar flux to the MFEM edge scalar flux: 
 	\begin{equation} 
 		\phi_{i,L/R} = \phi_{i\mp1/2} \,,
 	\end{equation} 
@@ -205,4 +203,4 @@ where the left hand side is the reconstructed LLDG flux used in the scattering t
 	\begin{equation} 
 		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_\text{van Leer} \left[\left(\phi_{i+1} - \phi_i\right) + \left(\phi_i - \phi_{i-1}\right) \right] \,,
 	\end{equation}
-where $\xi_\text{van Leer}$ is the van Leer is the slope limiter given in \cite{}. 
+where $\xi_\text{van Leer}$ the slope limiter given in \cite{vanLeer}. 

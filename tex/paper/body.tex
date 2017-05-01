@@ -20,7 +20,7 @@ where $\mu = \cos\theta$ is the cosine of the angle of flight $\theta$ relative 
 	\end{equation}
 where $\psi_n(x) = \psi(x, \mu_n)$ is the angular flux in direction $\mu_n$. The $\mu_n$ are stipulated by an $N$-point Gauss quadrature rule such that the scalar flux, $\phi(x)$, can be numerically integrated with: 
 	\begin{equation} \label{eq:phiquad}
-		\phi(x) = \sum_{n=1}^N w_n \psi_n(x) \,
+		\phi(x) = \sum_{n=1}^N w_n \psi_n(x) \,,
 	\end{equation}
 where the $w_n$ are the quadrature weights corresponding to the $\mu_n$. 
 
@@ -33,7 +33,7 @@ where the superscripts indicate the iteration index. In Source Iteration (SI), t
 	\begin{equation} \label{eq:siupdate}
 		\phi(x)\relll = \phi(x)\rellh
 	\end{equation}
-is used. However, this is slow to converge in optically thick and highly scattering systems. Instead, the VEF method solves the VEF drift diffusion equations found by taking the first two moments of Eq. \ref{eq:sn}: 
+is used. However, this is slow to converge in optically thick and highly scattering systems. Instead, the VEF method solves the VEF drift diffusion equations found by taking the first two angular moments of Eq. \ref{eq:sn}: 
 	\begin{subequations} 
 	\begin{equation} \label{eq:zero}
 		\dderiv{}{x} J\relll(x) + \sigma_a(x) \phi\relll(x) = Q(x) \,,

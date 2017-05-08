@@ -386,6 +386,7 @@ class Eddington(LD):
 
 	def reconstructSlopes(self, phi):
 		''' Reconstruct phiL, phiR from MHFEM cell centers only 
+			Uses van leer slope limiter 
 			Inputs:
 				phi: MHFEM scalar flux (edges and centers) 
 			''' 
@@ -444,7 +445,7 @@ class Eddington(LD):
 
 		for i in range(self.N):
 
-			if (delta[i+1] != 0):
+			if (delta[i+1] != 0): # make sure not dividing by zero 
 
 				r[i] = delta[i]/delta[i+1] 
 

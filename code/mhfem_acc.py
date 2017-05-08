@@ -3,8 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from scipy.interpolate import interp1d 
-from scipy.linalg import solve_banded 
+from scipy.linalg import solve_banded # banded solver 
 
 import sys 
 

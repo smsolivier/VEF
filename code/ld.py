@@ -5,15 +5,16 @@ import matplotlib.pyplot as plt
 
 from transport import * # general transport class 
 
-from mhfem_acc import * 
+from mhfem_acc import * # MHFEM acceleration solver
 
-from directld import * 
+from directld import * # direct S2 LLDG solver 
 
 ''' Lumped Linear Discontinuous Galerkin spatial discretization of Sn 
 	Inherits from transport.py 
 	Includes 
 		Unaccelerated
-		Eddington Accelerated 
+		VEF acceleration 
+		Linear S2SA 
 ''' 
 
 class LD(Transport):
@@ -30,12 +31,10 @@ class LD(Transport):
 
 		# create LD specific variables 
 		# store LD left and right discontinuous points 
-		# psi = .5*(psiL + psiR) 
-		# store for all mu and each cell center 
 		self.psiL = np.zeros((self.n, self.N)) # LD left point  
 		self.psiR = np.zeros((self.n, self.N)) # LD right point 
 
-		# store LD flux, cell centered 
+		# LD scalar fluxes 
 		self.phiL = np.zeros(self.N) 
 		self.phiR = np.zeros(self.N)
 
@@ -55,13 +54,15 @@ class LD(Transport):
 			self.sweepLR(phiL, phiR)
 			self.sweepRL(phiL, phiR)
 
-		else:
+		else: # both vacuum
 
 			self.sweepLR(phiL, phiR)
 			self.sweepRL(phiL, phiR)
 
 	def sweep(self, phiL, phiR):
-		''' unaccelerated sweep ''' 
+		''' unaccelerated sweep 
+			sweep with given scalar flux 
+		''' 
 
 		# sweep left to right or right to left first depending on BCs 
 		# get psiL, psiR (stored as object variables)
@@ -216,6 +217,9 @@ class LD(Transport):
 	def sourceIteration(self, tol, maxIter=200):
 		''' LD source iteration 
 			converges phiL and phiR separately 
+			Inputs:
+				tol: convergence tolerance 
+				maxIter: maximum number of iterations 
 		''' 
 
 		it = 0 # store number of iterations 
@@ -250,13 +254,18 @@ class LD(Transport):
 			# sweep to update flux 
 			self.phiL, self.phiR = self.sweep(phiL_old, phiR_old)
 
-			# compute convergence 
-			convL = conv_f(self.phiL, phiL_old) # left convergence 
-			convR = conv_f(self.phiR, phiR_old) # right convergence 
+			# pointwise convergence 
+			# returns array of convergence values as each spatial location 
+			convL_point = self.pointConvergence(self.phiL, phiL_old)
+			convR_point = self.pointConvergence(self.phiR, phiR_old) 
+
+			# get max value 
+			convL = np.max(convL_point)
+			convR = np.max(convR_point)
 
 			# store eddington convergence 
 			edd = self.getEddington(.5*(self.psiL + self.psiR))
-			self.eddConv.append(conv_f(edd, edd_old))
+			self.eddConv.append(np.max(self.pointConvergence(edd, edd_old)))
 
 			# store average of left and right 
 			self.phiConv.append((convL + convR)/2) 
@@ -265,7 +274,8 @@ class LD(Transport):
 			self.diff.append(np.linalg.norm(.5*(self.phiL + self.phiR) - 
 				.5*(phiL_old + phiR_old), 1))
 
-			if (convL < tol and convR < tol):
+			# check for convergence 
+			if (convL < tol and convR < tol): 
 
 				break # exit loop if converged 
 
@@ -293,7 +303,7 @@ class Eddington(LD):
 				2: van Leer slope reconstruction on centers only 
 			GAUSS: use gauss quad for <mu^2> in MHFEM 
 				0: computes <mu^2> from edge and center psi 
-				1: uses gauss quad to compute centers for linear <mu^2> 
+				1: uses gauss quad to compute centers for rational polynomial <mu^2> 
 					edges from edge psi 
 		''' 
 
@@ -580,6 +590,7 @@ class Eddington(LD):
 		return phiL, phiR # return accelerated flux 
 
 class S2SA(LD):
+	''' LLDG Linear S2SA solver ''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
 
@@ -592,6 +603,7 @@ class S2SA(LD):
 		self.direct = Direct(self.xe, self.Sigmaa, self.Sigmat, BCL, BCR)
 
 	def sweep(self, phiL, phiR):
+		''' S2SA sweep ''' 
 
 		# do normal sweep 
 		self.fullSweep(phiL, phiR)
@@ -611,37 +623,38 @@ class S2SA(LD):
 
 if __name__ == '__main__':
 
-	N = 20
-	n = 8
-	xb = 2 
-	x = np.linspace(0, xb, N+1)
+	N = 20 # number of spatial cells 
+	n = 8 # number of discrete ordinates 
+	xb = 2 # domain boundary 
+	x = np.linspace(0, xb, N+1) # cell edge locations 
 
-	eps = 1
-
+	# material properties 
 	Sigmaa = lambda x: .1
 	Sigmat = lambda x: 1
 	q = lambda x, mu: 1
 
+	# iterative convergence tolerance 
 	tol = 1e-6
 
+	# create solver objects 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# ld.setMMS()
 	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=2)
 	# ed.setMMS()
 	s2 = S2SA(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	# s2.setMMS() 
 
+	# run source iteration 
 	x, phi, it = ld.sourceIteration(tol)
 
 	xe, phie, ite = ed.sourceIteration(tol)
 
 	x2, phi2, it2 = s2.sourceIteration(tol)
 
+	# plot results 
 	plt.figure()
 	plt.plot(x, phi, label='LD')
 	plt.plot(xe, phie, label='LD Edd')
 	plt.plot(x2, phi2, label='S2SA')
 	plt.legend(loc='best')
-
-	# plt.figure()
-	# plt.semilogy(x, np.fabs(phi - phie)/phi)
 	plt.show()

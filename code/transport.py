@@ -136,6 +136,19 @@ class Transport:
 
 		return mu2
 
+	def pointConvergence(self, phi, phi_old):
+		''' check if all points converged ''' 
+
+		N = np.shape(phi)[0] # number of points 
+
+		x = np.zeros(N)
+
+		for i in range(N):
+
+			x[i] = np.fabs(phi[i] - phi_old[i])
+
+		return x 
+
 	def sourceIteration(self, tol, maxIter=50, PLOT=None):
 		''' lag RHS of transport equation and iterate until flux converges 
 			PLOT: if true, makes a video of the flux converging 

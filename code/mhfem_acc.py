@@ -13,20 +13,21 @@ import sys
 class MHFEM:
 
 	def __init__(self, xe, Sigmaa, Sigmat, BCL=0, BCR=1, CENT=0):
-		''' solves moment equations with general <mu^2> 
+		''' Solves drift diffusion with MHFEM 
 			Inputs:
 				xe: array of cell edges 
-				mu2: array of <mu^2> values at cell edges (will be interpolated)
 				Sigmaa: absorption XS function 
 				Sigmat: total XS function 
-				B: array of boundary Eddington values for transport consistency 
-					set to 1/2 for marshak 
 				BCL: left boundary 
 					0: reflecting 
 					1: marshak 
 				BCR: right boundary 
 					0: reflecting 
 					1: marshak 
+				CENT: return phi on 
+					0: edges only 
+					1: centers only 
+					2: edges and centers 
 		''' 
 
 		self.N = np.shape(xe)[0] # number of cell edges 
@@ -67,7 +68,7 @@ class MHFEM:
 	def discretize(self, mu2, B):
 		''' setup coefficient matrix with MHFEM equations 
 			Inputs:
-				mu2: array of cell edge and center Eddington factors 
+				mu2: array of cell edge and center Eddington factors (set to 1/3 for diffusion)
 				B: boundary value (set to 1/2 for marshak)
 		''' 
 

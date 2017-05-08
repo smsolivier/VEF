@@ -36,7 +36,7 @@ def getOrder(sol, N, tol, label):
 		sol[i].setMMS()
 		# make video 
 		# x, phi, it = sol[i].sourceIteration(tol, PLOT='phi' + str(N[i]))
-		x, phi, it = sol[i].sourceIteration(tol, 1000)
+		x, phi, it = sol[i].sourceIteration(tol, 200)
 
 		phi_int = interp1d(x, phi)
 
@@ -76,7 +76,7 @@ print(xb/N)
 
 q = lambda x, mu: 1
 
-tol = 1e-10 
+tol = 1e-10
 
 # make solver objects 
 ed = [LD.LD(np.linspace(0, xb, x+1), n, Sigmaa, 
@@ -138,5 +138,5 @@ for i in range(len(reconstruct)):
 		tex.utils.writeNumber(b[i], '{:.3}'),
 		tex.utils.writeNumber(r[i], '{:.4e}')
 		)
-
-table.save(outfile)
+if (outfile != None):
+	table.save(outfile)

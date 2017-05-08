@@ -133,11 +133,11 @@ class LD(Transport):
 
 				h = self.h[j] # cell width 
 
-				# left equation 
+				# right equation 
 				A[1,0] = -self.mu[i] # psiL
 				A[1,1] = -self.mu[i] + self.Sigmat(self.xc[j])*h # psiR 
 
-				# right equation 
+				# left equation 
 				A[0,0] = -self.mu[i] + self.Sigmat(self.xc[j])*h # psiL 
 				A[0,1] = self.mu[i]
 

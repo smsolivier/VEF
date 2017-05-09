@@ -3,7 +3,7 @@ figdir = figs/
 
 MAIN = jctt
 
-FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err
+FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err mfemgrid lldggrid
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
@@ -24,7 +24,7 @@ $(figdir)si_vef_s2sa.pdf : acceleration.py
 	./$< $@ 
 
 # plot convergence of phi and edd for VEF and SI 
-$(figdir)si.pdf : converge.py 
+$(figdir)si.pdf : converge.py $(codedir)ld.py
 	./$< $@ $(figdir)vef.pdf 
 
 # create table of MMS errors 
@@ -38,6 +38,24 @@ $(figdir)solconv_homo.pdf : solconv.py
 # diff limit of 4 permutations 
 $(figdir)dl_it.pdf : perm_dl.py 
 	./$< $@ $(figdir)dl_err.pdf 
+
+# latex SVG of MFEM figure 
+$(figdir)mfemgrid.pdf : ink/mfem.svg 
+	# generate pdfs 
+	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
+	# make it recognize directory structure 
+	sed -i 's/mfemgrid.pdf/figs\/mfemgrid.pdf/' $(figdir)mfemgrid.pdf_tex 
+	# delete lines with page=2 
+	sed -i '/page=2/d' $(figdir)mfemgrid.pdf_tex 
+
+# latex SVG of LLDG figure 
+$(figdir)lldggrid.pdf : ink/lldg.svg 
+	# generate pdfs 
+	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
+	# make it recognize directory structure 
+	sed -i 's/lldggrid.pdf/figs\/lldggrid.pdf/' $(figdir)lldggrid.pdf_tex 
+	# delete lines with page=2 
+	sed -i '/page=2/d' $(figdir)lldggrid.pdf_tex 
 
 # compile latex 
 $(MAIN).pdf: $(MAIN).tex $(FIGS) $(TABS)

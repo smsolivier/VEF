@@ -51,19 +51,19 @@ where $J\relll(x)$ is the current and
 			\sum_{n=1}^N \psi_n\rellh(x) w_n 
 		}
 	\end{equation}
-the Eddington factor. The scattering term in Eq. \ref{eq:si} is then updated with the VEF drift diffusion scalar flux found by solving Eqs. \ref{eq:zero} and \ref{eq:first}. This process of solving Eq. \ref{eq:si} for the $\psi_n(x)$, computing the Eddington factor, solving the VEF drift diffusion equation for the scalar flux, and updating the scattering term with the VEF drift diffusion scalar flux is repeated until 
-	\begin{equation} 
-		\frac{\| \phi\relll - \phi^\ell \| }{
-			\| \phi\relll \| 
-		} < \epsilon \,,
-	\end{equation}
-where $\epsilon$ is a sufficiently small tolerance. 
+the Eddington factor. The scattering term in Eq. \ref{eq:si} is then updated with the VEF drift diffusion scalar flux found by solving Eqs. \ref{eq:zero} and \ref{eq:first}. This process of solving Eq. \ref{eq:si} for the $\psi_n(x)$, computing the Eddington factor, solving the VEF drift diffusion equation for the scalar flux, and updating the scattering term with the VEF drift diffusion scalar flux is repeated convergence. 
 
-Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the VEF equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. The solution from the VEF equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
+Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the VEF equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. 
+% The solution from the VEF equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
 
 In addition to acceleration, this scheme allows the \SN equations and drift diffusion equations to be solved with arbitrarily different spatial discretization methods. The following sections  present the application of the Lumped Linear Discontinuous Galerkin (LLDG) spatial discretization to the \SN equations and the Mixed Finite Element Method (MFEM) to the VEF drift diffusion equations. 
 
 \subsection{Lumped Linear Discontinuous Galerkin \SN}
+\begin{figure}
+	\centering
+	\input{figs/lldggrid.pdf_tex}
+	\caption{The distribution of unknowns in an LLDG cell. The superscript $+$ and $-$ indicate the angular fluxes for $\mu_n>0$ and $\mu_n<0$, respectively. } 
+\end{figure}
 The LLDG discretization of Eq. \ref{eq:si} is: 
 	\begin{subequations} 
 	\begin{equation} \label{eq:lldg_l}
@@ -81,7 +81,7 @@ The LLDG discretization of Eq. \ref{eq:si} is:
 		% 1 \leq i \leq I\,,
 	\end{equation}
 	\end{subequations}
-where $h_i$, $\sigma_{t,i}$, and $\sigma_{s,i}$ are the cell width, total cross section and scattering cross section in cell $i$. The $i,L$ and $i,R$ subscripts indicate the the subscripted value is the left or right discontinuous edge value. The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
+where $h_i$, $\sigma_{t,i}$, and $\sigma_{s,i}$ are the cell width, total cross section, and scattering cross section in cell $i$. The $i,L$ and $i,R$ subscripts indicate the the subscripted value is the left or right discontinuous edge value. The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
 	\begin{equation} \label{eq:lldg_i}
 		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,.
 	\end{equation}
@@ -132,6 +132,12 @@ for sweeping from left to right ($\mu_n > 0$) and
 for sweeping from right to left ($\mu_n < 0$). The right hand sides of Eqs. \ref{eq:sweepLR} and \ref{eq:sweepRL} are known as the scalar flux from the previous iteration, the fixed source, and the angular flux entering from the previous cell are all known. By supplying the flux entering the left side of the first cell, the positive-angled solution can be propagated from left to right by solving Eq. \ref{eq:sweepLR}. Similarly, supplying the incident flux on the right boundary allows the negative-angled solution to be propagated from right to left with Eq. \ref{eq:sweepRL}. 
 
 \subsection{Mixed Finite Element Method VEF Drift Diffusion}
+\begin{figure}
+	\centering
+	% \def\svgwidth{\textwidth}
+	\input{figs/mfemgrid.pdf_tex} 
+	\caption{The distribution of unknowns in cell $i$ for MFEM. }
+\end{figure}
 Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continuity of current yields: 
 	\begin{subequations} \label{eq:mfem}
 	\begin{equation}
@@ -175,15 +181,15 @@ and
 			0 \,, & \text{otherwise}
 		\end{cases} \,.
 	\end{equation}
-When MFEM is applied, the integral over cell $i$ of the irrational polynomial given in Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. The cell centered Eddington factors used in Eq. \ref{eq:mfem} are then: 
+When MFEM is applied, the integral over cell $i$ of the rational polynomial given in Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. The cell centered Eddington factors used in Eq. \ref{eq:mfem} are then: 
 	\begin{equation} 
-		\edd_i = \half \left[ \edd_i(x_L) + \edd_i(x_R) \right] \,,
+		\edd_i = \half \left[ \edd_i(x_{i,L}) + \edd_i(x_{i,R}) \right] \,,
 	\end{equation}
 where 
 	\begin{equation}
-		x_{L/R} = \frac{x_{i+1/2} - x_{i-1/2}}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}}
+		x_{i,L/R} = \frac{x_{i+1/2} - x_{i-1/2}}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}}
 	\end{equation}
-are the transformed quadrature points. 
+are the quadrature points in cell $i$. 
 
 Transport consistent boundary conditions are applied through a modified Marshak boundary condition: 
 	\begin{equation} 

@@ -25,6 +25,12 @@ class Transport:
 				Sigmaa: absorption XS (function)
 				Sigmat: total XS (function)
 				q: fixed source (function of x and mu)  
+				BCL: left boundary condition 
+					0: reflecting 
+					1: vacuum 
+				BCR: right boundary condition
+					0: reflecting 
+					1: vacuum 
 		''' 
 
 		self.name = None # store name of method
@@ -98,7 +104,7 @@ class Transport:
 						self.Sigmas(self.xc[j]))*np.sin(np.pi*self.xc[j]/self.xb)
 
 	def zeroMoment(self, psi):
-		''' use guass legendre quadrature points to integrate psi ''' 
+		''' use guass quadrature points to integrate psi ''' 
 
 		phi = np.zeros(np.shape(psi)[1])
 

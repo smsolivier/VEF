@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from transport import * 
+from transport import * # general transport class 
 
 class Direct(Transport):
 	''' Linear Discontinuous Galerkin direct solver ''' 

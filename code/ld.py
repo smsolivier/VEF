@@ -23,6 +23,19 @@ class LD(Transport):
 	''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+		''' Inputs:
+				xe: cell edge locations 
+				n: number of discrete ordinates 
+				Sigmaa: absorption XS 
+				Sigmat: total XS 
+				q: source lambda function of x, mu 
+				BCL: left BC
+					0: reflecting 
+					1: vacuum 
+				BCR: right BC
+					0: reflecting 
+					1: vacuum 
+		''' 
 
 		# call transport initialization 
 		Transport.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
@@ -263,12 +276,16 @@ class LD(Transport):
 			convL = np.max(convL_point)
 			convR = np.max(convR_point)
 
-			# store eddington convergence 
-			edd = self.getEddington(.5*(self.psiL + self.psiR))
-			self.eddConv.append(np.max(self.pointConvergence(edd, edd_old)))
+			# compute L2 convergence 
+			convL_L2 = conv_f(self.phiL, phiL_old)
+			convR_L2 = conv_f(self.phiR, phiR_old)
 
 			# store average of left and right 
-			self.phiConv.append((convL + convR)/2) 
+			self.phiConv.append((convL_L2 + convR_L2)/2) 
+
+			# store eddington convergence 
+			edd = self.getEddington(.5*(self.psiL + self.psiR))
+			self.eddConv.append(conv_f(edd, edd_old))
 
 			# spectral radius 
 			self.diff.append(np.linalg.norm(.5*(self.phiL + self.phiR) - 
@@ -297,14 +314,26 @@ class Eddington(LD):
 	''' Eddington accelerated LD ''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=1, GAUSS=1):
-		''' OPT: controls how LD left and right fluxes are recovered
-				0: use cell centers
-				1: maintain slopes by using the cell edges from MHFEM 
-				2: van Leer slope reconstruction on centers only 
-			GAUSS: use gauss quad for <mu^2> in MHFEM 
-				0: computes <mu^2> from edge and center psi 
-				1: uses gauss quad to compute centers for rational polynomial <mu^2> 
-					edges from edge psi 
+		''' Inputs:
+				xe: cell edge locations 
+				n: number of discrete ordinates 
+				Sigmaa: absorption XS 
+				Sigmat: total XS 
+				q: source lambda function of x, mu 
+				BCL: left BC
+					0: reflecting 
+					1: vacuum 
+				BCR: right BC
+					0: reflecting 
+					1: vacuum 
+				OPT: controls how LD left and right fluxes are recovered
+					0: use cell centers
+					1: maintain slopes by using the cell edges from MHFEM 
+					2: van Leer slope reconstruction on centers only 
+				GAUSS: use gauss quad for <mu^2> in MHFEM 
+					0: computes <mu^2> from edge and center psi 
+					1: uses gauss quad to compute centers for rational polynomial <mu^2> 
+						edges from edge psi 
 		''' 
 
 		# call LD initialization 
@@ -545,15 +574,17 @@ class Eddington(LD):
 		return mu2 
 
 	def sweep(self, phiL, phiR):
-		''' one source iteration sweep 
+		''' one VEF source iteration sweep 
 			Overwrites sweep in LD class to include eddington acceleration 
 		''' 
 
+		# normal transport sweep 
 		self.fullSweep(phiL, phiR) # transport sweep, BC dependent ordering 
 
 		# make SN flux public 
 		self.phi_SN = self.zeroMoment(self.centPsi())
 
+		# addition MHFEM drift diffusion step 
 		# create eddington for MHFEM 
 		if (self.GAUSS == 0):
 
@@ -585,7 +616,7 @@ class Eddington(LD):
 		x, phi = self.mhfem.solve(self.zeroMoment(self.q)/2, 
 			self.firstMoment(self.q)/2)
 
-		# get LD left and right fluxes from MHFEM flux 
+		# reconstruct LD left and right fluxes from MHFEM flux 
 		phiL, phiR = self.ldRecovery(phi, OPT=self.OPT)
 
 		return phiL, phiR # return accelerated flux 
@@ -594,6 +625,19 @@ class S2SA(LD):
 	''' LLDG Linear S2SA solver ''' 
 
 	def __init__(self, xe, n, Sigmaa, Sigmat, q, BCL=0, BCR=1):
+		''' Inputs:
+				xe: cell edge locations 
+				n: number of discrete ordinates 
+				Sigmaa: absorption XS 
+				Sigmat: total XS 
+				q: source lambda function of x, mu 
+				BCL: left BC
+					0: reflecting 
+					1: vacuum 
+				BCR: right BC
+					0: reflecting 
+					1: vacuum 
+		''' 
 
 		# call LD initialization 
 		LD.__init__(self, xe, n, Sigmaa, Sigmat, q, BCL, BCR)
@@ -639,7 +683,7 @@ if __name__ == '__main__':
 
 	# create solver objects 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
-	# ld.setMMS()
+	# ld.setMMS() # uncomment to run MMS problem 
 	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=2)
 	# ed.setMMS()
 	s2 = S2SA(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)

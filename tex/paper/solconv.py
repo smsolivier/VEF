@@ -63,7 +63,7 @@ def makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol):
 	plt.ylabel('SI/VEF Convergence', fontsize=fsize)
 	hidespines(plt.gca())
 
-nrun = 5 
+nrun = 5
 h = np.logspace(-2, -1, nrun)
 n = 8 
 xb = 8
@@ -77,8 +77,8 @@ makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol)
 if (outfile != None):
 	plt.savefig(outfile[0])
 
-h = np.logspace(-2, -1.1, nrun)
-Sigmamax = 50
+h = np.logspace(-2.3, -1.3, nrun)
+Sigmamax = 10
 Sigmat = lambda x: Sigmamax*(x<2) + .001*(x>=2)*(x<4) + \
 	1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + 1*(x>=7)*(x<=8)
 Sigmaa = lambda x: Sigmamax*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)*(x<=8) 

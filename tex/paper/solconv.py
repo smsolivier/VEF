@@ -67,7 +67,7 @@ nrun = 5
 h = np.logspace(-2, -1, nrun)
 n = 8 
 xb = 8
-tol = 1e-6 
+tol = 1e-8
 
 c = .75 
 Sigmat = lambda x: 1 

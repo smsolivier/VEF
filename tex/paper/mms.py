@@ -106,7 +106,7 @@ order = np.zeros(4)
 b = np.zeros(4)
 r = np.zeros(4)
 reconstruct = ['None', 'None', 'Center', 'Center']
-gauss = ['Constant', 'Linear', 'Constant', 'Linear']
+gauss = ['Average', 'Rational Polynomial', 'Average', 'Rational Polynomial']
 
 # err = getOrder(ed, N, tol, 'LD')
 err[0,:], order[0], b[0], r[0] = getOrder(ed00, N, tol, 'No Slopes, No Gauss')

@@ -19,11 +19,7 @@
 \caption{The convergence rate for $\phi(x)$ and $\edd(x)$ for (a) unaccelerated and (b) VEF accelerated SI. }
 \end{figure}
 
-Figure \ref{fig:si} shows the convergence criterion
-	\begin{equation}
-		\frac{\| f\relll - f^\ell \|}{\| f\relll \|} 
-	\end{equation}
-as a function of unaccelerated iteration number for $f = \phi(x)$ and $f = \edd(x)$. The large drop in the convergence criterion between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig. \ref{fig:vef}, a plot of the convergence criterion versus number of iterations for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
+Figure \ref{fig:si} shows the iterative convergence as a function of unaccelerated iteration number for the scalar flux and the Eddington factor. The Eddington factor's large drop in relative norm between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig. \ref{fig:vef}, a plot of the iterative convergence for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
 
 	% \begin{figure}
 	% 	\centering
@@ -52,13 +48,14 @@ The Method of Manufactured Solutions (MMS) was used to compare the accuracy of t
 	\begin{equation}
 		E = C h^n
 	\end{equation}
-was used to find the order of accuracy, $n$, and the constant of proportionality, $C$, of the numerical error, $E$. These values are provided in Table \ref{tab:mms} for the permutations of the two reconstruction methods and two angular flux representation methods. All of the permutations are second order accurate and have similar overall accuracy. This suggests that slope reconstruction and angular flux representation do not affect numerical accuracy. It is also a testament to the robustness of the VEF method as the inconsistent, partially consistent, and fully consistent methods all performed similarly. 
+was used to find the order of accuracy, $n$, and the constant of proportionality, $C$, of the numerical error, $E$. These values are provided in Table \ref{tab:mms} for the permutations of the two reconstruction methods and two angular flux representation methods. All of the permutations are second order accurate and have similar overall accuracy. This suggests that slope reconstruction and Eddington representation do not affect numerical accuracy. 
+% It is also a testament to the robustness of the VEF method as the 
 
 	\begin{table} \centering
 	\begin{tabular}{|c|c|c|c|c|}
 	\hline
 	\hline
-	Reconstruction Method & $\psi$ Representation & Order & $C$ & $R^2$ \\ 
+	Reconstruction Method & Eddington Representation & Order & $C$ & $R^2$ \\ 
 	\hline
 		\input{figs/mms}
 	\hline
@@ -69,16 +66,16 @@ was used to find the order of accuracy, $n$, and the constant of proportionality
 	\end{table}
 	% \afterpage{\clearpage}
 
-The convergence between unaccelerated SI and the VEF method was compared as a function of cell width for a simple homogeneous slab and for Reed's problem. In both cases, the left boundary was reflecting and the right boundary was vacuum. The homogeneous slab had a scattering ratio of 0.75. The cross sections and source for Reed's problem are provided in Table \ref{tab:reedXS}. The L2 norm of the difference between the SI solution and VEF solution is plotted for the four permutations of no reconstruction, van Leer slope limited reconstruction, constant angular flux representation, and linear angular flux representation in Figures \ref{fig:homo} and \ref{fig:reed} for the homogeneous slab problem and Reed's problem. 
+The convergence between unaccelerated SI and the VEF method was compared as a function of cell width for a simple homogeneous slab and for Reed's problem. In both cases, the left boundary was reflecting and the right boundary was vacuum. The homogeneous slab had a scattering ratio of 0.75. The cross sections and source for Reed's problem are provided in Table \ref{tab:reedXS}. The L2 norm of the difference between the SI solution and VEF solution is plotted for the four permutations of no reconstruction, van Leer slope limited reconstruction, average Eddington representation, and rational polynomial Eddington representation in Figures \ref{fig:homo} and \ref{fig:reed} for the homogeneous slab problem and Reed's problem. 
 
 	\begin{table} \centering
 		\begin{tabular}{|c|c|c|c|c|c|}
 			\hline
 			& Region 1 & Region 2 & Region 3 & Region 4 & Region 5 \\ 
 			\hline 
-			$q$ & 50 & 0 & 0 & 0 & 1 \\ 
-			$\Sigma_t$ & 50 & 0.001 & 1 & 5 & 1 \\ 
-			$\Sigma_a$ & 50 & 0 & 0.1 & 0 & 0.1 \\ 
+			$q$ & 10 & 0 & 0 & 0 & 1 \\ 
+			$\Sigma_t$ & 10 & 0.001 & 1 & 5 & 1 \\ 
+			$\Sigma_a$ & 10 & 0 & 0.1 & 0 & 0.1 \\ 
 			\hline 
 			Domain & $0 \leq x < 2$ & $2 \leq x < 4$ & $4\leq x < 6$ &
 				$6 \leq x < 7$ & $7 \leq x \leq 8$\\ 
@@ -106,9 +103,10 @@ The convergence between unaccelerated SI and the VEF method was compared as a fu
 		\caption{The L2 norm of the difference between SI and the four permutations of the VEF method as the cell spacing is decreased for (a) the homogeneous slab problem and (b) Reed's problem. }
 	\end{figure}
 
-In the homogeneous problem, VEF with van Leer limited slope reconstruction was five times more convergent than VEF without reconstruction. Use of the linear angular flux representation decreased the van Leer reconstruction convergence by 30\%. In Reed's problem, all four methods performed similarly. This suggests that the effects ofa angular flux respresentation and slope reconstruction are problem dependent. 
+In the homogeneous problem, VEF with van Leer limited slope reconstruction was five times more convergent than VEF without reconstruction. Use of the rational polynomial Eddington representation decreased the van Leer reconstruction convergence by 30\%. 
+% Reed analysis 
 
-Lastly, slope reconstruction and angular flux representation were tested in the diffusion limit. The cross sections and source were scaled according to: 
+Lastly, slope reconstruction and Eddington representation were tested in the diffusion limit. The cross sections and source were scaled according to: 
 	\begin{subequations} \label{res:scaling}
 		\begin{equation} 
 			\sigma_t(x) \rightarrow \sigma_t(x)/\epsilon \,, 
@@ -120,7 +118,7 @@ Lastly, slope reconstruction and angular flux representation were tested in the 
 			Q(x) \rightarrow \epsilon Q(x) \,. 
 		\end{equation}
 	\end{subequations}
-As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations for convergence within a tolerance of \num{e-10} as $\epsilon \rightarrow 0$ is plotted in Fig. \ref{fig:dl_it}. The error between the VEF solution and the exact diffusion solution is provided in Fig. \ref{fig:dl_err}. This supports the claim that the VEF method is robust as all four permutations survived the diffusion limit. 
+As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations for convergence within a tolerance of \num{e-8} as $\epsilon \rightarrow 0$ is plotted in Fig. \ref{fig:dl_it}. The error between the VEF solution and the exact diffusion solution is provided in Fig. \ref{fig:dl_err}. This supports the claim that the VEF method is robust as all four permutations survived the diffusion limit. 
 	
 	\begin{figure}
 		\centering

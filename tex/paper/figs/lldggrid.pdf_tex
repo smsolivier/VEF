@@ -48,7 +48,7 @@
   \global\let\svgwidth\undefined%
   \global\let\svgscale\undefined%
   \makeatother%
-  \begin{picture}(1,0.64879225)%
+  \begin{picture}(1,0.70013335)%
     \put(0.04271264,0.19836114){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{}}}%
     \put(0,0){\includegraphics[width=\unitlength,page=1]{figs/lldggrid.pdf}}%
   \end{picture}%

@@ -42,24 +42,15 @@ where $\sigma_{a,i}$ and $Q_i$ are the absorption cross section and source in ce
 			\edd_{i+1/2} \phi_{i+1/2} - \edd_i \phi_i + \sigma_{t,i} h_i \left(\frac{1}{6} J_{i,L} + \frac{1}{3} J_{i,R}\right) = 0 \,, 
 		\end{equation}
 	\end{subequations}
-where the Eddington factor is evaluated at iteration $\ell+1/2$ and the fixed source has been assumed to be isotropic. The cell edge Eddington factors, $\edd_{i\pm1/2}$, are computed using the cell edge angular flux defined by Eqs. \ref{eq:downwind} and \ref{eq:upwind}. Two methods have been tested for generating the cell centered Eddington factors: averaging the cell edge values and representing the LLDG angular flux as a linear function of the MFEM basis functions: 
-	\begin{equation} \label{mfem:ldconsistent}
-		\edd_i(x) = \frac{
-			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
-		}
-		{
-			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
-		} \,. 
-	\end{equation}
-Equation \ref{mfem:ldconsistent} is a rational polynomial and cannot be integrated analytically. In this case, two point Gauss quadrature was used to numerically integrate Eq. \ref{mfem:ldconsistent} over the interior of cell $i$: 
+where the fixed source has been assumed to be isotropic. The Eddington factors, $\edd_{i(\pm1/2)}$, are computed using the angular fluxes from the LLDG \SN step according to: 
 	\begin{equation} 
-		\edd_i = \frac{1}{2} \br{\edd_i(x_{i,L}) + \edd_i(x_{i,R})} \,, 
+		\edd_{i(\pm1/2)} = \frac{
+			\sum_{n=1}^N \mu_n^2 \psi_{n,i(\pm1/2)} w_n 
+		}{
+			\sum_{n=1}^N \psi_{n,i(\pm1/2)} w_n
+		} \,,
 	\end{equation}
-where 
-	\begin{equation} 
-		x_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}}
-	\end{equation}
-are the quadrature points in the cell. 
+where the cell edge angular fluxes are defined by Eq. \ref{eq:downwind} and \ref{eq:upwind} and the cell centered angular flux by Eq. \ref{eq:lldg_i}. 
 Eliminating $J_{i,R}$ from Eq. \ref{mfem:bli} and $J_{i,L}$ from Eq. \ref{mfem:bri} yields: 
 	\begin{subequations}
 		\begin{equation} \label{mfem:jli}
@@ -80,7 +71,7 @@ A fourth equation is found by enforcing continuity of current:
 		J_{i,R} = J_{i+1, L} \,. 
 	\end{equation}
 
-Using the definitions of $J_{i,L}$ and $J_{i,R}$ from Eqs. \ref{mfem:jli} and \ref{mfem:jri} in the balance equation (Eq. \ref{mfem:balance}) and continuity equation (Eq. \ref{mfem:continuity}) reduces the system to three unknowns per cell: $\phi_{i-1/2}$, $\phi_i$, and $\phi_{i+1/2}$. The resulting equations for $\phi_i$ and $\phi_{i+1/2}$ are: 
+Using the definitions of $J_{i,L}$ and $J_{i,R}$ from Eqs. \ref{mfem:jli} and \ref{mfem:jri} in the balance equation (Eq. \ref{mfem:balance}) and continuity equation (Eq. \ref{mfem:continuity}) reduces the system to three unknowns per cell: $\phi_{i-1/2}$, $\phi_i$, and $\phi_{i+1/2}$. The resulting balance and continuity equations are:
 	\begin{subequations}
 		\begin{equation} \label{mfem:center}
 			-\frac{6}{\sigma_{t,i}h_i} \edd_{i-1/2} \phi_{i-1/2}
@@ -159,6 +150,25 @@ This system of $2I+1$ equations can be assembled into a matrix of both cell cent
 % 		B(x) = \frac{\int_{-1}^1 |\mu| \psi(x, \mu) \ud \mu}
 % 		{\int_{-1}^1 \psi(x, \mu) \ud \mu} \,. 
 % 	\end{equation}
+
+Increased consistency Two methods have been tested for generating the cell centered Eddington factors: averaging the cell edge values and representing the LLDG angular flux as a linear function of the MFEM basis functions: 
+	\begin{equation} \label{mfem:ldconsistent}
+		\edd_i(x) = \frac{
+			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
+		}
+		{
+			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
+		} \,. 
+	\end{equation}
+Equation \ref{mfem:ldconsistent} is a rational polynomial and cannot be integrated analytically. In this case, two point Gauss quadrature was used to numerically integrate Eq. \ref{mfem:ldconsistent} over the interior of cell $i$: 
+	\begin{equation} 
+		\edd_i = \frac{1}{2} \br{\edd_i(x_{i,L}) + \edd_i(x_{i,R})} \,, 
+	\end{equation}
+where 
+	\begin{equation} 
+		x_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}}
+	\end{equation}
+are the quadrature points in the cell. 
 
 Once the MFEM scalar flux has been found, the LLDG scattering term must be reconstructed. Two methods have been tested: no reconstruction and van Leer limited cell centered slope reconstruction. The no reconstruction method sets the LLDG discontinuous left and right scalar flux to the MFEM edge scalar flux: 
 	\begin{equation} 

@@ -34,7 +34,7 @@ The VEF method decouples Eq. \ref{eq:sn} by lagging the scattering term:
 		\mu_n \dderiv{\psi_n\rellh}{x}(x) + \sigma_t(x) \psi_n\rellh(x) = 
 		\frac{\sigma_s(x)}{2} \phi^\ell(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N \,,
 	\end{equation}
-where the superscripts indicate the iteration index. In Source Iteration (SI), the update 
+where the superscripts indicate the iteration index. The scalar flux used in the scattering term, $\phi\rell$, is assumed to be known either from the previous iteration or from the initial guess if $\ell=0$. In Source Iteration (SI), the update 
 	\begin{equation} \label{eq:siupdate}
 		\phi(x)\relll = \phi(x)\rellh
 	\end{equation}
@@ -56,7 +56,7 @@ where $J\relll(x)$ is the current and
 			\sum_{n=1}^N \psi_n\rellh(x) w_n 
 		}
 	\end{equation}
-the Eddington factor. The scattering term in Eq. \ref{eq:si} is then updated with the VEF drift diffusion scalar flux found by solving Eqs. \ref{eq:zero} and \ref{eq:first}. This process of solving Eq. \ref{eq:si} for the $\psi_n(x)$, computing the Eddington factor, solving the VEF drift diffusion equation for the scalar flux, and updating the scattering term with the VEF drift diffusion scalar flux is repeated convergence. 
+the Eddington factor. The scattering term in Eq. \ref{eq:si} is then updated with the VEF drift diffusion scalar flux found by solving Eqs. \ref{eq:zero} and \ref{eq:first}. This process of solving Eq. \ref{eq:si} for the $\psi_n(x)$, computing the Eddington factor, solving the VEF drift diffusion equation for the scalar flux, and updating the scattering term with the VEF drift diffusion scalar flux is repeated until convergence. 
 
 Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the VEF equations model the contributions of all scattering events at once, reducing the dependence on source iterations to introduce scattering information. 
 % The solution from the VEF equations is then an approximation for the full flux and not the $\ell - 1$ collided flux as it was without acceleration. 
@@ -68,8 +68,11 @@ In addition to acceleration, this scheme allows the \SN equations and drift diff
 	\centering
 	\input{figs/lldggrid.pdf_tex}
 	\caption{The distribution of unknowns in an LLDG cell. The superscript $+$ and $-$ indicate the angular fluxes for $\mu_n>0$ and $\mu_n<0$, respectively. } 
+	\label{fig:lldg_grid}
 \end{figure}
-The LLDG discretization of Eq. \ref{eq:si} is: 
+The spatial grid and distribution of unknowns for an LLDG cell are shown in Fig. \ref{fig:lldg_grid}. The cell centers are integral and the cell edges are half integral. The two unknowns in each cell for each discrete angle are the left and right edge discontinuous angular fluxes, $\psi_{n,i,L}\rellh$ and $\psi_{n,i,R}\rellh$. 
+
+The LLDG discretization of Eq. \ref{eq:si} is then: 
 	\begin{subequations} 
 	\begin{equation} \label{eq:lldg_l}
 		\mu_n \left(\psi_{n,i}\rellh - \psi_{n, i-1/2}\rellh\right) 
@@ -86,11 +89,7 @@ The LLDG discretization of Eq. \ref{eq:si} is:
 		% 1 \leq i \leq I\,,
 	\end{equation}
 	\end{subequations}
-where $h_i$, $\sigma_{t,i}$, and $\sigma_{s,i}$ are the cell width, total cross section, and scattering cross section in cell $i$. The $i,L$ and $i,R$ subscripts indicate the the subscripted value is the left or right discontinuous edge value. The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
-	\begin{equation} \label{eq:lldg_i}
-		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,.
-	\end{equation}
-The cell edged angular fluxes are defined through upwinding: 
+where $h_i$, $\sigma_{t,i}$, and $\sigma_{s,i}$ are the cell width, total cross section, and scattering cross section in cell $i$. The discontinuous scalar fluxes, $\phi_{i,L/R}\rell$, are assumed to be known from the previous iteration or the initial guess when $\ell=0$. The cell edged angular fluxes are uniquely defined by upwinding: 
 	\begin{subequations}
 	\begin{equation} \label{eq:downwind}
 		\psi_{n,i-1/2}\rellh = \begin{cases}
@@ -104,8 +103,13 @@ The cell edged angular fluxes are defined through upwinding:
 			\psi_{n,i+1,L}\rellh \,, & \mu_n < 0 
 		\end{cases} \,.
 	\end{equation}
-	\end{subequations}
-Equations \ref{eq:lldg_l}, \ref{eq:lldg_r}, \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind} can be combined and rewritten as 
+	\end{subequations} 
+The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
+	\begin{equation} \label{eq:lldg_i}
+		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,.
+	\end{equation}
+
+Equations \ref{eq:lldg_l}, \ref{eq:lldg_r}, \ref{eq:downwind}, \ref{eq:upwind}, and \ref{eq:lldg_i} can be combined and rewritten as 
 	\begin{equation} \label{eq:sweepLR}
 		\left[\begin{matrix}
 			\mu_n + \sigma_{t,i} h_i & \mu_n  \\ 

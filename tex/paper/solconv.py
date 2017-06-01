@@ -49,15 +49,15 @@ def makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol):
 		err01[i] = err_f(phi01)
 		err21[i] = err_f(phi21)
 
-	print(err00/err20)
-	print(err21/err20)
+	print('No reconstruction/Reconstruction =', err00/err20)
+	print('Rat poly/no rat poly for reconstruction', err21/err20)
 
 	fsize = 20
 	plt.figure()
-	plt.loglog(h, err00, '-o', clip_on=False, label='None, Const')
-	plt.loglog(h, err01, '-o', clip_on=False, label='None, Linear')
-	plt.loglog(h, err20, '-o', clip_on=False, label='van Leer, Const')
-	plt.loglog(h, err21, '-o', clip_on=False, label='van Leer, Linear')
+	plt.loglog(h, err00, '-o', clip_on=False, label='None, Average')
+	plt.loglog(h, err01, '-o', clip_on=False, label='None, Rational Polynomial')
+	plt.loglog(h, err20, '-o', clip_on=False, label='Center, Average')
+	plt.loglog(h, err21, '-o', clip_on=False, label='Center, Rational Polynomial')
 	plt.legend(loc='best', frameon=False)
 	plt.xlabel('$h$', fontsize=fsize)
 	plt.ylabel('SI/VEF Convergence', fontsize=fsize)

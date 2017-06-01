@@ -8,7 +8,7 @@
 	\caption{The distribution of unknowns in cell $i$ for MFEM. }
 	\label{fig:mfem_grid}
 \end{figure}
-The unknowns in an MFEM cell are depicted in Fig. \ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
+In MFEM, extra degrees of freedom are added to the primary variable's discretization to increase the order of accuracy of secondary variables. In addition, different basis functions are used for the primary and secondary variables. The unknowns in an MFEM cell are depicted in Fig. \ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
 	\begin{equation} \label{eq:MFEM_current}
 		J_i(x) = J_{i,L} B_{i,L}(x) + J_{i,R} B_{R,i}(x) \,, 
 	\end{equation} 
@@ -27,7 +27,7 @@ where $J_{i,L/R}$ are the currents at the left and right edges of the cell and
 			\end{cases} \,,
 		\end{equation}
 	\end{subequations}
-are the MFEM basis functions. The spatial grid used in this step is identical to the grid used in the LLDG \SN step. 
+are the MFEM basis functions. The constant-linear MFEM yields second order accuracy for both the scalar flux and the current. The spatial grid used in this step is identical to the grid used in the LLDG \SN step. 
 
 The MFEM representation yields five unknowns per cell: $\phi_{i-1/2}$, $\phi_i$, $\phi_{i+1/2}$, $J_{i,L}$, and $J_{i,R}$. An equation for $\phi_i$ is found by integrating Eq. \ref{eq:zero} over cell $i$: 
 	\begin{equation} \label{mfem:balance}

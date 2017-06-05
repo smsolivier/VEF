@@ -8,7 +8,7 @@
 	\caption{The distribution of unknowns in cell $i$ for MFEM. }
 	\label{fig:mfem_grid}
 \end{figure}
-In MFEM, extra degrees of freedom are added to the primary variable's discretization to increase the order of accuracy of secondary variables. In addition, different basis functions are used for the primary and secondary variables. The unknowns in an MFEM cell are depicted in Fig. \ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
+In MFEM, extra degrees of freedom are added to the primary variable's discretization and different basis functions are used for the primary and secondary variable. The unknowns in an MFEM cell are depicted in Fig. \ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
 	\begin{equation} \label{eq:MFEM_current}
 		J_i(x) = J_{i,L} B_{i,L}(x) + J_{i,R} B_{R,i}(x) \,, 
 	\end{equation} 
@@ -58,7 +58,7 @@ Eliminating $J_{i,R}$ from Eq. \ref{mfem:bli} and $J_{i,L}$ from Eq. \ref{mfem:b
 			\bigg\} \,.
 		\end{equation}
 	\end{subequations}
-A fourth equation is found by enforcing continuity of current: 
+A fourth equation is found by enforcing continuity of current at the cell edges: 
 	\begin{equation} \label{mfem:continuity}
 		J_{i,R} = J_{i+1, L} \,. 
 	\end{equation}
@@ -79,7 +79,7 @@ Using the definitions of $J_{i,L}$ and $J_{i,R}$ from Eqs. \ref{mfem:jli} and \r
 			= 0 \,. 
 		\end{multline}
 	\end{subequations}
-On the interior, $\phi_{i-1/2} = \phi_{(i-1)+1/2}$. Thus, Eqs. \ref{mfem:center} and \ref{mfem:edge} are sufficient to specify the center and edge scalar fluxes on the interior. The remaining unknowns, $\phi_{1/2}$ and $\phi_{I+1/2}$, are set by the boundary conditions. Equations for $\phi_{1/2}$ and $\phi_{I+1/2}$ are found by setting the equations for $J_{1,L}$ and $J_{I,R}$ to a supplied boundary current. For example, a vacuum condition can be applied on the left boundary through a modified Marshak boundary: 
+On the interior, $\phi_{i-1/2} = \phi_{(i-1)+1/2}$. Thus, Eqs. \ref{mfem:center} and \ref{mfem:edge} are sufficient to specify the center and edge scalar fluxes on the interior. The remaining unknowns, $\phi_{1/2}$ and $\phi_{I+1/2}$, are set by the boundary conditions. Equations for $\phi_{1/2}$ and $\phi_{I+1/2}$ are found by setting $J_{1,L}$ and $J_{I,R}$ to a supplied boundary current. For example, a vacuum condition can be applied on the left boundary through a modified Marshak boundary: 
 	\begin{equation}
 		J_{1,L} = B_{1/2} \phi_{1/2} \,,
 	\end{equation}  
@@ -162,10 +162,19 @@ where
 	\begin{equation} 
 		x_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}}
 	\end{equation}
-are the quadrature points in the cell. 
+are the quadrature points in the cell. This method will be referred to as the rational polynomial representation of the Eddington factor and is expected to be more robust than the average representation given in Eq. \ref{lldg:edd}. 
 
 A more consistent method for reconstructing the \SN scattering term is maintaining the slopes between the MFEM cell centered scalar flux. In other words, 
-	\begin{equation} 
+	\begin{equation} \label{consistent:reconstruction}
 		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_\text{van Leer} \left[\left(\phi_{i+1} - \phi_i\right) + \left(\phi_i - \phi_{i-1}\right) \right] \,,
 	\end{equation}
-where the right side scalar fluxes are from the MFEM VEF step and $\xi_\text{van Leer}$ is the van Leer slope limiter given in \cite{vanLeer}. 
+where the right side scalar fluxes are from the MFEM VEF step and $\xi_\text{van Leer}$ is the van Leer slope limiter given in \cite{vanLeer}. On the boundaries, 
+	\begin{subequations}
+		\begin{equation}
+			\phi_{1,L/R} = \phi_1 \mp \frac{1}{2} \left[\phi_2 - \phi_1\right] \,,
+		\end{equation}
+		\begin{equation}
+			\phi_{I,L/R} = \phi_I \mp \frac{1}{2} \left[\phi_I - \phi_{I-1}\right] \,,
+		\end{equation}
+	\end{subequations}
+were used instead of Eq. \ref{consistent:reconstruction}. This reconstruction method will be important for radiative transfer calculations as temperatures will only be available on the cell centers. 

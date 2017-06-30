@@ -1,6 +1,6 @@
 %!TEX root = ./jctt.tex
 
-\subsection{Mixed Finite Element Method VEF Drift Diffusion}
+\subsection{Mixed Finite-Element Method for VEF Equation}
 \begin{figure}
 	\centering
 	% \def\svgwidth{\textwidth}
@@ -8,7 +8,8 @@
 	\caption{The distribution of unknowns in cell $i$ for MFEM. }
 	\label{fig:mfem_grid}
 \end{figure}
-In MFEM, extra degrees of freedom are added to the primary variable's discretization and different basis functions are used for the primary and secondary variable. The unknowns in an MFEM cell are depicted in Fig. \ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
+We apply the MFEM method to Eqs.~\ref{eq:zero} and \ref{eq:first}, and then eliminate the currents to obtain a discretization for Eq.~\ref{eq:drift}.  In this 
+method, different basis functions are used for each of the two variables. The unknowns in an MFEM cell are depicted in Fig.~\ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
 	\begin{equation} \label{eq:MFEM_current}
 		J_i(x) = J_{i,L} B_{i,L}(x) + J_{i,R} B_{R,i}(x) \,, 
 	\end{equation} 
@@ -29,11 +30,13 @@ where $J_{i,L/R}$ are the currents at the left and right edges of the cell and
 	\end{subequations}
 are the MFEM basis functions. The constant-linear MFEM yields second order accuracy for both the scalar flux and the current. The spatial grid used in this step is identical to the grid used in the LLDG \SN step. 
 
-The MFEM representation yields five unknowns per cell: $\phi_{i-1/2}$, $\phi_i$, $\phi_{i+1/2}$, $J_{i,L}$, and $J_{i,R}$. An equation for $\phi_i$ is found by integrating Eq. \ref{eq:zero} over cell $i$: 
+The MFEM representation yields five unknowns per cell: $\phi_{i-1/2}$, $\phi_i$, $\phi_{i+1/2}$, $J_{i,L}$, and $J_{i,R}$. However, 
+each edge flux on the mesh interior is shared by two cells, so with $I$ cells there are $I$ cell-center scalar fluxes, $2I$ currents, 
+and $2I-1$ interior-mesh cell-edge scalar fluxes, and 2 boundary cell-edge scalar fluxes. An equation for $\phi_i$ is found by integrating Eq.~\ref{eq:zero} over cell $i$: 
 	\begin{equation} \label{mfem:balance}
 		J_{i,R} - J_{i,L} + \sigma_{a,i} h_i \phi_i = Q_i h_i \,,
 	\end{equation}
-where $\sigma_{a,i}$ and $Q_i$ are the absorption cross section and source in cell $i$. Equations for $J_{i,L/R}$ are found by multiplying Eq. \ref{eq:first} by $B_{i,L/R}$ and integrating over cell $i$: 
+where $\sigma_{a,i}$ and $Q_i$ are the absorption cross section and source in cell $i$. Equations for $J_{i,L/R}$ are found by multiplying Eq.~\ref{eq:first} by $B_{i,L/R}$ and integrating over cell $i$: 
 	\begin{subequations}
 		\begin{equation} \label{mfem:bli}
 			-\edd_{i-1/2} \phi_{i-1/2} + \edd_i \phi_i + \sigma_{t,i} h_i \left(\frac{1}{3} J_{i,L} + \frac{1}{6}J_{i,R}\right) = 0 \,,
@@ -42,8 +45,8 @@ where $\sigma_{a,i}$ and $Q_i$ are the absorption cross section and source in ce
 			\edd_{i+1/2} \phi_{i+1/2} - \edd_i \phi_i + \sigma_{t,i} h_i \left(\frac{1}{6} J_{i,L} + \frac{1}{3} J_{i,R}\right) = 0 \,, 
 		\end{equation}
 	\end{subequations}
-where the fixed source has been assumed to be isotropic. The Eddington factors, $\edd_{i(\pm1/2)}$, are computed with Eq. \ref{lldg:edd} using the angular fluxes from the LLDG \SN step. 
-Eliminating $J_{i,R}$ from Eq. \ref{mfem:bli} and $J_{i,L}$ from Eq. \ref{mfem:bri} yields: 
+where the fixed source has been assumed to be isotropic. The Eddington factors, $\edd_{i(\pm1/2)}$, are computed with Eq.~\ref{lldg:edd} using the angular fluxes from the LLDG \SN step. 
+Eliminating $J_{i,R}$ from Eq.~\ref{mfem:bli} and $J_{i,L}$ from Eq.~\ref{mfem:bri} yields: 
 	\begin{subequations}
 		\begin{equation} \label{mfem:jli}
 			J_{i,L} = \frac{-2}{\sigma_{t,i} h_i} \bigg\{
@@ -58,12 +61,13 @@ Eliminating $J_{i,R}$ from Eq. \ref{mfem:bli} and $J_{i,L}$ from Eq. \ref{mfem:b
 			\bigg\} \,.
 		\end{equation}
 	\end{subequations}
-A fourth equation is found by enforcing continuity of current at the cell edges: 
+An equation for $\phi_{i+1/2}$ on the mesh interior is found by enforcing continuity of current at the cell edges: 
 	\begin{equation} \label{mfem:continuity}
 		J_{i,R} = J_{i+1, L} \,. 
 	\end{equation}
 
-Using the definitions of $J_{i,L}$ and $J_{i,R}$ from Eqs. \ref{mfem:jli} and \ref{mfem:jri} in the balance equation (Eq. \ref{mfem:balance}) and continuity equation (Eq. \ref{mfem:continuity}) reduces the system to three unknowns per cell: $\phi_{i-1/2}$, $\phi_i$, and $\phi_{i+1/2}$. The resulting balance and continuity equations are:
+Using the definitions of $J_{i,L}$ and $J_{i,R}$ from Eqs.~\ref{mfem:jli} and \ref{mfem:jri} in the balance equation (Eq.~\ref{mfem:balance}) and continuity equation (Eq.~\ref{mfem:continuity}) yields equations for all cell-center fluxes and 
+interior-mesh cell-edge fluxes.  The resulting balance and continuity equations are:
 	\begin{subequations}
 		\begin{equation} \label{mfem:center}
 			-\frac{6}{\sigma_{t,i}h_i} \edd_{i-1/2} \phi_{i-1/2}
@@ -79,24 +83,62 @@ Using the definitions of $J_{i,L}$ and $J_{i,R}$ from Eqs. \ref{mfem:jli} and \r
 			= 0 \,. 
 		\end{multline}
 	\end{subequations}
-On the interior, $\phi_{i-1/2} = \phi_{(i-1)+1/2}$. Thus, Eqs. \ref{mfem:center} and \ref{mfem:edge} are sufficient to specify the center and edge scalar fluxes on the interior. The remaining unknowns, $\phi_{1/2}$ and $\phi_{I+1/2}$, are set by the boundary conditions. Equations for $\phi_{1/2}$ and $\phi_{I+1/2}$ are found by setting $J_{1,L}$ and $J_{I,R}$ to a supplied boundary current. For example, a vacuum condition can be applied on the left boundary through a modified Marshak boundary: 
-	\begin{equation}
-		J_{1,L} = B_{1/2} \phi_{1/2} \,,
-	\end{equation}  
-where $J_{1,L}$ is defined in Eq. \ref{mfem:jli} and 
-	\begin{equation}
+The equations for the outer boundary fluxes, $\phi_{1/2}$ and $\phi_{I+1/2}$, involve boundary conditions together with continuity conditions.  For instance,
+the equation for $\phi_{1/2}$ is 
+\begin{equation}
+		J_{1,L} = J_{1/2} \,,
+\end{equation}		
+where $J_{1,L}$ is defined in Eq.~\ref{mfem:jli}, and $J_{1/2}$ is the left boundary current defined by a boundary condition.  For a reflective condition,
+\begin{equation}
+    J_{1/2} = 0 \, .
+\end{equation}
+For a source condition,
+\begin{equation}
+		J_{1/2} = 2 \sum_{\mu_n>0} \mu_n \psi_{n,1/2} w_n - B_{1/2} \phi_{1/2} \,,
+\end{equation}  
+ where  
+\begin{equation}
 		B_{1/2} = \frac{\sum_{n=1}^N |\mu_n| \psi_{n,1/2} w_n}{
 			\sum_{n=1}^N \psi_{n,1/2} w_n 
 		} 
-	\end{equation}
-is the QD boundary Eddington factor. 
-A left reflecting condition is set by 
-	\begin{equation}
-		J_{1,L} = 0 \,. 
-	\end{equation} 
-This system of $2I+1$ equations can be assembled into a matrix of both cell centered and cell edge scalar fluxes and solved with a banded matrix solver of bandwidth five. 
+\end{equation}
+is the boundary Eddington factor \cite{QDBC}.  The equation for  $\phi_{I+1/2}$ is 
+\begin{equation}
+		J_{I,R} = J_{I+1/2} \, .
+\end{equation}		
+where $J_{I,R}$ is defined in Eq.~\ref{mfem:jri}, and $J_{I+1/2}$ is the right boundary current.  For a reflective condition,
+\begin{equation}
+    J_{I+1/2} = 0 \, .
+\end{equation}
+For a source condition,
+\begin{equation}
+		J_{I+1/2} = B_{I+1/2} \phi_{I+1/2} - 2 \sum_{\mu_n<0} |\mu_n| \psi_{n,I+1/2} w_n  \,,
+\end{equation}  
+where 
+\begin{equation}
+		B_{I+1/2} = \frac{\sum_{n=1}^N |\mu_n| \psi_{n,I+1/2} w_n}{
+			\sum_{n=1}^N \psi_{n,I+1/2} w_n 
+		} \, .
+\end{equation}
 
-% Applying the MFEM to Eqs. \ref{eq:zero} and \ref{eq:first} and enforcing continuity of current yields: 
+These transport-consistent, Marshak-like source boundary conditions are derived starting with the identity
+\begin{equation}
+J=j^+ - j^- \,,
+\end{equation}
+where $j^\pm$ denotes the positive half-range currents associated with $\mu >0$ and $\mu <0$, respectively.  For the left boundary condition, 
+we simply perform the following algebraic manipulations:
+\begin{equation}
+J = j^+ - j^-  = 2j^+ - (j^+ + j^-) = 2j^+ - \frac{j^+ + j^-}{\phi} \phi \, .
+\end{equation}
+For the right boundary condition, we similarly obtain
+\begin{equation}
+J = j^+ - j^-  = (j^+ + j^-) - 2j^- = \frac{j^+ + j^-}{\phi} \phi - 2j^-\, .
+\end{equation}
+Note that these source boundary conditions become equivalent to the standard Marshak boundary conditions if the \SN angular flux 
+is isotropic. 
+The system of $2I+1$ equations for the cell-center and cell-edge fluxes can be assembled into a matrix of both cell-centered and cell-edge scalar fluxes and solved with a banded matrix solver of bandwidth five. 
+
+% Applying the MFEM to Eqs.~\ref{eq:zero} and \ref{eq:first} and enforcing continuity of current yields: 
 % 	\begin{subequations} \label{eq:mfem}
 	
 % 	\begin{multline}
@@ -111,7 +153,7 @@ This system of $2I+1$ equations can be assembled into a matrix of both cell cent
 % 	\end{subequations}
 % where the Eddington factor is evaluated at iteration $\ell+1/2$ and the scalar flux at $\ell+1$. 
 % Here, the Eddington factor has been assumed to be constant in each cell with discontinuous jumps at the edges. 
-% The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edged angular fluxes using Eqs. \ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. A more consistent way to transfer the Eddington factor is to represent the LLDG angular flux as a linear function using the MFEM basis functions: 
+% The simplest method of converting the Eddington factor from LLDG to MFEM is to compute the Eddington factor using the cell centered and cell edged angular fluxes using Eqs.~\ref{eq:lldg_i}, \ref{eq:downwind}, and \ref{eq:upwind}. A more consistent way to transfer the Eddington factor is to represent the LLDG angular flux as a linear function using the MFEM basis functions: 
 % 	\begin{equation} \label{eq:eddquad}
 % 		\edd_i(x) = \frac{
 % 			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
@@ -124,7 +166,7 @@ This system of $2I+1$ equations can be assembled into a matrix of both cell cent
 	
 % and 
 
-% When MFEM is applied, the integral over cell $i$ of the rational polynomial given in Eq. \ref{eq:eddquad} is approximated with 2 point Gauss quadrature. The cell centered Eddington factors used in Eq. \ref{eq:mfem} are then: 
+% When MFEM is applied, the integral over cell $i$ of the rational polynomial given in Eq.~\ref{eq:eddquad} is approximated with 2 point Gauss quadrature. The cell centered Eddington factors used in Eq.~\ref{eq:mfem} are then: 
 % 	\begin{equation} 
 % 		\edd_i = \half \left[ \edd_i(x_{i,L}) + \edd_i(x_{i,R}) \right] \,,
 % 	\end{equation}
@@ -145,7 +187,10 @@ This system of $2I+1$ equations can be assembled into a matrix of both cell cent
 % 	\end{equation}
 
 \subsection{Increased Consistency Between LLDG and MFEM}
-Overlap between the \SN and VEF acceleration steps occurs in transferring the LLDG Eddington factor to the VEF drift diffusion equation and in reconstructing the MFEM scalar flux in the \SN scattering term. Increased consistency between LLDG and MFEM can be achieved by computing the cell centered Eddington factors with: 
+The \SN solution provides the drift-diffusion equation with the variable Eddington factor, and the drift-diffusion solution provides the \SN  
+equations with the scalar flux used to construct the scattering term.  One can simply assume a constant dependence for the variable 
+Eddington factor within each cell, as defined in Eq.~\ref{lldg:edd}.  However, the LLDG discretization provides the following form for the 
+variable Eddington factor on the interior of each mesh cell:
 	\begin{equation} \label{mfem:ldconsistent}
 		\edd_i(x) = \frac{
 			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
@@ -154,27 +199,46 @@ Overlap between the \SN and VEF acceleration steps occurs in transferring the LL
 			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
 		} \,. 
 	\end{equation}
-Here, the LLDG angular flux has been represented as a linear function of the MFEM basis functions. Equation \ref{mfem:ldconsistent} is a rational polynomial and cannot be integrated analytically. In this case, two point Gauss quadrature was used to numerically integrate Eq. \ref{mfem:ldconsistent} over the interior of cell $i$: 
+Here, the LLDG angular flux has been represented as a linear function of the MFEM basis functions. Equation~\ref{mfem:ldconsistent} is a rational polynomial and cannot be integrated analytically. In this case, two point Gauss quadrature was used to numerically perform the MFEM integrations associated with  Eq.~\ref{mfem:ldconsistent}.  The Gauss quadrature points in cell $i$ are given by  
 	\begin{equation} 
-		\edd_i = \frac{1}{2} \br{\edd_i(x_{i,L}) + \edd_i(x_{i,R})} \,, 
+		x^G_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}} \,,
 	\end{equation}
-where 
-	\begin{equation} 
-		x_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}}
-	\end{equation}
-are the quadrature points in the cell. This method will be referred to as the rational polynomial representation of the Eddington factor and is expected to be more robust than the average representation given in Eq. \ref{lldg:edd}. 
+and each quadrature weight is equal to $h/2$.  This method will be referred to as the rational polynomial representation of the Eddington factor. It is clearly a more accurate representation than a constant representation, and thus is expected to generally yield better drift-diffusion solutions for the scalar flux.
 
-A more consistent method for reconstructing the \SN scattering term is maintaining the slopes between the MFEM cell centered scalar flux. In other words, 
+The MFEM representation for the scalar flux is constant within a cell, but the LLDG representation for the scalar flux is linear.  This suggests improved 
+accuracy \SN solution could be achieved by somehow constructing a linear scalar flux dependence from the MFEM solution.  One simple method for doing 
+this is to use the MFEM cell-edge scalar fluxes to compute a slope.  This works quite well, for neutronics.  However, it will be inadequate in a radiative 
+transfer calculation because slopes must also be generated for the material temperatures, and an MFEM approximation for the temperatures will not include 
+edge temperatures.  We have chosen to use a more generally applicable approach based upon standard data reconstruction techniques 
+that require only cell-centered values to compute slopes \cite{vanLeer}.  We also limit such slopes to avoid non-physical scalar fluxes.  For example, the reconstructed left and right scalar fluxes in a cell $i$ are given by 
 	\begin{equation} \label{consistent:reconstruction}
-		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_\text{van Leer} \left[\left(\phi_{i+1} - \phi_i\right) + \left(\phi_i - \phi_{i-1}\right) \right] \,,
+		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_i \left(\Delta \phi_{i+1/2} + \Delta \phi_{i-1/2}\right) \,,
 	\end{equation}
-where the right side scalar fluxes are from the MFEM VEF step and $\xi_\text{van Leer}$ is the van Leer slope limiter given in \cite{vanLeer}. On the boundaries, 
+where $\xi$ is a van Leer-type slope limiter \cite{vanLeer}:
+\begin{equation}
+\xi_i = \bracket{
+\begin{array} {cl}
+0, & \mbox{if  $r_i \le 0$}\,,\\
+max\bracet{\frac{r_i}{1+r_i}\,,\frac{1}{1+r_i}}, & \mbox{if $r_i > 0$}\,,
+\end{array}
+}
+\end{equation}
+\begin{equation}
+r_i = \frac{\Delta \phi_{i-1/2}}{\Delta \phi_{i+1/2}} \, ,
+\end{equation}
+and
+\begin{equation}
+\Delta \phi_{i+1/2}=\phi_{i+1}-\phi_{i} \, .
+\end{equation}
+On the boundaries, we use 
 	\begin{subequations}
 		\begin{equation}
-			\phi_{1,L/R} = \phi_1 \mp \frac{1}{2} \left[\phi_2 - \phi_1\right] \,,
+			\phi_{1,L/R} = \phi_1 \mp \frac{1}{2} \Delta \phi_{3/2} \,,
 		\end{equation}
 		\begin{equation}
-			\phi_{I,L/R} = \phi_I \mp \frac{1}{2} \left[\phi_I - \phi_{I-1}\right] \,,
+			\phi_{I,L/R} = \phi_I \mp \frac{1}{2} \Delta \phi_{I-1/2} \,.
 		\end{equation}
 	\end{subequations}
-were used instead of Eq. \ref{consistent:reconstruction}. This reconstruction method will be important for radiative transfer calculations as temperatures will only be available on the cell centers. 
+We also set any negative left or right flux values in the boundary cells to zero by appropriately rotating the slopes.
+\URL{I'm not sure if this was how the slopes were really calculated, but we need to fully explain what was done, 
+and we should do something to prevent negativities from arising.}

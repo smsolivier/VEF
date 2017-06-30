@@ -5,8 +5,9 @@ and nonlinear forms of Diffusion-Synthetic Acceleration (DSA), but it offers muc
 Stability can only be guaranteed with DSA if the diffusion equation is differenced in a manner consistent with that 
 of the \SN equations \cite{A}. Modern \SN codes often use advanced discretization schemes such as discontinuous 
 Galerkin (DG) since classic discretization schemes such as step and diamond are not suitable for radiative transfer 
-calculations in the High Energy Density Laboratory Physics (HEDLP) regime or coupled electron-photon calculations.  Diffusion discretizations consistent 
-with the DG \SN discretizations cannot actually be expressed in diffusion form, but rather must be expressed in 
+calculations in the High Energy Density Laboratory Physics (HEDLP) regime or coupled electron-photon calculations.  
+Diffusion discretizations consistent 
+with DG \SN discretizations cannot actually be expressed in diffusion form, but rather must be expressed in 
 first-order or P$_1$ form, and are much more difficult to solve than standard diffusion discretizations \cite{WWM}.  Considerable 
 effort has gone into the development of ``partially consistent'' diffusion discretizations that yield a stable DSA 
 algorithm with some degree of degraded effectiveness, but such discretizations are also generally difficult to develop \cite{ML,AM,WR}. 
@@ -46,7 +47,7 @@ A full investigation for radiative transfer calculations will be carried out in 
 The remainder of this paper is organized as follows.  First, we describe the VEF method analytically. Then we describe 
 our discretized \SN equations, followed by a description of the discretized VEF drift-diffusion equation.  We next give 
 computational results.  More specifically, we describe 
-two ways to represent the \SN variable Eddington factor in the MHEM drift-diffusion equation and several ways to 
+two ways to represent the \SN variable Eddington factor in the MFEM drift-diffusion equation and several ways to 
 construct the \SN scattering source from the drift-diffusion solution for the scalar flux. Each of these options 
 yields a different VEF method.  The accuracy of these methods is then compared to that of the standard LLDG 
 \SN solution for several test problems, and the iterative convergence rate of these methods is compared to that of the 

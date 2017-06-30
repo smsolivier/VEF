@@ -9,6 +9,8 @@ from mhfem_acc import * # MHFEM acceleration solver
 
 from directld import * # direct S2 LLDG solver 
 
+from scipy.integrate import fixed_quad as quad 
+
 ''' Lumped Linear Discontinuous Galerkin spatial discretization of Sn 
 	Inherits from transport.py 
 	Includes 
@@ -511,7 +513,7 @@ class Eddington(LD):
 		muPsiR = np.zeros(self.N) # right 
 		for i in range(self.n):
 
-			muPsiL += self.mu[i]**2 * self.psiL[i,:] * self.w[i] 
+			muPsiL += self.mu[i]**2 * self.psiL[i,:] * self.w[i]
 			muPsiR += self.mu[i]**2 * self.psiR[i,:] * self.w[i] 
 
 		mu2_cent = np.zeros(self.N) # cell centered eddington
@@ -523,17 +525,22 @@ class Eddington(LD):
 		# compute interior coefficients 
 		for i in range(self.N):
 
-			# convert from (-1, 1) --> (x_i-1/2, x_i+1/2)
-			xlg = self.xc[i] - self.h[i]/2 / np.sqrt(3) 
-			xrg = self.xc[i] + self.h[i]/2 / np.sqrt(3) 
+			# # convert from (-1, 1) --> (x_i-1/2, x_i+1/2)
+			# xlg = self.xc[i] - self.h[i]/2 / np.sqrt(3) 
+			# xrg = self.xc[i] + self.h[i]/2 / np.sqrt(3) 
 
-			xg = np.array([xlg, xrg]) # combine left and right points 
+			# xg = np.array([xlg, xrg]) # combine left and right points 
 
-			# compute center with 2 order gauss quad 
-			for j in range(len(xg)):
+			# # compute center with 2 order gauss quad 
+			# for j in range(len(xg)):
 
-				mu2_cent[i] += (Bli(xg[j], i) * muPsiL[i] + Bri(xg[j], i) * muPsiR[i])/(
-					phiL[i] * Bli(xg[j], i) + phiR[i] * Bri(xg[j], i)) / 2
+			# 	mu2_cent[i] += (Bli(xg[j], i) * muPsiL[i] + Bri(xg[j], i) * muPsiR[i])/(
+			# 		phiL[i] * Bli(xg[j], i) + phiR[i] * Bri(xg[j], i)) / 2
+
+			func = lambda var: (Bli(var, i) * muPsiL[i] + Bri(var, i) * muPsiR[i])/(
+				phiL[i] * Bli(var, i) + phiR[i] * Bri(var, i)) / 2
+
+			mu2_cent[i] = quad(func, self.xe[i], self.xe[i+1], n=2)[0]
 
 		# concatenate into one array 
 		mu2 = np.zeros(2*self.Ne - 1) # store centers and edges 

@@ -19,7 +19,8 @@
 \caption{The convergence rate for $\phi(x)$ and $\edd(x)$ for (a) unaccelerated and (b) VEF accelerated SI. }
 \end{figure}
 
-\URL{We need to describe the problem here.} Figure~\ref{fig:si} shows the iterative convergence as a function of unaccelerated iteration number for the scalar flux and the Eddington factor. The Eddington factor's large drop in relative norm \URL{you need to describe the norm} between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig.~\ref{fig:vef}, a plot of the iterative convergence for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
+\URL{We need to describe the problem here.} Unless otherwise noted, all calculations were performed using midpoint quadrature 
+to compute the cell average Eddington factors.  Figure~\ref{fig:si} shows the iterative convergence as a function of unaccelerated iteration number for the scalar flux and the Eddington factor. The Eddington factor's large drop in relative norm \URL{we need to describe the norm} between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig.~\ref{fig:vef}, a plot of the iterative convergence for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
 
 	% \begin{figure}
 	% 	\centering
@@ -36,9 +37,9 @@
 	% \end{figure}
 
 To compare SI, VEF, and consistently differenced S$_2$SA, a homogeneous test problem with a reflecting left boundary, a vacuum right boundary, and a total thickness of 10 cm, was used. This system was discretized into 50 spatial cells.  The total macroscopic 
-cross se3ction, $\sigma_t$, was set to \SI{1}{cm^{-1}} leading to an optical thickness per cell of 0.2 mfp and a problem thickness 
+cross section, $\sigma_t$, was set to \SI{1}{cm^{-1}} leading to an optical thickness per cell of 0.2 mfp and a problem thickness 
 of 10 mfp. The convergence tolerance was set to \num{e-6}. \URL{We need to explain the convergence tolerance in full detail.}  Figure~\ref{fig:si_vef_s2sa} shows the number of iterations required for convergence for SI, VEF, and S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. The ratio of unaccelerated to VEF accelerated iterations ranged from 1.6 to 7. This suggests that acceleration is occurring and that the VEF method is not just doing twice the amount of work per iteration. In addition, the VEF method performed similarly to S$_2$SA. \URL{ I am skeptical of the numbers for 
-the unaccelerated case.  You need to include an estimate of the spectral radius to properly converge the error when the spectral radius is near one.  You need a tighter tolerance - tol = tol *(1 - rho), where rho is the spectral radius estimate. Otherwise you will not actually converge the error to tol but to a tol/(1- rho).}
+the unaccelerated case.  You need to include an estimate of the spectral radius to properly converge the error when the spectral radius is near one.  You need a tighter tolerance - tol = tol *(1 - rho), where rho is the spectral radius estimate. Otherwise you will not actually converge the error to tol but to tol/(1- rho).}
 
 	\begin{figure}
 		\centering
@@ -48,7 +49,7 @@ the unaccelerated case.  You need to include an estimate of the spectral radius 
 	\end{figure}
 
 The Method of Manufactured Solutions (MMS) was used to compare the accuracy of the VEF method as the cell width was decreased. 
-\URL{You need to explain how you constructed the MMS solution. I can't tell anything about the problem.  In general, you are supposed to provide enough information for 
+\URL{We need to explain how you constructed the MMS solution. I can't tell anything about the problem.  In general, you are supposed to provide enough information for 
 the reader to reproduce your calculations.} The L2 norm of the difference between the numerical and MMS solutions was compared at five logarithmically spaced cell widths between \SI{0.5}{mm} and \SI{0.01}{mm}. A line of best fit of the form 
 	\begin{equation}
 		E = C h^n
@@ -79,8 +80,8 @@ The convergence between unaccelerated SI and the VEF method was compared as a fu
 			& Region 1 & Region 2 & Region 3 & Region 4 & Region 5 \\ 
 			\hline 
 			$q$ & 10 & 0 & 0 & 0 & 1 \\ 
-			$\sigma_t$ & 10 & 0.001 & 1 & 5 & 1 \\ 
-			$\sigma_a$ & 10 & 0 & 0.1 & 0 & 0.1 \\ 
+			$\Sigma_t$ & 10 & 0.001 & 1 & 5 & 1 \\ 
+			$\Sigma_a$ & 10 & 0 & 0.1 & 0 & 0.1 \\ 
 			\hline 
 			Domain & $0 \leq x < 2$ & $2 \leq x < 4$ & $4\leq x < 6$ &
 				$6 \leq x < 7$ & $7 \leq x \leq 8$\\ 
@@ -108,10 +109,12 @@ The convergence between unaccelerated SI and the VEF method was compared as a fu
 		\caption{The L2 norm of the difference between SI and the four permutations of the VEF method as the cell spacing is decreased for (a) the homogeneous slab problem and (b) Reed's problem. }
 	\end{figure}
 
-In the homogeneous problem, VEF with van Leer limited slope reconstruction was five times more convergent than VEF without reconstruction. Use of the rational polynomial Eddington representation decreased the van Leer reconstruction convergence by 30\%. 
-\URL{Wow, I don't get this.  We are allowing the VEF to vary spatially within a cell and getting a less accurate solution.} In Reed's problem, reconstruction was twice as convergent as no reconstruction. The rational polynomial Eddington representation was 4\% less convergent than the average representation. \URL{How did you compute the average value fo the VEF? Actually average the space-dependent value of the VEF via Gauss Quadrature, or just evaluate the VEF at the center of the cell? We should explain this.}
+In the homogeneous problem, VEF with van Leer limited slope reconstruction was five times more convergent \URL{what are we talking about here - iterative convergence or error in the final solution?} than VEF without reconstruction. Use of Gauss quadrature for computing the Eddington factors decreased the van Leer reconstruction convergence by 30\%. 
+\URL{Wow, I don't get this.  We are computing a more accurate average and getting a less accurate solution.  We should add the trapezoidal quadrature results to this} In Reed's problem, reconstruction was twice as accurate as no reconstruction. The calculations 
+using trapezoidal and Gauss quadratures to compute the average Eddington factors were XXX\% and 4\% (more/less) accurate than those using midpoint quadrature. \URL{We need to add trapezoidal results. Note that Average and Rational Polynomial are somewhat confusing terms because the MFEM formalism always calls for an average value of the Eddington factor in the gradient term.  It is just a question of 
+how you compute the average.} 
 
-Lastly, slope reconstruction and Eddington representation were tested in the diffusion limit. The cross sections and source were scaled as follows \cite{diflim}: 
+Lastly, slope reconstruction and Eddington factor averaging were tested in the diffusion limit. The cross sections and source were scaled as follows \cite{diflim}: 
 	\begin{subequations} \label{res:scaling}
 		\begin{equation} 
 			\sigma_t(x) \rightarrow \sigma_t(x)/\epsilon \,, 

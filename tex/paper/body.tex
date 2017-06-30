@@ -21,7 +21,7 @@ Here, we describe the VEF method for a planar geometry, fixed-source problem:
 where $\mu = \cos\theta$ is the cosine of the angle of flight, $\theta$, relative to the $x$--axis, $\sigma_t(x)$ and $\sigma_s(x)$ the total and scattering macroscopic cross sections, $Q(x)$ the isotropic fixed-source and $\psi(x, \mu)$ the angular flux. Applying the Discrete Ordinates (\SN) angular discretization yields the following set of $N$ coupled, ordinary differential equations: 
 	\begin{equation} \label{eq:sn}
 		\mu_n \dderiv{\psi_n}{x}(x) + \sigma_t(x) \psi_n(x) = 
-		\frac{\sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2}, \quad 1 \leq n \leq N \,,
+		\frac{\sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N \,,
 	\end{equation}
 where $\psi_n(x) = \psi(x, \mu_n)$ is the angular flux in direction $\mu_n$. The $\mu_n$ are stipulated by an $N$-point Gauss quadrature rule such that the scalar flux, $\phi(x)$, is numerically integrated as follows: 
 	\begin{equation} \label{eq:phiquad}
@@ -30,7 +30,7 @@ where $\psi_n(x) = \psi(x, \mu_n)$ is the angular flux in direction $\mu_n$. The
 where $w_n$ is the quadrature weight corresponding to $\mu_n$. 
 
 The VEF method begins by solving Eq.~\ref{eq:sn} while lagging the scattering term.  This is called a source iteration, 
-and is represented as follows
+and represented as follows
 	\begin{equation} \label{eq:si}
 		\mu_n \dderiv{\psi_n\rellh}{x}(x) + \sigma_t(x) \psi_n\rellh(x) = 
 		\frac{\sigma_s(x)}{2} \phi^\ell(x) + \frac{Q(x)}{2} \,, \quad 1 \leq n \leq N \,,
@@ -39,11 +39,11 @@ where $\ell$ is the iteration index.  The scalar flux used in the scattering ter
 	\begin{equation} \label{eq:siupdate}
 		\phi(x)\relll = \phi(x)\rellh \,.
 	\end{equation}
-SI is slow to converge in optically thick and highly scattering systems, and this is the motivation for accelerating 
+Source iteration is slow to converge in optically thick and highly scattering systems, and this is the motivation for accelerating 
 source iteration using the VEF method.  The second iterative step of the VEF method is to obtain a final ``accelerated'' iterate for 
 the scalar flux by solving the VEF drift-diffusion equation using angular flux shape information from the source iteration step:
 \begin{equation} \label{eq:drift}
--\dderiv{}{x} \frac{1}{\sigma_t} \dderiv{}{x} \bracket{\langle\mu\rangle^{\ell+1/2}\phi^{\ell+1}} + \sigma_a \phi^{\ell+1} = Q \,,
+-\ddxf \frac{1}{\sigma_t} \ddxf \bracket{\langle\mu\rangle^{\ell+1/2}\phi^{\ell+1}} + \sigma_a \phi^{\ell+1} = Q \,,
 \end{equation}
 where the Eddington factor is given by
 \begin{equation} \label{eq:eddington} 
@@ -53,10 +53,10 @@ Note that the Eddington factor depends only upon the angular shape of the angula
 diffusion equation is derived by first taking the first two angular moments of Eq.~\ref{eq:sn}: 
 	\begin{subequations} 
 	\begin{equation} \label{eq:zero}
-		\dderiv{}{x} J (x) + \sigma_a(x) \phi(x) = Q(x) \,,
+		\ddxf J (x) + \sigma_a(x) \phi(x) = Q(x) \,,
 	\end{equation} 
 	\begin{equation} \label{eq:first}
-		\dderiv{}{x} \bracket{\langle \mu^2 \rangle \phi (x)} + \sigma_t(x) J(x) = 0 \,,
+		\ddxf \bracket{\langle \mu^2 \rangle \phi (x)} + \sigma_t(x) J(x) = 0 \,,
 	\end{equation}
 	\end{subequations}
 where $J(x)$ is the current.  Then Eq.~\ref{eq:first} is solved for $J(x)$, and this expression is then substituted into
@@ -65,7 +65,8 @@ Performing a SI, computing the Eddington factor from the SI angular flux iterate
 the drift-diffusion equation to obtain a new scalar flux iterate completes one accelerated iteration. These iterations 
 are repeated until convergence of the scalar flux is achieved. 
 
-Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, the solution of the drift-diffusion equation includes scattering. This inclusion compensates for lagging the scattering term in the SI step. 
+Acceleration occurs because the angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux. In addition, solution of the drift-diffusion equation includes scattering. Thereby compensating to a large extent for lagging 
+the scattering term in the SI step.  
 
 The VEF method allows the \SN equations and drift diffusion equations to be solved with arbitrarily different spatial discretization methods. The following sections  present the application of the Lumped Linear-Discontinuous Galerkin (LLDG) spatial discretization to the \SN equations and the Mixed Finite-Element Method (MFEM) to the VEF drift-diffusion equation. 
 
@@ -76,9 +77,53 @@ The VEF method allows the \SN equations and drift diffusion equations to be solv
 	\caption{The distribution of unknowns in an LLDG cell. The superscript $+$ and $-$ indicate the angular fluxes for $\mu_n>0$ and $\mu_n<0$, respectively. } 
 	\label{fig:lldg_grid}
 \end{figure}
-The spatial grid and distribution of unknowns for an LLDG cell are shown in Fig.~\ref{fig:lldg_grid}. We assume a computational domain of length $x_b$ discretized into $I$ cells. The cell centers are integral and the cell edges are half integral. The two unknowns in each cell for each discrete angle are the left and right edge discontinuous angular fluxes, $\psi_{n,i,L}\rellh$ and $\psi_{n,i,R}\rellh$. 
+The spatial grid and distribution of unknowns for an LLDG cell are shown in Fig.~\ref{fig:lldg_grid}. We assume a computational domain of length $x_b$ discretized into $I$ cells. The cell centers are integral and the cell edges are half integral. The two unknowns in each cell for each discrete angle are the left and right edge discontinuous angular fluxes, $\psi_{n,i,L}\rellh$ and $\psi_{n,i,R}\rellh$.
+The cell edged angular fluxes are uniquely defined by upwinding: 
+	\begin{subequations}
+	\begin{equation} \label{eq:downwind}
+		\psi_{n,i-1/2}\rellh = \begin{cases}
+			\psi_{n,i-1,R}\rellh \,, & \mu_n > 0 \\ 
+			\psi_{n,i,L}\rellh \,, & \mu_n < 0 
+		\end{cases} \,,
+	\end{equation}
+	\begin{equation} \label{eq:upwind}
+		\psi_{n,i+1/2}\rellh = \begin{cases}
+			\psi_{n,i,R}\rellh \,, & \mu_n > 0 \\
+			\psi_{n,i+1,L}\rellh \,, & \mu_n < 0 
+		\end{cases} \,.
+	\end{equation}
+	\end{subequations} 
+The angular flux dependence within cells is linear and given in cell $i$ by
+\begin{equation} \label{eq:afdef}
+\psi_{n}\rellh(x) = \psi_{n,i,L}\rellh B_{i,L}(x) + \psi_{n,i,R}\rellh B_{i,R}(x) \,, \quad x \in (x_{i-1/2},x_{i+1/2}),
+\end{equation}
+where
+		\begin{subequations}
+		\begin{equation}\label{eq:bfunL}
+			B_{i,L}(x) = \begin{cases}
+				\frac{x_{i+1/2} - x}{h_i} \,, & x \in [x_{i-1/2}, x_{i+1/2}] \\ 
+				0 \,, & \text{otherwise}
+			\end{cases} \,,
+		\end{equation}
+		\begin{equation}\label{eq:bfunR}
+			B_{i,R}(x) = \begin{cases}
+				\frac{x - x_{i-1/2}}{h_i} \,, & x \in [x_{i-1/2}, x_{i+1/2}] \\ 
+				0 \,, & \text{otherwise}
+			\end{cases} \,,
+		\end{equation}
+	\end{subequations}
+The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
+	\begin{equation} \label{eq:lldg_i}
+		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,.
+	\end{equation}
 
-The LLDG discretization of Eq.~\ref{eq:si} is then: 
+The unlumped linear-discontinuous Galerkin (LDG) discretization for Eq.~\ref{eq:si} is obtained by
+substituting for $\psi_{n}\rellh(x)$ in Eq.~\ref{eq:si} from Eq.~\ref{eq:afdef}, 
+sequentially multiplying the resultant equation by each basis function, and integrating over 
+each cell with integration-by-parts of the spatial derivative term.  
+The lumped discretization equations are obtained simply by performing all volumetric integrals (after formal integration-by-parts 
+of the spatial derivative term) using trapezoidal-rule quadrature.
+The LLDG discretization of Eq.~\ref{eq:si} is given by: 
 	\begin{subequations} 
 	\begin{equation} \label{eq:lldg_l}
 		\mu_n \left(\psi_{n,i}\rellh - \psi_{n, i-1/2}\rellh\right) 
@@ -95,26 +140,10 @@ The LLDG discretization of Eq.~\ref{eq:si} is then:
 		% 1 \leq i \leq I\,,
 	\end{equation}
 	\end{subequations}
-where $h_i$, $\sigma_{t,i}$, $\sigma_{s,i}$, and $Q_{i,L/R}$ are the cell width, total cross section, scattering cross section and discontinuous fixed source in cell $i$. The discontinuous scalar fluxes, $\phi_{i,L/R}\rell$, are assumed to be known from the previous iteration or the initial guess when $\ell=0$. The cell edged angular fluxes are uniquely defined by upwinding: 
-	\begin{subequations}
-	\begin{equation} \label{eq:downwind}
-		\psi_{n,i-1/2}\rellh = \begin{cases}
-			\psi_{n,i-1,R}\rellh \,, & \mu_n > 0 \\ 
-			\psi_{n,i,L}\rellh \,, & \mu_n < 0 
-		\end{cases} \,,
-	\end{equation}
-	\begin{equation} \label{eq:upwind}
-		\psi_{n,i+1/2}\rellh = \begin{cases}
-			\psi_{n,i,R}\rellh \,, & \mu_n > 0 \\
-			\psi_{n,i+1,L}\rellh \,, & \mu_n < 0 
-		\end{cases} \,.
-	\end{equation}
-	\end{subequations} 
-The cell centered angular flux is the average of the left and right discontinuous edge fluxes:
-	\begin{equation} \label{eq:lldg_i}
-		\psi_{n,i}\rellh = \half\left(\psi_{n,i,L}\rellh + \psi_{n,i,R}\rellh\right) \,.
-	\end{equation}
-Equations \ref{eq:lldg_l}, \ref{eq:lldg_r}, \ref{eq:downwind}, \ref{eq:upwind}, and \ref{eq:lldg_i} can be combined and rewritten as 
+where $h_i$, $\sigma_{t,i}$, $\sigma_{s,i}$, and $Q_{i,L/R}$ are the cell width, total cross section, scattering cross section 
+and discontinuous fixed source in cell $i$. The discontinuous scalar fluxes, $\phi_{i,L/R}\rell$, are assumed to be known from 
+the previous iteration or the initial guess when $\ell=0$. Equations \ref{eq:lldg_l}, \ref{eq:lldg_r}, \ref{eq:downwind}, \ref{eq:upwind}, and \ref{eq:lldg_i} can be combined and rewritten as 
+follows
 	\begin{equation} \label{eq:sweepLR}
 		\left[\begin{matrix}
 			\mu_n + \sigma_{t,i} h_i & \mu_n  \\ 
@@ -143,12 +172,22 @@ for sweeping from left to right ($\mu_n > 0$) and
 		\end{matrix} \right]
 		\,, 
 	\end{equation}
-for sweeping from right to left ($\mu_n < 0$), respectively. The right hand sides of Eqs.~\ref{eq:sweepLR} and \ref{eq:sweepRL} are known as the scalar flux from the previous iteration, the fixed source, and the angular flux entering from the downwind cell are all known. By supplying the flux entering the left side of the first cell, the solution for ($\mu_m > 0$) can be propagated from left to right by solving Eq.~\ref{eq:sweepLR}. Similarly, supplying the incident flux on the right boundary allows the solution for ($\mu_n < 0$) to be propagated from right to left with Eq.~\ref{eq:sweepRL}. The cell edge and cell centered Eddington factors needed in the VEF acceleration step are computed as follows: 
-	\begin{equation} \label{lldg:edd}
-		\edd_{i(\pm1/2)}\rellh = \frac{
-			\sum_{n=1}^N \mu_n^2 \psi_{n,i(\pm1/2)}\rellh w_n
+for sweeping from right to left ($\mu_n < 0$), respectively. The right hand sides of Eqs.~\ref{eq:sweepLR} and \ref{eq:sweepRL} are known 
+as the scalar flux from the previous iteration, the fixed source, and the angular flux entering from the downwind cell are all known. By supplying the flux entering the left side of the first cell, the solution for ($\mu_m > 0$) can be propagated from left to right by solving Eq.~\ref{eq:sweepLR}. Similarly, supplying the incident flux on the right boundary allows the solution for ($\mu_n < 0$) to be propagated from right to left with Eq.~\ref{eq:sweepRL}. The Eddington factors are computed at cell edges as follows: 
+	\begin{equation} \label{lldg:edde}
+		\edd\rellh_{i\pm 1/2} = \frac{
+			\sum_{n=1}^N \mu_n^2 \psi_{n,i\pm 1/2}\rellh w_n
 		}{
-			\sum_{n=1}^N \psi_{n,i(\pm1/2)}\rellh w_n 
+			\sum_{n=1}^N \psi_{n,i\pm 1/2}\rellh w_n 
 		} \,,
 	\end{equation}
-where the $\psi_{n,i\pm1/2}\rellh$ are defined by Eqs.~\ref{eq:downwind} and \ref{eq:upwind} and $\psi_{n,i}$ by Eq.~\ref{eq:lldg_i}. 
+where the $\psi_{n,i\pm1/2}\rellh$ are defined by Eqs.~\ref{eq:downwind} and \ref{eq:upwind}. The Eddington factors are 
+computed within cell $i$ as follows:
+\begin{equation} \label{lldg:eddi}
+		\edd\rellh(x) = \frac{
+			\sum_{n=1}^N \mu_n^2 \psi_{n}\rellh(x) w_n
+		}{
+			\sum_{n=1}^N \psi_{n}\rellh(x) w_n 
+		} \,, \quad x\in(x_{i-1/2},x_{i+1/2}),
+	\end{equation}
+where $\psi_{n}\rellh(x)$ is defined by Eq.~\ref{eq:afdef}.

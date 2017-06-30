@@ -9,30 +9,18 @@
 	\label{fig:mfem_grid}
 \end{figure}
 We apply the MFEM method to Eqs.~\ref{eq:zero} and \ref{eq:first}, and then eliminate the currents to obtain a discretization for Eq.~\ref{eq:drift}.  In this 
-method, different basis functions are used for each of the two variables. The unknowns in an MFEM cell are depicted in Fig.~\ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
+method, the grid is identical to that used in the LLDG \SN discretization.  Separate basis functions are used for the scalar flux and 
+current. The unknowns in an MFEM cell are depicted in Fig.~\ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
 	\begin{equation} \label{eq:MFEM_current}
 		J_i(x) = J_{i,L} B_{i,L}(x) + J_{i,R} B_{R,i}(x) \,, 
 	\end{equation} 
-where $J_{i,L/R}$ are the currents at the left and right edges of the cell and 
-	\begin{subequations}
-		\begin{equation}
-			B_{i,L}(x) = \begin{cases}
-				\frac{x_{i+1/2} - x}{h_i} \,, & x \in [x_{i-1/2}, x_{i+1/2}] \\ 
-				0 \,, & \text{otherwise}
-			\end{cases} \,,
-		\end{equation}
-		\begin{equation}
-			B_{i,R}(x) = \begin{cases}
-				\frac{x - x_{i-1/2}}{h_i} \,, & x \in [x_{i-1/2}, x_{i+1/2}] \\ 
-				0 \,, & \text{otherwise}
-			\end{cases} \,,
-		\end{equation}
-	\end{subequations}
-are the MFEM basis functions. The constant-linear MFEM yields second order accuracy for both the scalar flux and the current. The spatial grid used in this step is identical to the grid used in the LLDG \SN step. 
+where $J_{i,L/R}$ are the currents at the left and right edges of the cell, and the basis functions are identical to those 
+defined by Eqs.~\ref{eq:bfunL} and \ref{eq:bfunR} for the LLDG \SN discretization.  The constant-linear MFEM yields second 
+order accuracy for both the scalar flux and the current.  
 
 The MFEM representation yields five unknowns per cell: $\phi_{i-1/2}$, $\phi_i$, $\phi_{i+1/2}$, $J_{i,L}$, and $J_{i,R}$. However, 
 each edge flux on the mesh interior is shared by two cells, so with $I$ cells there are $I$ cell-center scalar fluxes, $2I$ currents, 
-and $2I-1$ interior-mesh cell-edge scalar fluxes, and 2 boundary cell-edge scalar fluxes. An equation for $\phi_i$ is found by integrating Eq.~\ref{eq:zero} over cell $i$: 
+and $2N-1$ interior-mesh cell-edge scalar fluxes, and 2 boundary cell-edge scalar fluxes. An equation for $\phi_i$ is found by integrating Eq.~\ref{eq:zero} over cell $i$: 
 	\begin{equation} \label{mfem:balance}
 		J_{i,R} - J_{i,L} + \sigma_{a,i} h_i \phi_i = Q_i h_i \,,
 	\end{equation}
@@ -45,7 +33,31 @@ where $\sigma_{a,i}$ and $Q_i$ are the absorption cross section and source in ce
 			\edd_{i+1/2} \phi_{i+1/2} - \edd_i \phi_i + \sigma_{t,i} h_i \left(\frac{1}{6} J_{i,L} + \frac{1}{3} J_{i,R}\right) = 0 \,, 
 		\end{equation}
 	\end{subequations}
-where the fixed source has been assumed to be isotropic. The Eddington factors, $\edd_{i(\pm1/2)}$, are computed with Eq.~\ref{lldg:edd} using the angular fluxes from the LLDG \SN step. 
+where the fixed source has been assumed to be isotropic.  Note that $\edd_{i\pm 1/2}$ denotes cell edge Eddington factors, while 
+$\edd_{i}$ denotes an average over cell $i$ of the Eddington factors.  All Eddington factors are computed using the angular fluxes 
+from the LLDG \SN step. The edge Eddington factors are defined by Eq.~\ref{lldg:edde}, while the Eddington factors within each cell 
+are defined by Eq.~\ref{lldg:eddi}.  We stress that evaluating Eq.~\ref{lldg:eddi} at $x_{i,L/R}$ does not yield $\edd_{i\pm 1/2}$ 
+because of the upwinding used to define the cell edge angular fluxes.  Since the spatial dependence of the Eddington factors within each cell takes the form of a rational polynomial, the average must be computed by quadrature. We investigate three quadratures for computing these averages: midpoint quadrature,
+\begin{subequations}
+\be
+\edd_{i} = \langle \mu^2 \rangle (x_i) \,;
+\ee
+trapezoidal quadrature, 
+\be
+\edd_{i} = \frac{1}{2} \bracket{ \langle \mu^2 \rangle (x_{i,L}) + \langle \mu^2 \rangle (x_{i,R}) } \,;
+\ee
+and Gauss quadrature,
+\be
+\edd_{i} = \frac{1}{2} \bracket{ \langle \mu^2 \rangle (x^G_{i,L}) + \langle \mu^2 \rangle (x^G_{i,R}) } \,;
+\ee
+\end{subequations}
+where 
+\begin{equation} 
+		x^G_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}} \,.
+\end{equation}
+We believe that trapezoidal may be the most consistent with the LLDG equations because the FEM integrations within each cell 
+associated with those equations are performed with trapezoidal quadrature.
+
 Eliminating $J_{i,R}$ from Eq.~\ref{mfem:bli} and $J_{i,L}$ from Eq.~\ref{mfem:bri} yields: 
 	\begin{subequations}
 		\begin{equation} \label{mfem:jli}
@@ -121,22 +133,21 @@ where
 		} \, .
 \end{equation}
 
-These transport-consistent, Marshak-like source boundary conditions are derived starting with the identity
+These transport-consistent Marshak-like source boundary conditions are derived starting with the identity
 \begin{equation}
-J=j^+ - j^- \,,
+J_{1/2}=j^+ - j^- \,,
 \end{equation}
-where $j^\pm$ denotes the positive half-range currents associated with $\mu >0$ and $\mu <0$, respectively.  For the left boundary condition, 
-we simply perform the following algebraic manipulations:
+where $j^\pm$ denotes the positive half-range currents associated with $\mu >0$ and $\mu <0$, respectively.  For the left boundary condition, we simply perform the following algebraic manipulations:
 \begin{equation}
-J = j^+ - j^-  = 2j^+ - (j^+ + j^-) = 2j^+ - \frac{j^+ + j^-}{\phi} \phi \, .
+J_{1/2} = j^+ - j^-  = 2j^+ - (j^+ + j^-) = 2j^+ - \frac{j^+ + j^-}{\phi} \phi = 2j^+ - B_{1/2} \phi  \, .
 \end{equation}
 For the right boundary condition, we similarly obtain
 \begin{equation}
-J = j^+ - j^-  = (j^+ + j^-) - 2j^- = \frac{j^+ + j^-}{\phi} \phi - 2j^-\, .
+J_{I+1/2} = j^+ - j^-  = (j^+ + j^-) - 2j^- = \frac{j^+ + j^-}{\phi} \phi - 2j^- = B_{I+1/2} \phi - 2j^-\, .
 \end{equation}
 Note that these source boundary conditions become equivalent to the standard Marshak boundary conditions if the \SN angular flux 
 is isotropic. 
-The system of $2I+1$ equations for the cell-center and cell-edge fluxes can be assembled into a matrix of both cell-centered and cell-edge scalar fluxes and solved with a banded matrix solver of bandwidth five. 
+The system of $2I+1$ equations for the cell-center and cell-edge fluxes can be assembled into a matrix of both cell centered and cell edge scalar fluxes and solved with a banded matrix solver of bandwidth five. 
 
 % Applying the MFEM to Eqs.~\ref{eq:zero} and \ref{eq:first} and enforcing continuity of current yields: 
 % 	\begin{subequations} \label{eq:mfem}
@@ -187,26 +198,9 @@ The system of $2I+1$ equations for the cell-center and cell-edge fluxes can be a
 % 	\end{equation}
 
 \subsection{Increased Consistency Between LLDG and MFEM}
-The \SN solution provides the drift-diffusion equation with the variable Eddington factor, and the drift-diffusion solution provides the \SN  
-equations with the scalar flux used to construct the scattering term.  One can simply assume a constant dependence for the variable 
-Eddington factor within each cell, as defined in Eq.~\ref{lldg:edd}.  However, the LLDG discretization provides the following form for the 
-variable Eddington factor on the interior of each mesh cell:
-	\begin{equation} \label{mfem:ldconsistent}
-		\edd_i(x) = \frac{
-			\sum_{n=1}^N \mu_n^2 \left[\psi_{n,i,L}B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x)\right]
-		}
-		{
-			B_{i,L}(x) \sum_{n=1}^N w_n \psi_{n,i,L} + B_{i,R}(x) \sum_{n=1}^N w_n \psi_{n,i,R} 
-		} \,. 
-	\end{equation}
-Here, the LLDG angular flux has been represented as a linear function of the MFEM basis functions. Equation~\ref{mfem:ldconsistent} is a rational polynomial and cannot be integrated analytically. In this case, two point Gauss quadrature was used to numerically perform the MFEM integrations associated with  Eq.~\ref{mfem:ldconsistent}.  The Gauss quadrature points in cell $i$ are given by  
-	\begin{equation} 
-		x^G_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}} \,,
-	\end{equation}
-and each quadrature weight is equal to $h/2$.  This method will be referred to as the rational polynomial representation of the Eddington factor. It is clearly a more accurate representation than a constant representation, and thus is expected to generally yield better drift-diffusion solutions for the scalar flux.
 
-The MFEM representation for the scalar flux is constant within a cell, but the LLDG representation for the scalar flux is linear.  This suggests improved 
-accuracy \SN solution could be achieved by somehow constructing a linear scalar flux dependence from the MFEM solution.  One simple method for doing 
+The MFEM representation for the scalar flux is constant within a cell, but the LLDG representation for the scalar flux is linear.  This suggests that improved 
+accuracy of the \SN solution could be achieved by somehow constructing a linear scalar flux dependence from the MFEM solution.  One simple method for doing 
 this is to use the MFEM cell-edge scalar fluxes to compute a slope.  This works quite well, for neutronics.  However, it will be inadequate in a radiative 
 transfer calculation because slopes must also be generated for the material temperatures, and an MFEM approximation for the temperatures will not include 
 edge temperatures.  We have chosen to use a more generally applicable approach based upon standard data reconstruction techniques 

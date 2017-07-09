@@ -1,6 +1,6 @@
 %!TEX root = ./jctt.tex
 
-\subsection{Mixed Finite-Element Method for VEF Equation}
+\subsection{Mixed Finite Element Method for VEF Equation}
 \begin{figure}
 	\centering
 	% \def\svgwidth{\textwidth}
@@ -9,18 +9,18 @@
 	\label{fig:mfem_grid}
 \end{figure}
 We apply the MFEM method to Eqs.~\ref{eq:zero} and \ref{eq:first}, and then eliminate the currents to obtain a discretization for Eq.~\ref{eq:drift}.  In this 
-method, the grid is identical to that used in the LLDG \SN discretization.  Separate basis functions are used for the scalar flux and 
-current. The unknowns in an MFEM cell are depicted in Fig.~\ref{fig:mfem_grid}. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
+method, the grid is identical to that used in the LLDG \SN discretization. The unknowns in an MFEM cell are depicted in Fig.~\ref{fig:mfem_grid}. In MFEM, separate basis functions are used for the scalar flux and 
+current. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
 	\begin{equation} \label{eq:MFEM_current}
 		J_i(x) = J_{i,L} B_{i,L}(x) + J_{i,R} B_{R,i}(x) \,, 
 	\end{equation} 
 where $J_{i,L/R}$ are the currents at the left and right edges of the cell, and the basis functions are identical to those 
-defined by Eqs.~\ref{eq:bfunL} and \ref{eq:bfunR} for the LLDG \SN discretization.  The constant-linear MFEM yields second 
+defined by Eqs.~\ref{eq:bfunL} and \ref{eq:bfunR} for the LLDG \SN discretization. The constant-linear MFEM yields second 
 order accuracy for both the scalar flux and the current.  
 
 The MFEM representation yields five unknowns per cell: $\phi_{i-1/2}$, $\phi_i$, $\phi_{i+1/2}$, $J_{i,L}$, and $J_{i,R}$. However, 
 each edge flux on the mesh interior is shared by two cells, so with $I$ cells there are $I$ cell-center scalar fluxes, $2I$ currents, 
-and $2N-1$ interior-mesh cell-edge scalar fluxes, and 2 boundary cell-edge scalar fluxes. An equation for $\phi_i$ is found by integrating Eq.~\ref{eq:zero} over cell $i$: 
+and $2I-1$ interior-mesh cell-edge scalar fluxes, and 2 boundary cell-edge scalar fluxes. An equation for $\phi_i$ is found by integrating Eq.~\ref{eq:zero} over cell $i$: 
 	\begin{equation} \label{mfem:balance}
 		J_{i,R} - J_{i,L} + \sigma_{a,i} h_i \phi_i = Q_i h_i \,,
 	\end{equation}
@@ -36,27 +36,16 @@ where $\sigma_{a,i}$ and $Q_i$ are the absorption cross section and source in ce
 where the fixed source has been assumed to be isotropic.  Note that $\edd_{i\pm 1/2}$ denotes cell edge Eddington factors, while 
 $\edd_{i}$ denotes an average over cell $i$ of the Eddington factors.  All Eddington factors are computed using the angular fluxes 
 from the LLDG \SN step. The edge Eddington factors are defined by Eq.~\ref{lldg:edde}, while the Eddington factors within each cell 
-are defined by Eq.~\ref{lldg:eddi}.  We stress that evaluating Eq.~\ref{lldg:eddi} at $x_{i,L/R}$ does not yield $\edd_{i\pm 1/2}$ 
-because of the upwinding used to define the cell edge angular fluxes.  Since the spatial dependence of the Eddington factors within each cell takes the form of a rational polynomial, the average must be computed by quadrature. We investigate three quadratures for computing these averages: midpoint quadrature,
-\begin{subequations}
-\be
-\edd_{i} = \langle \mu^2 \rangle (x_i) \,;
-\ee
-trapezoidal quadrature, 
-\be
-\edd_{i} = \frac{1}{2} \bracket{ \langle \mu^2 \rangle (x_{i,L}) + \langle \mu^2 \rangle (x_{i,R}) } \,;
-\ee
-and Gauss quadrature,
-\be
-\edd_{i} = \frac{1}{2} \bracket{ \langle \mu^2 \rangle (x^G_{i,L}) + \langle \mu^2 \rangle (x^G_{i,R}) } \,;
-\ee
-\end{subequations}
+are defined by Eq.~\ref{lldg:eddi}.  We stress that evaluating Eq.~\ref{lldg:eddi} at $x_{i\pm1/2}$ does not yield $\edd_{i\pm 1/2}$ 
+because of the upwinding used to define the cell edge angular fluxes. The spatial dependence of the Eddington factors within each cell takes the form of a rational polynomial prompting the use of numerical quadrature to compute the average. Two point Gauss quadrature was used:
+	\be
+	\edd_{i} = \frac{1}{2} \bracket{ \langle \mu^2 \rangle (x^G_{i,L}) + \langle \mu^2 \rangle (x^G_{i,R}) } 
+	\ee
 where 
 \begin{equation} 
-		x^G_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}} \,.
+		% x^G_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}} \,.
+		x^G_{i,L/R} = \frac{x_{i+1/2} + x_{i-1/2}}{2} \mp \frac{h_i}{2\sqrt{3}} \,.
 \end{equation}
-We believe that trapezoidal may be the most consistent with the LLDG equations because the FEM integrations within each cell 
-associated with those equations are performed with trapezoidal quadrature.
 
 Eliminating $J_{i,R}$ from Eq.~\ref{mfem:bli} and $J_{i,L}$ from Eq.~\ref{mfem:bri} yields: 
 	\begin{subequations}
@@ -133,7 +122,7 @@ where
 		} \, .
 \end{equation}
 
-These transport-consistent Marshak-like source boundary conditions are derived starting with the identity
+These transport-consistent, Marshak-like source boundary conditions are derived starting with the identity
 \begin{equation}
 J_{1/2}=j^+ - j^- \,,
 \end{equation}
@@ -147,7 +136,7 @@ J_{I+1/2} = j^+ - j^-  = (j^+ + j^-) - 2j^- = \frac{j^+ + j^-}{\phi} \phi - 2j^-
 \end{equation}
 Note that these source boundary conditions become equivalent to the standard Marshak boundary conditions if the \SN angular flux 
 is isotropic. 
-The system of $2I+1$ equations for the cell-center and cell-edge fluxes can be assembled into a matrix of both cell centered and cell edge scalar fluxes and solved with a banded matrix solver of bandwidth five. 
+The resulting system of $2I+1$ equations for the cell-center and cell-edge fluxes can be assembled into a matrix of both cell-center and cell-edge scalar fluxes and solved with a banded matrix solver of bandwidth five. 
 
 % Applying the MFEM to Eqs.~\ref{eq:zero} and \ref{eq:first} and enforcing continuity of current yields: 
 % 	\begin{subequations} \label{eq:mfem}
@@ -204,26 +193,30 @@ accuracy of the \SN solution could be achieved by somehow constructing a linear 
 this is to use the MFEM cell-edge scalar fluxes to compute a slope.  This works quite well, for neutronics.  However, it will be inadequate in a radiative 
 transfer calculation because slopes must also be generated for the material temperatures, and an MFEM approximation for the temperatures will not include 
 edge temperatures.  We have chosen to use a more generally applicable approach based upon standard data reconstruction techniques 
-that require only cell-centered values to compute slopes \cite{vanLeer}.  We also limit such slopes to avoid non-physical scalar fluxes.  For example, the reconstructed left and right scalar fluxes in a cell $i$ are given by 
+that require only cell-centered values to compute slopes \cite{vanLeer}.  We also limit such slopes to avoid non-physical scalar fluxes.  For example, the reconstructed left and right scalar fluxes in cell $i$ are given by 
 	\begin{equation} \label{consistent:reconstruction}
 		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_i \left(\Delta \phi_{i+1/2} + \Delta \phi_{i-1/2}\right) \,,
 	\end{equation}
 where $\xi$ is a van Leer-type slope limiter \cite{vanLeer}:
-\begin{equation}
-\xi_i = \bracket{
-\begin{array} {cl}
-0, & \mbox{if  $r_i \le 0$}\,,\\
-max\bracet{\frac{r_i}{1+r_i}\,,\frac{1}{1+r_i}}, & \mbox{if $r_i > 0$}\,,
-\end{array}
-}
-\end{equation}
-\begin{equation}
-r_i = \frac{\Delta \phi_{i-1/2}}{\Delta \phi_{i+1/2}} \, ,
-\end{equation}
+	\begin{equation} 
+		\xi_i = \begin{cases}
+			0, & r_i \leq 0 \,, \\
+			\text{min}\bracet{\frac{2r_i}{1+r_i} , \frac{2}{1+r_i}} \,, & r_i > 0
+		\end{cases} \,,
+	\end{equation}
+
+	\begin{equation}
+		r_i = \frac{\Delta\phi_{i-1/2}}{\Delta \phi_{i+1/2}} \,,
+	\end{equation}
 and
-\begin{equation}
-\Delta \phi_{i+1/2}=\phi_{i+1}-\phi_{i} \, .
-\end{equation}
+	\begin{subequations}
+		\begin{equation}
+			\Delta \phi_{i+1/2} = \phi_{i+1} - \phi_i \,, 
+		\end{equation}
+		\begin{equation}
+			\Delta \phi_{i-1/2} = \phi_i - \phi_{i-1} \,.
+		\end{equation}
+	\end{subequations}
 On the boundaries, we use 
 	\begin{subequations}
 		\begin{equation}
@@ -234,5 +227,5 @@ On the boundaries, we use
 		\end{equation}
 	\end{subequations}
 We also set any negative left or right flux values in the boundary cells to zero by appropriately rotating the slopes.
-\URL{I'm not sure if this was how the slopes were really calculated, but we need to fully explain what was done, 
-and we should do something to prevent negativities from arising.}
+% \URL{I'm not sure if this was how the slopes were really calculated, but we need to fully explain what was done, 
+% and we should do something to prevent negativities from arising.}

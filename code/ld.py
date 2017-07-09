@@ -537,14 +537,6 @@ class Eddington(LD):
 				mu2_cent[i] += (Bli(xg[j], i) * muPsiL[i] + Bri(xg[j], i) * muPsiR[i])/(
 					phiL[i] * Bli(xg[j], i) + phiR[i] * Bri(xg[j], i)) / 2
 
-			func = lambda var: (Bli(var, i) * muPsiL[i] + Bri(var, i) * muPsiR[i])/(
-				phiL[i] * Bli(var, i) + phiR[i] * Bri(var, i))
-
-			# mu2_cent[i] = (func(self.xe[i+1]) + func(self.xe[i])) / 2
-			# mu2_cent[i] = quad(func, self.xe[i], self.xe[i+1])[0]/self.h[i]
-
-			# print(mu2_cent[i]/(.5*(mu2_edge[i] + mu2_edge[i+1])))
-
 		# concatenate into one array 
 		mu2 = np.zeros(2*self.Ne - 1) # store centers and edges 
 		mu2[0] = mu2_edge[0] # set left boundary 
@@ -691,25 +683,25 @@ if __name__ == '__main__':
 	# iterative convergence tolerance 
 	tol = 1e-6
 
-	# create solver objects 
+	# # create solver objects 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
-	# ld.setMMS() # uncomment to run MMS problem 
-	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=2)
+	ld.setMMS() # uncomment to run MMS problem 
+	# ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=0)
 	# ed.setMMS()
-	s2 = S2SA(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	# s2 = S2SA(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	# s2.setMMS() 
 
-	# run source iteration 
+	# # run source iteration 
 	x, phi, it = ld.sourceIteration(tol)
 
-	xe, phie, ite = ed.sourceIteration(tol)
+	# xe, phie, ite = ed.sourceIteration(tol)
 
-	x2, phi2, it2 = s2.sourceIteration(tol)
+	# x2, phi2, it2 = s2.sourceIteration(tol)
 
-	# plot results 
-	plt.figure()
-	plt.plot(x, phi, label='LD')
-	plt.plot(xe, phie, label='LD Edd')
-	plt.plot(x2, phi2, label='S2SA')
-	plt.legend(loc='best')
+	# # plot results 
+	# plt.figure()
+	plt.plot(x, phi, '-o', label='LD')
+	# plt.plot(xe, phie, '-o', label='LD Edd')
+	# plt.plot(x2, phi2, '-o', label='S2SA')
+	# plt.legend(loc='best')
 	plt.show()

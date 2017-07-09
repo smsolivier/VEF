@@ -223,4 +223,3 @@ class Transport:
 
 		# return spatial locations, flux and number of iterations 
 		return self.x, self.phi, it 
-

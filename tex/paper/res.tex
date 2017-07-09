@@ -19,8 +19,21 @@
 \caption{The convergence rate for $\phi(x)$ and $\edd(x)$ for (a) unaccelerated and (b) VEF accelerated SI. }
 \end{figure}
 
-\URL{We need to describe the problem here.} Unless otherwise noted, all calculations were performed using midpoint quadrature 
-to compute the cell average Eddington factors.  Figure~\ref{fig:si} shows the iterative convergence as a function of unaccelerated iteration number for the scalar flux and the Eddington factor. The Eddington factor's large drop in relative norm \URL{we need to describe the norm} between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig.~\ref{fig:vef}, a plot of the iterative convergence for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
+To show the iterative convergence properties of the VEF method, a homogeneous test problem with a reflecting left boundary, vacuum right boundary, and a total thickness of \SI{10}{cm} was used. This system was discretized into 50 spatial cells. The total and scattering macroscopic cross sections were set to \SI{1}{cm^{-1}} and \SI{0.99}{cm^{-1}} leading to a scattering ratio of 0.99. With 50 spatial cells the optical thickness per cell was 0.2 mfp and the domain thickness was 10 mfp. All calculations in this section were S$_8$ calculations and the scalar flux was point-wise converged for both the left and right discontinuous fluxes according to:
+	\begin{equation} 
+		\frac{1}{\rho}\max\bracket{\phi_{i,L/R}\relll - \phi_{i,L/R}\rell} < \num{e-6} \,,
+	\end{equation}
+where 
+	\begin{equation}
+		\rho = \frac{\| \phi\relll - \phi\rell \|_2}{\| \phi\rell - \phi^{\ell-1} \|_2}
+	\end{equation}
+is the spectral radius. 
+
+Figure~\ref{fig:si} shows the iterative change defined as:
+	\begin{equation}
+		\frac{\| f\relll - f\rell \|_2}{\| f\relll \|_2 } \,,
+	\end{equation}	
+as a function of unaccelerated iteration number for $f = \phi(x)$ and $f = \edd(x)$. The Eddington factor's large drop in relative norm between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig.~\ref{fig:vef}, a plot of the iterative convergence for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
 
 	% \begin{figure}
 	% 	\centering
@@ -36,9 +49,7 @@ to compute the cell average Eddington factors.  Figure~\ref{fig:si} shows the it
 	% 	\label{fig:vef}
 	% \end{figure}
 
-To compare SI, VEF, and consistently differenced S$_2$SA, a homogeneous test problem with a reflecting left boundary, a vacuum right boundary, and a total thickness of 10 cm, was used. This system was discretized into 50 spatial cells.  The total macroscopic 
-cross section, $\sigma_t$, was set to \SI{1}{cm^{-1}} leading to an optical thickness per cell of 0.2 mfp and a problem thickness 
-of 10 mfp. The convergence tolerance was set to \num{e-6}. \URL{We need to explain the convergence tolerance in full detail.}  Figure~\ref{fig:si_vef_s2sa} shows the number of iterations required for convergence for SI, VEF, and S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. The ratio of unaccelerated to VEF accelerated iterations ranged from 1.6 to 7. This suggests that acceleration is occurring and that the VEF method is not just doing twice the amount of work per iteration. In addition, the VEF method performed similarly to S$_2$SA. \URL{ I am skeptical of the numbers for 
+The same test problem was repeated with a varying scattering ratio to compare unaccelerated SI, the VEF method, and consistently differenced S$_2$SA. Figure~\ref{fig:si_vef_s2sa} shows the number of iterations required for convergence for SI, VEF, and S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. The ratio of unaccelerated to VEF accelerated iterations ranged from 1.6 to 7. This suggests that acceleration is occurring and that the VEF method is not just doing twice the amount of work per iteration. In addition, the VEF method performed similarly to S$_2$SA. \URL{ I am skeptical of the numbers for 
 the unaccelerated case.  You need to include an estimate of the spectral radius to properly converge the error when the spectral radius is near one.  You need a tighter tolerance - tol = tol *(1 - rho), where rho is the spectral radius estimate. Otherwise you will not actually converge the error to tol but to tol/(1- rho).}
 
 	\begin{figure}
@@ -48,9 +59,21 @@ the unaccelerated case.  You need to include an estimate of the spectral radius 
 		\label{fig:si_vef_s2sa}
 	\end{figure}
 
-The Method of Manufactured Solutions (MMS) was used to compare the accuracy of the VEF method as the cell width was decreased. 
-\URL{We need to explain how you constructed the MMS solution. I can't tell anything about the problem.  In general, you are supposed to provide enough information for 
-the reader to reproduce your calculations.} The L2 norm of the difference between the numerical and MMS solutions was compared at five logarithmically spaced cell widths between \SI{0.5}{mm} and \SI{0.01}{mm}. A line of best fit of the form 
+The Method of Manufactured Solutions (MMS) was used to compare the accuracy of the VEF method as the cell width was decreased. A solution to Eq. \ref{eq:sn} was manufactured by using  
+	\begin{subequations} \label{res:solMMS}
+		\begin{equation}
+			\psi_{n,\text{MMS}}(x) = \sin\paren{\frac{\pi x}{x_b}} \,,
+		\end{equation}
+		\begin{equation}
+			\phi_\text{MMS}(x) = \sum_{n=1}^N \psi_{n,\text{MMS}}(x) w_n = 2 \sin\paren{\frac{\pi x}{x_b}} \,,
+		\end{equation}
+	\end{subequations}
+in Eq. \ref{eq:sn} and solving for $Q(x)$. This yields:
+	\begin{equation} \label{res:fixedSource}
+		Q_{n,\text{MMS}}(x) = \mu_n \frac{\pi}{x_b} \cos\paren{\frac{\pi x}{x_b}} + \bracket{\sigma_t(x) - \sigma_s(x)}\sin\paren{\frac{\pi x}{x_b}} \,.
+	\end{equation}
+Using Eq. \ref{res:fixedSource} as the fixed source in a numerical simulation forces the angular and scalar fluxes to the MMS solutions set in Eq. \ref{res:solMMS}. The difference between the numerical and MMS solutions is then the spatial truncation error introduced by discretizing in space. The order of accuracy of the numerical scheme can then be determined by comparing the numerical error at differing mesh sizes. 
+The L2 norm of the difference between the numerical and known MMS solutions were compared at five logarithmically spaced cell widths between \SI{0.5}{mm} and \SI{0.01}{mm}. A line of best fit of the form 
 	\begin{equation}
 		E = C h^n
 	\end{equation}

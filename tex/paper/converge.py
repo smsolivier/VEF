@@ -18,10 +18,10 @@ if (len(sys.argv) > 1):
 else:
 	outfile = None 
 
-N = 100 
+N = 50 
 
 Sigmat = 1 
-c = .75 
+c = .99
 Sigmaa = Sigmat*(1 - c)
 n = 8 
 q = lambda x, mu: 1
@@ -32,22 +32,24 @@ tol = 1e-6
 
 x = np.linspace(0, xb, N+1)
 
+maxiter = 100000
+
 unac = LD.LD(x, n, lambda x: Sigmaa, lambda x: Sigmat, q)
 
 acc = LD.Eddington(x, n, lambda x: Sigmaa, lambda x: Sigmat, q)
 
-x, phi, it = unac.sourceIteration(tol)
+x, phi, it = unac.sourceIteration(tol, maxiter)
 
-xac, phiac, itac = acc.sourceIteration(tol)
+xac, phiac, itac = acc.sourceIteration(tol, maxiter)
 
 fontsize = 20
 
 # unaccelerated 
 plt.figure()
 plt.semilogy(np.arange(1, len(unac.phiConv)+1), 
-	unac.phiConv, '-o', label=r'$\phi(x)$', clip_on=False)
+	unac.phiConv, label=r'$\phi(x)$', clip_on=False)
 plt.semilogy(np.arange(1, len(unac.eddConv)+1), 
-	unac.eddConv, '-*', label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
+	unac.eddConv, label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
 plt.xlabel('Iteration Number', fontsize=fontsize)
 plt.ylabel('Convergence', fontsize=fontsize)
 plt.legend(loc='best', frameon=False, fontsize=fontsize)

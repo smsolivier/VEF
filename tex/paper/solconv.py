@@ -47,7 +47,8 @@ def makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol):
 	fsize = 20
 	plt.figure()
 	plt.loglog(h, err0, '-o', clip_on=False, label='Flat')
-	plt.loglog(h, err1, '-o', clip_on=False, label='van Leer')
+	plt.loglog(h, err1, '-*', clip_on=False, label='van Leer')
+	plt.xlim(h[0], h[-1])
 	plt.legend(loc='best', frameon=False)
 	plt.xlabel('$h$', fontsize=fsize)
 	plt.ylabel('SI/VEF Convergence', fontsize=fsize)

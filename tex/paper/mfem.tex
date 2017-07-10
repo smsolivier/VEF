@@ -41,10 +41,12 @@ because of the upwinding used to define the cell edge angular fluxes. The spatia
 	\edd_{i} = \frac{1}{2} \bracket{ \langle \mu^2 \rangle (x^G_{i,L}) + \langle \mu^2 \rangle (x^G_{i,R}) } 
 	\ee
 where 
+\URL{
 \begin{equation} 
 		% x^G_{i,L/R} = \frac{h_i}{2} \mp \frac{x_{i+1/2} + x_{i-1/2}}{2\sqrt{3}} \,.
 		x^G_{i,L/R} = \frac{x_{i+1/2} + x_{i-1/2}}{2} \mp \frac{h_i}{2\sqrt{3}} \,.
 \end{equation}
+}
 
 Eliminating $J_{i,R}$ from Eq.~\ref{mfem:bli} and $J_{i,L}$ from Eq.~\ref{mfem:bri} yields: 
 	\begin{subequations}
@@ -196,7 +198,7 @@ that require only cell-centered values to compute slopes \cite{vanLeer}.  We als
 	\begin{equation} \label{consistent:reconstruction}
 		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_i \left(\Delta \phi_{i+1/2} + \Delta \phi_{i-1/2}\right) \,,
 	\end{equation}
-where $\xi$ is a van Leer-type slope limiter \cite{vanLeer}:
+where $\xi$ is a van Leer-type slope limiter \cite{vanLeer}: \URL{
 \begin{subequations}
 	\begin{equation} 
 		\xi_i = \begin{cases}
@@ -217,6 +219,7 @@ and
 			\Delta \phi_{i-1/2} = \phi_i - \phi_{i-1} \,.
 		\end{equation}
 	\end{subequations}
+}
 On the boundaries, we use 
 	\begin{subequations}
 		\begin{equation}
@@ -226,6 +229,4 @@ On the boundaries, we use
 			\phi_{I,L/R} = \phi_I \mp \frac{1}{2} \Delta \phi_{I-1/2} \,.
 		\end{equation}
 	\end{subequations}
-We also set any negative left or right flux values in the boundary cells to zero by appropriately rotating the slopes.
-% \URL{I'm not sure if this was how the slopes were really calculated, but we need to fully explain what was done, 
-% and we should do something to prevent negativities from arising.}
+We also set any negative left or right flux values in the boundary cells to zero by appropriately rotating the slopes. 

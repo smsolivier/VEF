@@ -22,7 +22,7 @@ $(figdir) :
 	-mkdir $(figdir) 
 
 # plot SI v VEF v S2SA
-$(figdir)si_vef_s2sa.pdf : acceleration.py $(LD)
+$(figdir)si_vef_s2sa.pdf : acceleration.py 
 	./$< $@ 
 
 # plot convergence of phi and edd for VEF and SI 

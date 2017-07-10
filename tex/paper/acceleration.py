@@ -34,7 +34,7 @@ def getDiff(c, solver):
 	N = 50
 	n = 8 
 	Q = lambda x, mu: 1
-	xb = 1
+	xb = 10
 	x = np.linspace(0, xb, N+1)
 
 	print('Sigmat*h =', Sigmat(0)*xb/N)

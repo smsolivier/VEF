@@ -67,7 +67,7 @@ N = np.array([int(x) for x in N])
 
 n = 8 
 
-Sigmaa = lambda x: .1
+Sigmaa = lambda x: .01
 Sigmat = lambda x: 1
 
 xb = 1

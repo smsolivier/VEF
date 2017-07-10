@@ -20,16 +20,16 @@ if (len(sys.argv) > 1):
 else:
 	outfile = None 
 
-Nruns = 10
+Nruns = 15
 eps = np.logspace(-3, 0, Nruns)
 
 tol = 1e-6
 
 def getIt(eps, opt, gauss):
 
-	N = 100
+	N = 50
 
-	xb = 1 
+	xb = 10
 
 	x0 = np.linspace(0, xb, N+1)
 	Sigmat = lambda x: 1 

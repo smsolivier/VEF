@@ -291,12 +291,22 @@ class LD(Transport):
 
 			# spectral radius 
 			self.diff.append(np.linalg.norm(.5*(self.phiL + self.phiR) - 
-				.5*(phiL_old + phiR_old), 1))
+				.5*(phiL_old + phiR_old), 2))
 
-			# check for convergence 
-			if (convL < tol and convR < tol): 
+			if (len(self.diff) > 1):
 
-				break # exit loop if converged 
+				if (self.diff[-2] != 0):
+
+					rho = self.diff[-1]/self.diff[-2]
+
+				else:
+
+					rho = 1
+
+				# check for convergence 
+				if (convL < tol*(1 - rho) and convR < tol*(1 - rho)): 
+
+					break # exit loop if converged 
 
 			# update iteration count 
 			it += 1 
@@ -374,6 +384,10 @@ class Eddington(LD):
 
 			phiL, phiR = self.reconstructSlopes(phi) # recover slopes from centers only 
 
+		elif (OPT == 3):
+
+			phiL, phiR = self.constant(phi) # no reconstruction 
+
 		return phiL, phiR 
 
 	def maintainSlopes(self, phi):
@@ -412,6 +426,20 @@ class Eddington(LD):
 
 			phiL[i] = phiEdge[i] 
 			phiR[i] = phiEdge[i+1] 
+
+		return phiL, phiR 
+
+	def constant(self, phi):
+		''' set phi_i,L/R = phi_i from MFEM ''' 
+
+		phiL = np.zeros(self.N)
+		phiR = np.zeros(self.N)
+
+		phiC = self.mhfem.getCenters(phi) # get centers only 
+
+		# set to center value 
+		phiL = phiC
+		phiR = phiC 
 
 		return phiL, phiR 
 
@@ -686,22 +714,22 @@ if __name__ == '__main__':
 	# # create solver objects 
 	ld = LD(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
 	ld.setMMS() # uncomment to run MMS problem 
-	# ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=0)
-	# ed.setMMS()
-	# s2 = S2SA(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
-	# s2.setMMS() 
+	ed = Eddington(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1, OPT=0)
+	ed.setMMS()
+	s2 = S2SA(x, n, Sigmaa, Sigmat, q, BCL=0, BCR=1)
+	s2.setMMS() 
 
 	# # run source iteration 
 	x, phi, it = ld.sourceIteration(tol)
 
-	# xe, phie, ite = ed.sourceIteration(tol)
+	xe, phie, ite = ed.sourceIteration(tol)
 
-	# x2, phi2, it2 = s2.sourceIteration(tol)
+	x2, phi2, it2 = s2.sourceIteration(tol)
 
-	# # plot results 
-	# plt.figure()
+	# plot results 
+	plt.figure()
 	plt.plot(x, phi, '-o', label='LD')
-	# plt.plot(xe, phie, '-o', label='LD Edd')
-	# plt.plot(x2, phi2, '-o', label='S2SA')
-	# plt.legend(loc='best')
+	plt.plot(xe, phie, '-o', label='LD Edd')
+	plt.plot(x2, phi2, '-o', label='S2SA')
+	plt.legend(loc='best')
 	plt.show()

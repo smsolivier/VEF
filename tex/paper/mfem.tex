@@ -1,6 +1,6 @@
 %!TEX root = ./jctt.tex
 
-\subsection{Mixed Finite Element Method for VEF Equation}
+\subsection{Mixed Finite-Element Method for VEF Equation}
 \begin{figure}
 	\centering
 	% \def\svgwidth{\textwidth}
@@ -8,7 +8,7 @@
 	\caption{The distribution of unknowns in cell $i$ for MFEM. }
 	\label{fig:mfem_grid}
 \end{figure}
-We apply the MFEM method to Eqs.~\ref{eq:zero} and \ref{eq:first}, and then eliminate the currents to obtain a discretization for Eq.~\ref{eq:drift}.  In this 
+We apply the MFEM method to Eqs.~\ref{eq:zero} and \ref{eq:first} and then eliminate the currents to obtain a discretization for Eq.~\ref{eq:drift}.  In this 
 method, the grid is identical to that used in the LLDG \SN discretization. The unknowns in an MFEM cell are depicted in Fig.~\ref{fig:mfem_grid}. In MFEM, separate basis functions are used for the scalar flux and 
 current. The scalar flux is constant within the cell with discontinuous jumps at the cell edges and the current is a linear function defined by: 
 	\begin{equation} \label{eq:MFEM_current}
@@ -33,10 +33,9 @@ where $\sigma_{a,i}$ and $Q_i$ are the absorption cross section and source in ce
 			\edd_{i+1/2} \phi_{i+1/2} - \edd_i \phi_i + \sigma_{t,i} h_i \left(\frac{1}{6} J_{i,L} + \frac{1}{3} J_{i,R}\right) = 0 \,, 
 		\end{equation}
 	\end{subequations}
-where the fixed source has been assumed to be isotropic.  Note that $\edd_{i\pm 1/2}$ denotes cell edge Eddington factors, while 
-$\edd_{i}$ denotes an average over cell $i$ of the Eddington factors.  All Eddington factors are computed using the angular fluxes 
-from the LLDG \SN step. The edge Eddington factors are defined by Eq.~\ref{lldg:edde}, while the Eddington factors within each cell 
-are defined by Eq.~\ref{lldg:eddi}.  We stress that evaluating Eq.~\ref{lldg:eddi} at $x_{i\pm1/2}$ does not yield $\edd_{i\pm 1/2}$ 
+where the fixed source has been assumed to be isotropic. All Eddington factors are computed using the angular fluxes from the LLDG \SN step. Note that $\edd_{i\pm 1/2}$ denotes cell edge Eddington factors, while 
+$\edd_{i}$ denotes an average over cell $i$ of the Eddington factors. The edge Eddington factors are defined by Eq.~\ref{lldg:edde}, while the Eddington factors within each cell 
+are defined by Eq.~\ref{lldg:eddi}. We stress that evaluating Eq.~\ref{lldg:eddi} at $x_{i\pm1/2}$ does not yield $\edd_{i\pm 1/2}$ 
 because of the upwinding used to define the cell edge angular fluxes. The spatial dependence of the Eddington factors within each cell takes the form of a rational polynomial prompting the use of numerical quadrature to compute the average. Two point Gauss quadrature was used:
 	\be
 	\edd_{i} = \frac{1}{2} \bracket{ \langle \mu^2 \rangle (x^G_{i,L}) + \langle \mu^2 \rangle (x^G_{i,R}) } 
@@ -136,7 +135,7 @@ J_{I+1/2} = j^+ - j^-  = (j^+ + j^-) - 2j^- = \frac{j^+ + j^-}{\phi} \phi - 2j^-
 \end{equation}
 Note that these source boundary conditions become equivalent to the standard Marshak boundary conditions if the \SN angular flux 
 is isotropic. 
-The resulting system of $2I+1$ equations for the cell-center and cell-edge fluxes can be assembled into a matrix of both cell-center and cell-edge scalar fluxes and solved with a banded matrix solver of bandwidth five. 
+The resulting system of $2I+1$ equations for the cell-center and cell-edge fluxes can be assembled into a matrix of both cell-center and cell-edge scalar fluxes and solved with a banded matrix solver of bandwidth five. The resulting drift-diffusion scalar flux can either be used as the final solution if the solution has converged or as an update to the LLDG \SN scattering term. 
 
 % Applying the MFEM to Eqs.~\ref{eq:zero} and \ref{eq:first} and enforcing continuity of current yields: 
 % 	\begin{subequations} \label{eq:mfem}
@@ -198,16 +197,17 @@ that require only cell-centered values to compute slopes \cite{vanLeer}.  We als
 		\phi_{i,L/R} = \phi_i \mp \frac{1}{4} \xi_i \left(\Delta \phi_{i+1/2} + \Delta \phi_{i-1/2}\right) \,,
 	\end{equation}
 where $\xi$ is a van Leer-type slope limiter \cite{vanLeer}:
+\begin{subequations}
 	\begin{equation} 
 		\xi_i = \begin{cases}
 			0, & r_i \leq 0 \,, \\
 			\text{min}\bracet{\frac{2r_i}{1+r_i} , \frac{2}{1+r_i}} \,, & r_i > 0
 		\end{cases} \,,
 	\end{equation}
-
 	\begin{equation}
 		r_i = \frac{\Delta\phi_{i-1/2}}{\Delta \phi_{i+1/2}} \,,
 	\end{equation}
+\end{subequations}
 and
 	\begin{subequations}
 		\begin{equation}

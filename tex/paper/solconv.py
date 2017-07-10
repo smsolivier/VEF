@@ -21,43 +21,33 @@ def makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol):
 
 	N = np.array([int(xb/x) for x in h])
 
-	err00 = np.zeros(nrun)
-	err20 = np.zeros(nrun)
-	err01 = np.zeros(nrun)
-	err21 = np.zeros(nrun)
+	err0 = np.zeros(nrun)
+	err1 = np.zeros(nrun)
 
 	for i in range(nrun):
 
 		x = np.linspace(0, xb, N[i]+1)
 
 		s2 = LD.S2SA(x, n, Sigmaa, Sigmat, Q)
-		edd00 = LD.Eddington(x, n, Sigmaa, Sigmat, Q, OPT=0, GAUSS=0)
-		edd20 = LD.Eddington(x, n, Sigmaa, Sigmat, Q, OPT=2, GAUSS=0)
-		edd01 = LD.Eddington(x, n, Sigmaa, Sigmat, Q, OPT=0, GAUSS=1)
-		edd21 = LD.Eddington(x, n, Sigmaa, Sigmat, Q, OPT=2, GAUSS=1)
+
+		edd0 = LD.Eddington(x, n, Sigmaa, Sigmat, Q, OPT=3, GAUSS=1)
+		edd1 = LD.Eddington(x, n, Sigmaa, Sigmat, Q, OPT=2, GAUSS=1)
 
 		x2, phi2, it2 = s2.sourceIteration(tol)
-		x00, phi00, it00 = edd00.sourceIteration(tol)
-		x20, phi20, it20 = edd20.sourceIteration(tol)
-		x01, phi01, it01 = edd01.sourceIteration(tol)
-		x21, phi21, it21 = edd21.sourceIteration(tol)
+		x0, phi0, it0 = edd0.sourceIteration(tol)
+		x1, phi1, it1 = edd1.sourceIteration(tol)
 
 		err_f = lambda edd: np.linalg.norm(edd - phi2, 2)/np.linalg.norm(phi2, 2)
 
-		err00[i] = err_f(phi00)
-		err20[i] = err_f(phi20)
-		err01[i] = err_f(phi01)
-		err21[i] = err_f(phi21)
+		err0[i] = err_f(phi0)
+		err1[i] = err_f(phi1)
 
-	print('No reconstruction/Reconstruction =', err00/err20)
-	print('Rat poly/no rat poly for reconstruction', err21/err20)
+	print(err0/err1)
 
 	fsize = 20
 	plt.figure()
-	plt.loglog(h, err00, '-o', clip_on=False, label='None, Average')
-	plt.loglog(h, err01, '-o', clip_on=False, label='None, Rational Polynomial')
-	plt.loglog(h, err20, '-o', clip_on=False, label='Center, Average')
-	plt.loglog(h, err21, '-o', clip_on=False, label='Center, Rational Polynomial')
+	plt.loglog(h, err0, '-o', clip_on=False, label='Flat')
+	plt.loglog(h, err1, '-o', clip_on=False, label='van Leer')
 	plt.legend(loc='best', frameon=False)
 	plt.xlabel('$h$', fontsize=fsize)
 	plt.ylabel('SI/VEF Convergence', fontsize=fsize)
@@ -67,9 +57,9 @@ nrun = 5
 h = np.logspace(-2, -1, nrun)
 n = 8 
 xb = 8
-tol = 1e-8
+tol = 1e-6
 
-c = .75 
+c = .99
 Sigmat = lambda x: 1 
 Sigmaa = lambda x: Sigmat(x) * (1 - c) 
 Q = lambda x, mu: 1 

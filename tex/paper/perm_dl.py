@@ -21,9 +21,9 @@ else:
 	outfile = None 
 
 Nruns = 10
-eps = np.logspace(-6, 0, Nruns)
+eps = np.logspace(-3, 0, Nruns)
 
-tol = 1e-10
+tol = 1e-6
 
 def getIt(eps, opt, gauss):
 
@@ -55,20 +55,16 @@ def getIt(eps, opt, gauss):
 
 	return diff, it 
 
-diff00, it00 = getIt(eps, 0, 0)
-diff10, it10 = getIt(eps, 1, 0)
-diff01, it01 = getIt(eps, 0, 1)
-diff11, it11 = getIt(eps, 1, 1)
-diff20, it20 = getIt(eps, 2, 0)
-diff21, it21 = getIt(eps, 2, 1)
+diff0, it0 = getIt(eps, 3, 1)
+diff1, it1 = getIt(eps, 2, 1)
+# diff01, it01 = getIt(eps, 0, 1)
+# diff11, it11 = getIt(eps, 1, 1)
+# diff20, it20 = getIt(eps, 2, 0)
+# diff21, it21 = getIt(eps, 2, 1)
 
 plt.figure()
-plt.loglog(eps, it00, '-', clip_on=False, label='None, Constant')
-plt.loglog(eps, it01, '-.', clip_on=False, label='None, Linear')
-# plt.loglog(eps, it10, '-^', clip_on=False, label='Edge, Constant')
-# plt.loglog(eps, it11, '-<', clip_on=False, label='Edge, Linear')
-plt.loglog(eps, it20, ':', clip_on=False, label='van Leer, Constant')
-plt.loglog(eps, it21, '--', clip_on=False, label='van Leer, Linear')
+plt.loglog(eps, it0, '--', clip_on=False, label='Flat')
+plt.loglog(eps, it1, '-', clip_on=False, label='van Leer')
 
 plt.xlabel(r'$\epsilon$', fontsize=18)
 plt.ylabel('Number of Iterations', fontsize=18)
@@ -78,12 +74,8 @@ if (outfile != None):
 	plt.savefig(outfile[0])
 
 plt.figure()
-plt.loglog(eps, diff00, '-', clip_on=False, label='None, Constant')
-plt.loglog(eps, diff01, '-.', clip_on=False, label='None, Linear')
-# plt.loglog(eps, diff10, '-^', clip_on=False, label='Edge, Constant')
-# plt.loglog(eps, diff11, '-<', clip_on=False, label='Edge, Linear')
-plt.loglog(eps, diff20, ':', clip_on=False, label='van Leer, Constant')
-plt.loglog(eps, diff21, '--', clip_on=False, label='van Leer, Linear')
+plt.loglog(eps, diff0, '--', clip_on=False, label='Flat')
+plt.loglog(eps, diff1, '-', clip_on=False, label='van Leer')
 
 plt.xlabel(r'$\epsilon$', fontsize=18)
 plt.ylabel('Error', fontsize=18)

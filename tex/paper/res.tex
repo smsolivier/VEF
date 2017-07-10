@@ -19,21 +19,21 @@
 \caption{The convergence rate for $\phi(x)$ and $\edd(x)$ for (a) unaccelerated and (b) VEF accelerated SI. }
 \end{figure}
 
-To show the iterative convergence properties of the VEF method, a homogeneous test problem with a reflecting left boundary, vacuum right boundary, and a total thickness of \SI{10}{cm} was used. This system was discretized into 50 spatial cells. The total and scattering macroscopic cross sections were set to \SI{1}{cm^{-1}} and \SI{0.99}{cm^{-1}} leading to a scattering ratio of 0.99. With 50 spatial cells the optical thickness per cell was 0.2 mfp and the domain thickness was 10 mfp. All calculations in this section were S$_8$ calculations and the scalar flux was point-wise converged for both the left and right discontinuous fluxes according to:
+To show the properties of the VEF method, a homogeneous test problem with a reflecting left boundary, vacuum right boundary, and a total thickness of \SI{10}{cm} was used. This system was discretized into 50 spatial cells. The total and scattering macroscopic cross sections were set to \SI{1}{cm^{-1}} and \SI{0.99}{cm^{-1}} leading to a scattering ratio of $c = \sigma_s/\sigma_t=0.99.$ With 50 spatial cells the optical thickness per cell was 0.2 mfp and the domain thickness was 10 mfp. The fixed source was set to \SI{1}{\frac{particles}{s-steradian}}. All calculations in this section were S$_8$ calculations and the scalar flux was point-wise converged for both the left and right discontinuous fluxes according to:
 	\begin{equation} 
-		\frac{1}{\rho}\max\bracket{\phi_{i,L/R}\relll - \phi_{i,L/R}\rell} < \num{e-6} \,,
+		\frac{1}{1 - \rho}\max\bracket{\phi_{i,L/R}\relll - \phi_{i,L/R}\rell} < \num{e-6} \,,
 	\end{equation}
 where 
 	\begin{equation}
 		\rho = \frac{\| \phi\relll - \phi\rell \|_2}{\| \phi\rell - \phi^{\ell-1} \|_2}
 	\end{equation}
-is the spectral radius. 
+is an estimate for the spectral radius. 
 
-Figure~\ref{fig:si} shows the iterative change defined as:
+Figure~\ref{fig:si} shows the \URL{iterative change} defined as:
 	\begin{equation}
 		\frac{\| f\relll - f\rell \|_2}{\| f\relll \|_2 } \,,
 	\end{equation}	
-as a function of unaccelerated iteration number for $f = \phi(x)$ and $f = \edd(x)$. The Eddington factor's large drop in relative norm between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig.~\ref{fig:vef}, a plot of the iterative convergence for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
+as a function of unaccelerated iteration number for $f = \phi(x)$ and $f = \edd(x)$. The Eddington factor's large drop in relative norm between the first and second iterations supports the claim that the angular shape of the angular flux, and thus the Eddington factor, converges rapidly. When compared to Fig.~\ref{fig:vef}, a plot of the \URL{iterative change} for the VEF method, it is clear that the VEF method transfers the fast rate of convergence of the Eddington factor to the scalar flux. 
 
 	% \begin{figure}
 	% 	\centering
@@ -49,8 +49,7 @@ as a function of unaccelerated iteration number for $f = \phi(x)$ and $f = \edd(
 	% 	\label{fig:vef}
 	% \end{figure}
 
-The same test problem was repeated with a varying scattering ratio to compare unaccelerated SI, the VEF method, and consistently differenced S$_2$SA. Figure~\ref{fig:si_vef_s2sa} shows the number of iterations required for convergence for SI, VEF, and S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. The ratio of unaccelerated to VEF accelerated iterations ranged from 1.6 to 7. This suggests that acceleration is occurring and that the VEF method is not just doing twice the amount of work per iteration. In addition, the VEF method performed similarly to S$_2$SA. \URL{ I am skeptical of the numbers for 
-the unaccelerated case.  You need to include an estimate of the spectral radius to properly converge the error when the spectral radius is near one.  You need a tighter tolerance - tol = tol *(1 - rho), where rho is the spectral radius estimate. Otherwise you will not actually converge the error to tol but to tol/(1- rho).}
+Figure~\ref{fig:si_vef_s2sa} shows the number of iterations required for convergence for unaccelerated SI, the VEF method, and consistently differenced S$_2$SA over a range of scattering ratios. The same homogeneous test problem was used. The ratio of unaccelerated to VEF accelerated iterations ranged from 1.6 to 8. This suggests that acceleration is occurring and that the VEF method is not just doing twice the amount of work per iteration. In addition, the VEF method performed similarly to S$_2$SA.
 
 	\begin{figure}
 		\centering
@@ -68,23 +67,24 @@ The Method of Manufactured Solutions (MMS) was used to compare the accuracy of t
 			\phi_\text{MMS}(x) = \sum_{n=1}^N \psi_{n,\text{MMS}}(x) w_n = 2 \sin\paren{\frac{\pi x}{x_b}} \,,
 		\end{equation}
 	\end{subequations}
-in Eq. \ref{eq:sn} and solving for $Q(x)$. This yields:
+in Eq. \ref{eq:sn} and solving for $Q_n(x)$. This yields:
 	\begin{equation} \label{res:fixedSource}
 		Q_{n,\text{MMS}}(x) = \mu_n \frac{\pi}{x_b} \cos\paren{\frac{\pi x}{x_b}} + \bracket{\sigma_t(x) - \sigma_s(x)}\sin\paren{\frac{\pi x}{x_b}} \,.
 	\end{equation}
-Using Eq. \ref{res:fixedSource} as the fixed source in a numerical simulation forces the angular and scalar fluxes to the MMS solutions set in Eq. \ref{res:solMMS}. The difference between the numerical and MMS solutions is then the spatial truncation error introduced by discretizing in space. The order of accuracy of the numerical scheme can then be determined by comparing the numerical error at differing mesh sizes. 
-The L2 norm of the difference between the numerical and known MMS solutions were compared at five logarithmically spaced cell widths between \SI{0.5}{mm} and \SI{0.01}{mm}. A line of best fit of the form 
+Using Eq. \ref{res:fixedSource} as the fixed source in a numerical simulation forces the angular and scalar fluxes to the MMS solutions set in Eq. \ref{res:solMMS}. The difference between the numerical and MMS solutions is then the spatial truncation error introduced by discretizing in space. To determine the order of accuracy of the VEF method, the L2 norm of the difference between the numerical and known MMS solutions were compared at five logarithmically spaced cell widths between \SI{0.5}{mm} and \SI{0.01}{mm}. A line of best fit of the form 
 	\begin{equation}
 		E = C h^n
 	\end{equation}
-was used to find the order of accuracy, $n$, and the constant of proportionality, $C$, of the numerical error, $E$. These values are provided in Table \ref{tab:mms} for the permutations of average and rational polynomial Eddington representation and slope reconstruction and no reconstruction. All of the permutations are second order accurate and have similar overall accuracy. This suggests that slope reconstruction and Eddington representation do not affect the {\it order} of numerical accuracy. 
-% It is also a testament to the robustness of the VEF method as the 
-
+was used to find the order of accuracy, $n$, and the constant of proportionality, $C$, of the numerical error, $E$. These values are provided in Table \ref{tab:mms} for the VEF method with the flat and van Leer slope reconstruction scattering term update methods. The flat method is: 
+	\begin{equation} 
+		\phi_{i,L/R} = \phi_i \,,
+	\end{equation} 
+where the left side is the scalar flux used to update the LLDG scattering term and the right side the cell-centered MFEM drift-diffusion scalar flux. The lower $C$ value for VEF with van Leer reconstructed slopes suggests that constructing a linear scalar flux dependence from the MFEM drift-diffusion flux increases numerical accuracy. Both methods show second-order accuracy as expected from the orders of accuracy of LLDG and constant-linear MFEM in isolation. This suggests that while slope reconstruction affects numerical accuracy it does not affect the order of accuracy of the method. 
 	\begin{table} \centering
-	\begin{tabular}{|c|c|c|c|c|}
+	\begin{tabular}{|c|c|c|c|}
 	\hline
 	\hline
-	Reconstruction Method & Eddington Representation & Order & $C$ & $R^2$ \\ 
+	Update Method & Order & $C$ & $R^2$ \\ 
 	\hline
 		\input{figs/mms}
 	\hline
@@ -95,16 +95,16 @@ was used to find the order of accuracy, $n$, and the constant of proportionality
 	\end{table}
 	% \afterpage{\clearpage}
 
-The convergence between unaccelerated SI and the VEF method was compared as a function of cell width for a simple homogeneous slab and for Reed's problem. In both cases, the left boundary was reflecting and the right boundary was vacuum. The homogeneous slab had a scattering ratio of 0.75. The cross sections and source for Reed's problem are provided in Table \ref{tab:reedXS}. The L2 norm of the difference between the SI solution and VEF solution is plotted for the four permutations of no reconstruction, van Leer slope limited reconstruction, average Eddington representation, and rational polynomial Eddington representation in Figures~\ref{fig:homo} and \ref{fig:reed} for the homogeneous slab problem and Reed's problem. 
+\URL{The difference between the \SN solution and the VEF method's drift-diffusion solution} was compared as a function of cell width for the same homogeneous slab and for Reed's problem. S$_2$SA was used to generate the \SN solution that the VEF method was compared to. In both cases, the left boundary was reflecting and the right boundary was vacuum. The homogeneous slab had a scattering ratio of 0.99. The cross sections and source for Reed's problem are provided in Table \ref{tab:reedXS}. The L2 norm of the difference between the SI solution and VEF solution is plotted for the VEF method with flat and van Leer limited, cell-centered slope reconstruction scattering term update methods in Figs.~\ref{fig:homo} and \ref{fig:reed} for the homogeneous slab problem and Reed's problem. 
 
 	\begin{table} \centering
 		\begin{tabular}{|c|c|c|c|c|c|}
 			\hline
 			& Region 1 & Region 2 & Region 3 & Region 4 & Region 5 \\ 
 			\hline 
-			$q$ & 10 & 0 & 0 & 0 & 1 \\ 
-			$\Sigma_t$ & 10 & 0.001 & 1 & 5 & 1 \\ 
-			$\Sigma_a$ & 10 & 0 & 0.1 & 0 & 0.1 \\ 
+			$Q$ & 10 & 0 & 0 & 0 & 1 \\ 
+			$\sigma_t$ & 10 & 0.001 & 1 & 5 & 1 \\ 
+			$\sigma_a$ & 10 & 0 & 0.1 & 0 & 0.1 \\ 
 			\hline 
 			Domain & $0 \leq x < 2$ & $2 \leq x < 4$ & $4\leq x < 6$ &
 				$6 \leq x < 7$ & $7 \leq x \leq 8$\\ 
@@ -132,12 +132,9 @@ The convergence between unaccelerated SI and the VEF method was compared as a fu
 		\caption{The L2 norm of the difference between SI and the four permutations of the VEF method as the cell spacing is decreased for (a) the homogeneous slab problem and (b) Reed's problem. }
 	\end{figure}
 
-In the homogeneous problem, VEF with van Leer limited slope reconstruction was five times more convergent \URL{what are we talking about here - iterative convergence or error in the final solution?} than VEF without reconstruction. Use of Gauss quadrature for computing the Eddington factors decreased the van Leer reconstruction convergence by 30\%. 
-\URL{Wow, I don't get this.  We are computing a more accurate average and getting a less accurate solution.  We should add the trapezoidal quadrature results to this} In Reed's problem, reconstruction was twice as accurate as no reconstruction. The calculations 
-using trapezoidal and Gauss quadratures to compute the average Eddington factors were XXX\% and 4\% (more/less) accurate than those using midpoint quadrature. \URL{We need to add trapezoidal results. Note that Average and Rational Polynomial are somewhat confusing terms because the MFEM formalism always calls for an average value of the Eddington factor in the gradient term.  It is just a question of 
-how you compute the average.} 
+In the homogeneous problem, VEF with van Leer limited slope reconstruction was three times \URL{closer} to the \SN solution than VEF without reconstruction. However, in Reed's problem, reconstruction did not affect the convergence of drift-diffusion to \SN. \URL{This could be from the cell-centered slope reconstruction method reaching across material discontinuities}. 
 
-Lastly, slope reconstruction and Eddington factor averaging were tested in the diffusion limit. The cross sections and source were scaled as follows \cite{diflim}: 
+Lastly, the VEF method was tested in the diffusion limit. The cross sections and source were scaled as follows \cite{diflim}: 
 	\begin{subequations} \label{res:scaling}
 		\begin{equation} 
 			\sigma_t(x) \rightarrow \sigma_t(x)/\epsilon \,, 
@@ -149,8 +146,7 @@ Lastly, slope reconstruction and Eddington factor averaging were tested in the d
 			Q(x) \rightarrow \epsilon Q(x) \,. 
 		\end{equation}
 	\end{subequations}
-As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations for convergence within a tolerance of \num{e-8} as $\epsilon \rightarrow 0$ is plotted in Fig.~\ref{fig:dl_it}. The error between the VEF solution and the exact diffusion solution is provided in Fig.~\ref{fig:dl_err}. This supports the claim that the VEF method is robust as all four permutations properly 
-preserved the diffusion limit. 
+As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations for convergence as $\epsilon \rightarrow 0$ is plotted in Fig.~\ref{fig:dl_it}. The error between the VEF solution and the exact diffusion solution is provided in Fig.~\ref{fig:dl_err}. This supports the claim that the VEF method is robust as both scattering update methods properly preserved the thick diffusion limit. 
 	
 	\begin{figure}
 		\centering

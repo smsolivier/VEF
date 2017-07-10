@@ -3,7 +3,7 @@ The Variable Eddington Factor (VEF) method, also known as Quasi-Diffusion (QD), 
 for accelerating source iterations in \SN calculations \cite{AL}.  It is comparable in effectiveness to both linear 
 and nonlinear forms of Diffusion Synthetic Acceleration (DSA), but it offers much more flexibility than DSA.   
 Stability can only be guaranteed with DSA if the diffusion equation is differenced in a manner consistent with that 
-of the \SN equations \cite{A}. Modern \SN codes often use advanced discretization schemes such as discontinuous 
+of the \SN equations \cite{A}. Modern \SN codes often use advanced discretization schemes such as Discontinuous 
 Galerkin (DG) since classic discretization schemes such as step and diamond are not suitable for radiative transfer 
 calculations in the High Energy Density Laboratory Physics (HEDLP) regime or coupled electron-photon calculations.  
 Diffusion discretizations consistent 
@@ -11,6 +11,7 @@ with DG \SN discretizations cannot actually be expressed in diffusion form, but 
 first-order or P$_1$ form, and are much more difficult to solve than standard diffusion discretizations \cite{WWM}.  Considerable 
 effort has gone into the development of ``partially consistent'' diffusion discretizations that yield a stable DSA 
 algorithm with some degree of degraded effectiveness, but such discretizations are also generally difficult to develop \cite{ML,AM,WR}. 
+
 A great advantage of the VEF method is that the drift-diffusion equation that accelerates the \SN source iterations can be 
 discretized in any valid manner without concern for consistency with the \SN discretization.  When the VEF 
 drift-diffusion equation is discretized in a way that is ``non-consistent,'' the \SN and VEF drift-diffusion solutions 
@@ -25,14 +26,14 @@ equations.  Another advantage of the non-consistent approach is that even if the
 scheme does not preserve the thick diffusion limit \cite{LMM}, that limit will generally be preserved using the VEF method. 
  
 The purpose of this paper is to investigate the application of the VEF method to the 1-D \SN equations 
-discretized with the Lumped Linear Discontinuous Galerkin method (LLDG) and the drift-diffusion equation discretized using the 
-constant-linear mixed finite-element method (MFEM).  To our knowledge, this combination has not been previously 
+discretized with the Lumped Linear Discontinuous Galerkin (LLDG) method and the drift-diffusion equation discretized using the 
+constant-linear Mixed Finite-Element Method (MFEM).  To our knowledge, this combination has not been previously 
 investigated.  Our motivation for this investigation is that MFEM methods are now being used for high-order hydrodynamics 
 calculations \cite{blast}.  A radiation transport method compatible with MFEM 
 methods is clearly desirable for developing a MFEM radiation-hydrodynamics code.  Such a code would combine thermal 
 radiation transport with hydrodynamics.  However, MFEM methods are inappropriate for the standard first-order form of the 
 transport equation.    
-Thus the use of the VEF method with a DG \SN discretization and a MFEM drift-diffusion discretization suggests itself.
+Thus, the use of the VEF method with a DG \SN discretization and a MFEM drift-diffusion discretization suggests itself.
 
 Here we define a VEF method that should exhibit second-order accuracy since both the transport and drift-diffusion 
 discretizations are second-order accurate in isolation.  In addition, our VEF method should preserve the thick diffusion 
@@ -46,14 +47,8 @@ a high order DG-MFEM VEF method could be of interest for neutronics in addition 
 A full investigation for radiative transfer calculations will be carried out in a future study. 
 
 The remainder of this paper is organized as follows.  First, we describe the VEF method analytically. Then, we describe 
-our discretized \SN equations, followed by a description of the discretized VEF drift-diffusion equation.  We next give 
-computational results.  More specifically, we describe 
-two ways to represent the \SN variable Eddington factor in the MFEM drift-diffusion equation and several ways to 
-construct the \SN scattering source from the drift-diffusion solution for the scalar flux. Each of these options 
-yields a different VEF method.  The accuracy of these methods is then compared to that of the standard LLDG 
-\SN solution for several test problems, and the iterative convergence rate of these methods is compared to that of the 
-LLDG \SN equations with fully-consistent S$_2$SA acceleration. Finally, we give conclusions and 
-recommendations for future work.
+our discretized \SN equations, followed by a description of the discretized VEF drift-diffusion equation. Methods for increased consistency between LLDG and MFEM are also presented. We next give 
+computational results. We show the acceleration properties of the VEF method, compare the convergence rates of  unaccelerated Source Iteration, the VEF method, and consistently differenced S$_2$SA, present the VEF methods' experimentally-determined order of accuracy, compare the \SN and drift-diffusion solutions as the mesh is refined, and show that this method preserves the thick diffusion limit. Finally, we give conclusions and recommendations for future work. 
 
 % \begin{thebibliography}{99}
 % \bibitem{AL} M.L.  Adams  and  E.W.  Larsen,  ``Fast  Iterative  Methods  for  Discrete-Ordinates  Particle  Transport 

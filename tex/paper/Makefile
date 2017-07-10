@@ -11,6 +11,8 @@ TABS = mms
 TABS := $(addsuffix .tex, $(TABS))
 TABS := $(addprefix $(figdir), $(TABS))
 
+LD = $(codedir)ld.py
+
 # generate all figures 
 .PHONY : all 
 all : $(figdir) $(FIGS) $(TABS) $(MAIN).pdf
@@ -20,15 +22,15 @@ $(figdir) :
 	-mkdir $(figdir) 
 
 # plot SI v VEF v S2SA
-$(figdir)si_vef_s2sa.pdf : acceleration.py 
+$(figdir)si_vef_s2sa.pdf : acceleration.py $(LD)
 	./$< $@ 
 
 # plot convergence of phi and edd for VEF and SI 
-$(figdir)si.pdf : converge.py $(codedir)ld.py
+$(figdir)si.pdf : converge.py 
 	./$< $@ $(figdir)vef.pdf 
 
 # create table of MMS errors 
-$(figdir)mms.tex : mms.py 
+$(figdir)mms.tex : mms.py
 	./$< $@ 
 
 # plot of solution convergence for homogeneous and Reed's problem 

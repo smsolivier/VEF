@@ -51,7 +51,7 @@ def compare(h, Sigmaa, Sigmat, Q, OPT, GAUSS, label):
 h = np.logspace(-2, -1, 3)
 
 Sigmat = lambda x: 1 
-Sigmaa = lambda x: .25 
+Sigmaa = lambda x: .01 
 Q = lambda x, mu: 1 
 
 compare(h, Sigmaa, Sigmat, Q, 0, 0, '00')

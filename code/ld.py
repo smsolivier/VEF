@@ -484,6 +484,10 @@ class Eddington(LD):
 
 		for i in range(self.N):
 
+			if ((i == 0 or i == self.N) and slope[i] < 0):
+
+				slope[i] *= -1 
+
 			phiL[i] = phiC[i] - slope[i] / 2
 			phiR[i] = phiC[i] + slope[i] / 2
 

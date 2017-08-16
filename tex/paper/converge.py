@@ -51,7 +51,7 @@ plt.semilogy(np.arange(1, len(unac.phiConv)+1),
 plt.semilogy(np.arange(1, len(unac.eddConv)+1), 
 	unac.eddConv, label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
 plt.xlabel('Iteration Number', fontsize=fontsize)
-plt.ylabel('Convergence', fontsize=fontsize)
+plt.ylabel('Relative Iterative Change', fontsize=fontsize)
 plt.legend(loc='best', frameon=False, fontsize=fontsize)
 hidespines(plt.gca())
 if (outfile != None):
@@ -64,7 +64,7 @@ plt.semilogy(np.arange(1, len(acc.phiConv)+1),
 plt.semilogy(np.arange(1, len(acc.eddConv)+1), 
 	acc.eddConv, '-*', label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
 plt.xlabel('Iteration Number', fontsize=fontsize)
-plt.ylabel('Convergence', fontsize=fontsize)
+plt.ylabel('Relative Iterative Change', fontsize=fontsize)
 plt.legend(loc='best', frameon=False, fontsize=fontsize)
 hidespines(plt.gca())
 if (outfile != None):

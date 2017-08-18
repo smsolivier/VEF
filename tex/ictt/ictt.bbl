@@ -1,0 +1,13 @@
+\begin{thebibliography}{1}
+
+\bibitem{AL}
+{\sc M.~Adams and E.~Larsen}, {\em Fast iterative methods for
+  discrete-ordinates particle transport calculations}, Progress in Nuclear
+  Energy, 40 (2002), pp.~3--159.
+
+\bibitem{LMM}
+{\sc E.~W. Larsen, J.~Morel, and {Warren F. Miller, Jr.}}, {\em Asymptotic
+  solutions of numerical transport problems in optically thick, diffusive
+  regimes}, Journal of Computational Physics, 69 (1987), pp.~283--324.
+
+\end{thebibliography}

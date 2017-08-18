@@ -1,0 +1,171 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  This is a sample LaTeX input file for your contribution to ICTT25.
+%  Modified by from the ICTT24 template by Vittorio Romano, UNICT, who
+%  got ICTT23 template from Jim Warsa, LANL, who got the MC2013
+%  template from R.C. Martineau at INL from A. Sood at LANL, from
+%  J. Wagner ORNL who obtained the original class file by Jim Warsa,
+%  LANL, 16 July 2002}
+%
+%  Please use it as a template for your full paper 
+%    Accompanying/related file(s) include: 
+%       1. Document class/format file: ictt25.cls
+%       2. Sample Postscript Figure:   figure.eps
+%       3. A PDF file showing the desired appearance: template.pdf 
+%    Direct questions about these files to: gentile1@llnl.gov
+%
+%    Notes: 
+%
+%      (1) You can make this document most easily by typing ``pdflatex
+%      template.tex'' at the prompt.
+%
+%      (2) Different versions of LaTeX have been observed to 
+%          shift the page down (as seems to be the case if your
+%          latex installation has A4 paper as default), causing 
+%          improper margins. If this occurs, adjust the "topmargin" 
+%          value in the ictt25.cls file to achieve the proper margins. 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{ictt25}
+%
+%  various packages that you may wish to activate for usage 
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tabls}
+\usepackage{afterpage}
+\usepackage{cites}
+\usepackage{epsf}
+\usepackage{xspace}
+
+\newcommand{\SN}{S$_N$\xspace}
+\renewcommand{\vec}[1]{\bm{#1}} %vector is bold italic
+\newcommand{\vd}{\bm{\cdot}} % slightly bold vector dot
+\newcommand{\ud}{\mathop{}\!\mathrm{d}} % upright derivative symbol
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dderiv}[2]{\frac{\ud #1}{\ud #2}}
+\newcommand{\edd}{\langle \mu^2 \rangle} 
+
+\newcommand{\rell}{^\ell} % raise to ellth power 
+\newcommand{\relll}{^{\ell+1}} % raise to ell + 1 th power 
+\newcommand{\rellh}{^{\ell+1/2}} % raise to ell + 1/2 power
+
+\newcommand{\paren}[1]{\left(#1\right)} 
+\newcommand{\br}[1]{\left[#1\right]}
+\newcommand{\curl}[1]{\left\{#1\right\}}
+
+\newcommand{\eddphi}[1]{\edd_{#1}\phi_{#1}}
+\newcommand{\ALPHA}[2]{\frac{#1}{\sigma_{t,#2} h_{#2}}}
+
+\newcommand{\bracket}[1]{\left[ #1 \right]}
+
+%
+% Insert authors' names and short version of title in lines below
+%
+
+\newcommand{\authorHead}      % Author's names here
+   {S. Olivier, J. Morel}  
+\newcommand{\shortTitle}      % Short title here
+   {Variable Eddington Factor Method}  
+
+\renewcommand\Authfont{\normalsize} 
+\renewcommand\Affilfont{\itshape\small}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Set title and authors here
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Variable Eddington Factor Method for \SN Equations with a Discontinuous Galerkin Spatial Discretization and a Mixed Finite Element Drift Diffusion Equation}
+
+\author[1]{S. Olivier} 
+\author[2]{J. Morel} 
+\affil[1]{solivier@berkeley.edu, University of California, Berkeley}
+\affil[2]{morel@tamu.edu, Texas A\&M University} 	
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%   BEGIN DOCUMENT
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\normalsize
+
+%      Headers and Footers
+
+\afterpage{%
+\fancyhf{}%
+\fancyhead[CE]{              
+{\scriptsize \authorHead}}                                                
+\fancyhead[CO]{               
+{\scriptsize \shortTitle}}                  
+\rfoot{\thepage/\totalpages{}}%
+
+%     Change this if your installation causes the document to be shifted downward
+}
+\setlength{\topmargin}{-20pt}
+
+\pagestyle{fancy}
+
+\maketitle
+
+%
+% SET RAGGED RIGHT MARGIN
+%
+\raggedright
+
+%\setlength{\baselineskip}{14pt}
+\normalsize
+
+\Section{Introduction} 
+\label{sec:intro}
+
+The Variable Eddington Factor (VEF) method, also known as Quasi-Diffusion (QD), was one of the first nonlinear methods for accelerating source iterations in \SN calculations \cite{AL}. It is comparable in effectiveness to both linear and nonlinear forms of Diffusion Synthetic Acceleration (DSA), but without the requirement of consistency between the discretizations of the high and low order equations. In addition, the VEF solution is conservative and will generally preserve the thick diffusion limit \cite{LMM}. This is particularly useful in multiphysics calculations where the low-order drift-diffusion equation can be coupled to the other physics components instead of the high-order \SN equations. 
+
+The purpose of this work is to derive a Discontinuous Galerkin (DG) radiation transport method compatible with high-order Mixed Finite Element Method (MFEM) hydrodynamics. As this is an initial study, we limit the investigation to the one group neutron transport equation in slab geometry rather than the full radiative transfer equations. The \SN equations were discretized with the Lumped Linear Discontinuous Galerkin (LLDG) method and the VEF drift-diffusion equation was discretized with the constant-linear Mixed Finite Element Method (MFEM). 
+
+\Section{The Variable Eddington Factor Method}
+Here, we describe the VEF method for a planar geometry, fixed-source problem with \SN angular discretization:
+	\begin{equation} \label{eq:sn}
+		\mu_n \dderiv{\psi_n}{x}(x) + \sigma_t(x) \psi_n(x) = 
+		\frac{\sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \quad 1 \leq n \leq N \,,
+	\end{equation}
+where $\psi_n(x) = \psi(x, \mu_n)$ is the angular flux due to neutrons with directions in the cone defined by $\mu_n$.  The $\mu_n$ are given by an $N$-point Gauss quadrature rule such that the scalar flux, $\phi(x)$, is numerically integrated as follows: 
+	\begin{equation} \label{eq:phiquad}
+		\phi(x) = \sum_{n=1}^N w_n \psi_n(x) \,,
+	\end{equation}
+where $w_n$ is the quadrature weight corresponding to $\mu_n$. The VEF method begins by solving Eq. \ref{eq:sn} while lagging the scattering source. This is called a Source Iteration (SI) and is represented as follows:
+	\begin{equation} \label{eq:si}
+		\mu_n \dderiv{}{x}\psi_n\rellh(x) + \sigma_t(x) \psi_n\rellh(x) = 
+		\frac{\sigma_s(x)}{2} \phi^\ell(x) + \frac{Q(x)}{2} \,, \quad 1 \leq n \leq N \,,
+	\end{equation}
+where $\ell$ is the iteration index. The scalar flux used in the scattering source, $\phi\rell$, is assumed to be known either from the previous iteration or from the initial guess if $\ell=0$. The second iterative step is to obtain a final ``accelerated" iterate for the scalar flux by solving the VEF drift-diffusion equation using angular flux shape information from the source iteration step:
+	\begin{equation} \label{eq:drift}
+	-\dderiv{}{x} \frac{1}{\sigma_t(x)} \dderiv{}{x} \bracket{\edd\rellh(x)\phi\relll(x)} + \sigma_a(x) \phi\relll(x) = Q(x) \,,
+	\end{equation}
+	where the Eddington factor is given by
+	\begin{equation} \label{eq:eddington} 
+			\edd\rellh(x) = \frac{\int_{-1}^1 \mu^2 \psi\rellh(x, \mu) \ud \mu}{\int_{-1}^1 \psi\rellh(x, \mu) \ud \mu} \, .
+		\end{equation}
+Note that the Eddington factor depends only upon the angular shape of the angular flux, and not its magnitude. The VEF drift-diffusion scalar flux solution is then used to update the scattering term in Eq. \ref{eq:sn}. This process is repeated until convergence of the scalar flux at step $\ell+1$ is achieved. 
+
+Applying LLDG to Eq. \ref{eq:sn} and constant-linear MFEM to Eq. \ref{eq:drift} produces a basis function mismatch in the scalar flux as the LLDG represents the scalar flux as a linear function while MFEM represents the scalar flux as a constant. To increase consistency between the \SN and drift-diffusion steps, van Leer slope reconstruction was applied when updating the \SN scattering term with the drift-diffusion scalar flux. 
+
+In a homogeneous slab problem, the VEF method performed similarly to consistently differenced S$_2$SA and for $\sigma_s/\sigma_t = 1$ took 267 times fewer iterations than unaccelerated source iteration. 
+Comparing the error reduction as the mesh was refined using a manufactured solution showed that the VEF method exhibited second-order accuracy as expected from the orders of accuracy of LLDG and constant-linear MFEM in isolation. In addition, the van Leer slope reconstructed solution was 1.5 times more accurate than the solution without reconstruction. The difference between the \SN and VEF drift-diffusion solutions was shown also shown to decrease as the mesh was refined for both a homogeneous problem and for Reed's problem. Lastly, the VEF method was shown to preserve the thick diffusion limit. 
+
+\Section{Conclusions}
+The VEF method has been applied to the one-group, slab-geometry neutron transport equation coupling \SN equations with a Lumped Linear Discontinuous Galerkin spatial discretization and a drift-diffusion equation with a constant-linear Mixed Finite Element Method discretization. We have numerically demonstrated that our LLDG/MFEM VEF method is as effective as consistently-differenced S$_2$SA; that both the \SN and drift-diffusion equations exhibit second-order accuracy and thus approach each other with second-order accuracy as the spatial mesh is refined; and that the thick diffusion limit is preserved. In addition, a van Leer slope reconstruction method was shown to increase accuracy in a manufactured solution problem. Most importantly, it is clear that \SN and and drift-diffusion solutions that differ in proportion to truncation error is a small price to pay for the versatility afforded by the VEF method for multiphysics calculations. The conservative drift-diffusion equation can be coupled to the other physics equations and discretized in a manner compatible with those equations.  Furthermore, the difference between the \SN and drift-diffusion equations is a measure of the truncation error of the drift-diffusion solution, which is a very useful error estimator naturally provided by the VEF method.  
+
+\setlength{\baselineskip}{12pt}
+\bibliographystyle{siam}
+\bibliography{references}
+
+
+\end{document}

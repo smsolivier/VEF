@@ -1,0 +1,96 @@
+Background 
+	old method for nonlinear acceleration 
+	description of 2 solutions 
+	new application for different discretizations 
+
+Motivation 
+	DG is used in SN 
+	consistent diffusion must be expressed in P1 form 
+		much more difficult to solve 
+	VEF drift diffusion can be any valid discretization 
+		no concern for consistency needed 
+	VEF drift diffusion is conservative 
+	multiphysics 
+		conservative 
+		use discretization beneficial for other physics components 
+
+Purpose
+	investigate VEF for 1D, one group, LLDG/MFEM neutron transport 
+	MFEM is being used for high order hydrodynamics 
+		MFEM is inapropriate for standard form of TE 
+
+Description of VEF Method 
+	show TE 
+	apply SN
+	setup SI 
+	show VEF drift diffusion equation 
+	definition of VEF 
+	flowchart of algorithm 
+	hypothesis for acceleration 
+		eddington converges faster 
+		inclusion of scattering 
+
+LLDG (provide background to understand slope reconstruction)
+	diagram of basis functions 
+	upwinding for cell edge eddington 
+	within cell eddington formula 
+
+MFEM 
+	diagram of basis functions 
+	identical grid 
+	weak form of equations 
+	apply 
+		eliminate J 
+		continuity of current 
+		phi_i-1/2 = phi_(i-1)+1/2
+	description of global unknowns 
+	boundary conditions from QD 
+	solution from banded matrix of center and edge fluxes 
+
+Scattering update methods 
+	clearly define names of methods 
+	diagram of slope reconstruction methods 
+		flat update 
+		linear 
+		edge reconstruction? 
+	temperature equation will not have edges (no continuity of T)
+	van leer limiting 
+		monotonicity 
+
+Computational Results 
+	iterative convergence transfer 
+		eddington does converge faster 
+	comparison to SI and S2SA 
+		as effective 
+	MMS setup (full but skip if low on time)
+		increased accuracy from slope reconstruction 
+		same order of accuracy 
+		2nd order method 
+	solution convergence 
+		be clear about iterative v solution 
+		homogeneous and reeds problem
+			show solutions to highlight discontinuities 
+		2nd order convergence between solutions 
+		explanation for loss of increased convergence for reed 
+	Diffusion limit 
+		cross section scaling 
+		works for both update method 
+
+Conclusions 
+	reiterate comp results 
+		as effective as S2SA
+		2nd order accurate 
+		preservation of thick diffusion limit 
+		scattering reconstruction good 
+	2 solutions is small price to pay for discretization versatility 
+		built in measure of truncation error (naturally provided)
+
+Future Work 
+	2/3D 
+	Radiative Transfer
+		teleportation effect of unresolved temperature grid 
+	high order finite elements 
+	adapt for k eig calculations 
+
+Extra slides:
+	diagrams for other possible reconstruction methods 

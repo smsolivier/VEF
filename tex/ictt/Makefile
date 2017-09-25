@@ -4,7 +4,7 @@ figdir = figs/
 MAIN = pres
 
 # FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err mfemgrid lldggrid
-FIGS = vef_flow
+FIGS = vef_flow vef_discretized
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
@@ -21,35 +21,26 @@ all : $(figdir) $(FIGS) $(MAIN).pdf
 $(figdir) :
 	mkdir $(figdir) 
 
-# latex SVG of MFEM figure 
-$(figdir)mfemgrid.pdf : ink/mfem.svg 
-	# generate pdfs 
-	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
-	# make it recognize directory structure 
-	sed -i 's/mfemgrid.pdf/figs\/mfemgrid.pdf/' $(figdir)mfemgrid.pdf_tex 
-	# delete lines with page=2 
-	sed -i '/page=2/d' $(figdir)mfemgrid.pdf_tex 
-
-# latex SVG of LLDG figure 
-$(figdir)lldggrid.pdf : ink/lldg.svg 
-	# generate pdfs 
-	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
-	# make it recognize directory structure 
-	sed -i 's/lldggrid.pdf/figs\/lldggrid.pdf/' $(figdir)lldggrid.pdf_tex 
-	# delete lines with page=2 
-	sed -i '/page=2/d' $(figdir)lldggrid.pdf_tex 
-
 # algorithm flow chart figure 
 $(figdir)vef_flow.pdf : ink/vef_flow.svg 
 	# generate pdfs 
 	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
 	# make it recognize directory structure 
-	sed -i 's/vef_flow.pdf/figs\/vef_flow.pdf/' $(figdir)vef_flow.pdf_tex
+	sed -i 's/$(notdir $@)/figs\/$(notdir $@)/' $@_tex
 	# delete lines with page=2 
-	sed -i '/page=2/d' $(figdir)vef_flow.pdf_tex
+	sed -i '/page=2/d' $@_tex
+
+# colored version 
+$(figdir)vef_discretized.pdf : ink/vef_discretized.svg 
+	# generate pdfs 
+	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
+	# make it recognize directory structure 
+	sed -i 's/$(notdir $@)/figs\/$(notdir $@)/' $@_tex
+	# delete lines with page=2 
+	sed -i '/page=2/d' $@_tex
 
 # compile latex 
-$(MAIN).pdf: $(MAIN).tex $(FIGS) $(TABS)
+$(MAIN).pdf: $(FIGS) $(TABS) $(MAIN).tex
 	latexmk -pdf \
 		-pdflatex="pdflatex --interaction=nonstopmode --shell-escape %O %S" $(MAIN)
 

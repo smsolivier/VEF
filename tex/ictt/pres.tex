@@ -1,6 +1,6 @@
-\documentclass[10pt,draft]{beamer}
+\documentclass[10pt]{beamer}
 
-\usetheme[progressbar=frametitle]{metropolis}
+\usetheme[progressbar=foot, sectionpage=none]{metropolis}
 % font options
 \usefonttheme{professionalfonts}
 \usepackage{appendixnumberbeamer}
@@ -11,7 +11,7 @@
 \usepackage{pgfplots}
 \usepgfplotslibrary{dateplot}
 
-% \usepackage{lmodern}
+\usepackage{lmodern}
 
 \usepackage{cancel}
 
@@ -23,7 +23,7 @@
 
 \usepackage[usestackEOL]{stackengine}
 
-\title{Variable Eddington Factor Method for Inconsistently Differenced Source Iteration}
+\title{\color{berkeleyblue} Variable Eddington Factor Method for Inconsistently Differenced Source Iteration}
 \subtitle{\normalsize International Conference on Transport Theory \\ Novel Numerical Methods}
 % \date{\today}
 \date{October 19, 2017}
@@ -32,18 +32,28 @@
 \scriptsize
 % \url{https://github.com/smsolivier/EddingtonAcceleration.git} \\ 
 \vfill
-\centerline{\includegraphics[height=.75cm]{nuen-logo.png}}}
+% \centerline{\includegraphics[height=.75cm]{nuen-logo.png}}
 % \titlegraphic{\hfill\includegraphics[height=1.5cm]{nuen-logo.png}}
+}
 
 \newcommand{\SN}{S$_N$\xspace}
 \renewcommand{\vec}[1]{\bm{#1}} %vector is bold italic
 \newcommand{\vd}{\bm{\cdot}} % slightly bold vector dot
-\newcommand{\grad}{\vec{\nabla}} % gradient
 \newcommand{\ud}{\mathop{}\!\mathrm{d}} % upright derivative symbol
 \newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\dderiv}[2]{\frac{\ud #1}{\ud #2}}
 \newcommand{\edd}{\langle \mu^2 \rangle} 
-\begin{document}
+\newcommand{\rell}{^\ell} % raise to ellth power 
+\newcommand{\relll}{^{\ell+1}} % raise to ell + 1 th power 
+\newcommand{\rellh}{^{\ell+1/2}} % raise to ell + 1/2 power
+\newcommand{\bracket}[1]{\left[ #1 \right]}
+
+\newcommand{\paren}[1]{\left(#1\right)} 
+\newcommand{\br}[1]{\left[#1\right]}
+\newcommand{\curl}[1]{\left\{#1\right\}}
+
+\newcommand{\eddphi}[1]{\edd_{#1}\phi_{#1}}
+\newcommand{\ALPHA}[2]{\frac{#1}{\sigma_{t,#2} h_{#2}}}
 
 % make blocks fill 
 \metroset{block=fill}
@@ -53,699 +63,206 @@
 
 % color options
 \definecolor{maroon}{RGB}{80,0,0}
-\setbeamercolor{progress bar}{fg=maroon}
-\setbeamercolor{progress bar in head/foot}{fg=maroon}
-\setbeamercolor{progress bar in section page}{fg=maroon}
+\definecolor{berkeleyblue}{HTML}{003262}
+\definecolor{calgold}{HTML}{FDB515}
+\setbeamercolor{progress bar}{fg=calgold, bg=berkeleyblue!30}
+\setbeamercolor{progress bar in head/foot}{fg=calgold, bg=berkeleyblue!30}
+\setbeamercolor{progress bar in section page}{fg=calgold, bg=berkeleyblue!30}
+\setbeamercolor{palette primary}{bg=berkeleyblue}
 
-% \setbeamercolor{alerted text}{fg=maroon}
+\setbeamercolor{alerted text}{fg=calgold}
+
+\setbeamertemplate{frametitle continuation}{}
+
+\setbeamertemplate{frame numbering}[fraction]
+
+
+% ---------------------------------------
+\begin{document}
 
 \maketitle
 
-\begin{frame}{Overview}
+\begin{frame}[plain,noframenumbering]{Overview}
   \setbeamertemplate{section in toc}[sections numbered]
   \tableofcontents[hideallsubsections]
 \end{frame}
 
-\section{Motivation}
+\section{Background}
 
-% \begin{frame}{Radiation Hydrodynamics }
+\begin{frame}{Variable Eddington Factor Method/Quasi Diffusion Background}
+
+	\begin{itemize}
 	
-% 	Describes
-% 	\vspace{-.05in}
-% 	\begin{itemize}
-% 		\item Propogation of thermal radiation through a fluid
-% 		\item Effects of emission, absorption, scattering on fluid momentum and energy 
-% 	\end{itemize}
+		\item One of the first nonlinear methods for accelerating source iterations 
 
-% 	Required in high energy density laboratory physics (NIF, Z Machine) and astrophysics 
+		\item Produces 2 solutions: one from \SN and one from a transport informed diffusion equation (drift diffusion)
+		\begin{itemize}
+			\item Do not necessarily become identical when the iterative process converges 
+			\item Solutions do converge as the mesh is refined $\Rightarrow$ built in truncation estimator 
+		\end{itemize}
 
-% 	Operator Split: advance hydrodynamics and radiation separately 
 
-% 	Need hydrodynamics and transport to be consistently differenced  
-% 	\vspace{-.05in}
-% 	\begin{itemize}
-% 		\item Use the same method or do extra work to make differing methods agree 
-% 		\item Interpolating between spatial grids introduces noise 
-% 		\item Matching grids between methods is not always possible in higher dimensions 
-% 	\end{itemize}
+	\end{itemize}
 
-% \end{frame}
+\end{frame}
+
+\begin{frame}{Why Nonlinear Acceleration?}
+
+	\begin{itemize}
+
+		\item Classic discretizations (step, diamond) are not suitable for radiative transfer in High Energy Density Physics regime $\Rightarrow$ Discontinuous Galerkin (DG) 
+
+		\item Linear acceleration of Discontinuous Finite Element \SN is problematic 
+		\begin{itemize}
+			\item Transport and diffusion must be consistently differenced to prevent instability 
+
+			\item Requires the diffusion equation to be expressed in $P_1$ form which is more difficult to solve (Warsa, Wareing, Morel, NSE 2002) 
+
+			\item Partially consistent linear acceleration methods are generally difficult to develop (Wang and Ragusa, NSE 2010)
+
+		\end{itemize}
+
+	\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Why Nonlinear Acceleration? (Cont)}
+
+	\begin{itemize}
+
+		\item Nonlinear acceleration has relaxed consistency requirements 
+		\begin{itemize}
+			\item Drift diffusion acceleration equation can be discretized in any valid manner without regard for consistency with \SN  
+
+			\item Preserves the thick diffusion limit regardless of discretization consistency 
+		\end{itemize}
+
+		\item Can use VEF drift diffusion in multiphysics iterations 
+		\begin{itemize}
+
+			\item VEF drift diffusion is conservative and inexpensive (compared to an \SN sweep) 
+
+			\item Couple drift diffusion to other physics components 
+
+			\item Can use discretization compatible with other physics while still retaining benefits of DG \SN 
+
+		\end{itemize}
+
+	\end{itemize}
+
+\end{frame}
 
 \begin{frame}{Motivation}
 
-	\footnotesize
-	Radiation Hydrodynamics 
-	\vspace{-.05in}
 	\begin{itemize}
-		\item Describes the effects of thermal radiation on fluid momentum and energy 
-		\item Required in high energy density laboratory experiments (NIF, Z Machine) and astrophysics 
+
+		\item Mixed Finite Element Method (MFEM) is being used for high order hydrodynamics calculations (Dobrev, Kolev, Rieben, SIAM 2012)
+
+		\item MFEM is not appropriate for standard, first-order form of transport equation 
+
+		\item $\Rightarrow$ VEF method with DG \SN discretization + MFEM drift diffusion discretization 
+
 	\end{itemize}
 
-	Mixed Hybrid Finite Element Method (MHFEM) hydrodynamics 
+	\begin{alertblock}{Goals}
+		
+		Show Lumped Linear Discontinuous Galerkin (LLDG) \SN can be paired with MFEM drift diffusion for one group, 1D neutron transport 
 
-	Problems
-	\vspace{-.05in}
-		\begin{itemize}
-			\item MHFEM and first-order form of transport are incompatible $\Rightarrow$ can't use linear acceleration scheme 
-			\item Radiation transport is expensive 
-		\end{itemize}
-
-	\begin{block}{Goal}
-		Develop a transport algorithm that 
-			\begin{enumerate} \vspace{-.05in}
-				\item \alert<2>{Accelerates Discrete Ordinates Source Iteration}
-				\item Bridges Linear Discontinuous Galerkin (LDG) transport and MHFEM multiphysics
-			\end{enumerate}
-		\vspace{-.05in}
-	\end{block}
+	\end{alertblock}
 
 \end{frame}
 
-\section{Source Iteration Background}
-
-\begin{frame}{Boltzmann Equation}
-	Steady-state, mono-energetic, istropically-scattering, fixed-source \alert{Linear Boltzmann Equation} in 1D slab geometry:
-	\begin{equation*}
-		\mu \pderiv{\psi}{x}(x, \mu) + \Sigma_t(x) \psi(x,\mu) = 
-		\frac{\Sigma_s(x)}{2} \int_{-1}^{1} \psi(x, \mu') d\mu' + \frac{Q(x)}{2}
-	\end{equation*}
-
-	$\mu = \cos \theta$ the cosine of the angle of flight $\theta$ relative to the $x$-axis
-
-	$\Sigma_t(x)$, $\Sigma_s(x)$ total and scattering macroscopic cross sections 
-
-	$Q(x)$ the isotropic fixed-source
-
-	$\psi(x,\mu)$ the angular flux 
-
-	% Factors of 1/2 come from 
-	%     \begin{equation*}
-	%         \phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu
-	%     \end{equation*}
-
-	\onslide<2>
-	\vfill
-	\centerline{\textbf{Integro-differential equation}}
-
-\end{frame}
-
-\begin{frame}{Discrete Ordinates (\SN) Angular Discretization}
-
-	Compute angular flux on $N$ discrete angles
-	\begin{equation*}
-		\psi(x,\mu) \xrightarrow{\text{S}_N} 
-		\begin{cases}
-			\psi_1(x), & \mu = \mu_1 \\ 
-			\psi_2(x), & \mu = \mu_2 \\ 
-			\vdots \\ 
-			\psi_N, & \mu = \mu_N 
-		\end{cases}
-	\end{equation*}
-
-	\pause
-	$\mu_1$, $\mu_2$, $\dots$, $\mu_N$ defined by $N$-point Gauss Quadrature Rule 
-
-	\pause
-	Integrate order $2N-1$ polynomials exactly with 
-	\begin{equation*}
-		\phi(x) = \int_{-1}^1 \psi(x, \mu) \ud\mu 
-			\xrightarrow{\text{S}_N} \sum_{n=1}^N 
-			w_n \psi_n(x)
-	\end{equation*}
-
-\end{frame}
+\section{Description of VEF Method}
 
 \begin{frame}{\SN Equations}
 
-	\begin{block}{\SN Equations}
-	\begin{equation*}
-		\mu_n \dderiv{\psi_n}{x}(x) + \Sigma_t(x) \psi_n(x) = 
-		\frac{\Sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \, 1 \leq n \leq N
+	Planar geometry, fixed-source, 1-D, one group, neutron transport equation 
+	\begin{equation*} 
+		\mu \pderiv{\psi}{x} \paren{x, \mu} + \sigma_t(x) \psi(x,\mu) = 
+			\frac{\sigma_s(x)}{2} \int_{-1}^1 \psi(x,\mu') \ud \mu' + \frac{Q(x)}{2}
 	\end{equation*}
-	\begin{equation*}
-		\phi(x) = \sum_{n=1}^N w_n \psi_n(x)
+
+	\pause
+	\SN angular discretization 
+	\begin{equation*} \label{eq:sn}
+		\mu_n \dderiv{\psi_n}{x}(x) + \sigma_t(x) \psi_n(x) = 
+		\frac{\sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \quad 1 \leq n \leq N
 	\end{equation*}
-	\end{block}
 
-	\textbf{$N$ coupled, ordinary differential equations}
-
-	All coupling in scattering term 
+	where 
+	\begin{equation*}
+		\phi(x) = \sum_{n=1}^N w_n \psi_n(x) \,, \psi_n(x) = \psi(x, \mu_n)
+	\end{equation*}
 
 \end{frame}
 
 \begin{frame}{Source Iteration}
 
-	Decouple by lagging scattering term 
-	\begin{equation*}
-		\mu_n \dderiv{\psi_n^{\ell+1}}{x}(x) + \Sigma_t(x) \psi_n^{\ell+1}(x) = 
-		\frac{\Sigma_s(x)}{2} \phi^{\ell}(x) + \frac{Q(x)}{2} \,, 1 \leq n \leq N        
+	Lag scattering term 
+	\begin{equation*} \label{eq:si}
+		\mu_n \dderiv{}{x}\psi_n\rellh(x) + \sigma_t(x) \psi_n\rellh(x) = 
+		\frac{\sigma_s(x)}{2} \phi^\ell(x) + \frac{Q(x)}{2} \,, \quad 1 \leq n \leq N 
 	\end{equation*}
 
-	\textbf{$N$ independent, first-order, ordinary differential equations}
-
-	Solve each equation with well-known sweeping process 
-
-	\begin{exampleblock}{Source Iteration}
-	\begin{enumerate}
-		\item Given previous estimate for $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1}$
-
-		\item Compute $\phi^{\ell+1}(x) = 
-			\sum_{n=1}^N w_n \psi_n^{\ell+1}(x)$ 
-
-		\item Update scattering term with $\phi^{\ell+1}(x)$ and repeat until: 
-			 \begin{equation*}
-				\frac{\|\phi^{\ell+1}(x) - \phi^{\ell}(x)\|}{\|\phi^{\ell+1}(x)\|} < \epsilon 
-			 \end{equation*}
-
-	\end{enumerate}
-	\end{exampleblock}
-
-\end{frame}
-
-\begin{frame}{Need For Acceleration in Source Iteration}
-
-	\onslide<1->
-	Convergence rate is linked to the number of collisions in a particle's lifetime
-
-	\onslide<2->
-	If $\phi^0(x) = 0$
+	\pause
+	Source Iteration 
 	\begin{equation*}
-		\mu_n \dderiv{\psi_n^{1}}{x}(x) + \Sigma_t(x) \psi_n^{1}(x) =
-		\vphantom{\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}} 
-		\cancelto{0}{\frac{\Sigma_s(x)}{2} \phi^{0}(x)}
-		 + \frac{Q(x)}{2} \,, 1 \leq n \leq N 
+		\phi^{\ell+1} = \phi\rellh
 	\end{equation*}
-	\onslide<3->
-	$\phi^1(x) $ is the uncollided flux 
 
-	\onslide<4->
-	$\phi^2(x)$ is uncollided and once collided flux 
-
-	\onslide<5->
-	\ $\vdots$
-
-	$\phi^{\ell}(x)$ is the scalar flux of particles that have undergone at most $\ell - 1$ collisions 
-
-	\onslide<6->
-	\textbf{Slow to converge in optically thick systems with minimal losses to absorption and leakage}
+	\pause
+	Slow to converge in optically thick and highly scattering systems 
 
 \end{frame}
 
-\begin{frame}{Need For Acceleration in Source Iteration}
+\begin{frame}{VEF Drift Diffusion}
 
-	Radiation Hydrodynamics problems often contain highly diffusive regions 
-
-	\SN is too expensive in these regions 
-
-	Need an \alert{acceleration scheme} that rapidly increases the rate of convergence of source iteration 
-
-\end{frame}
-
-\section{Eddington Acceleration}
-
-\begin{frame}{Conservative Form of Boltzmann Equation}
-
-	% \pause
-	% Boltzmann Equation
-	% \begin{equation*}
-	% 		\mu \dderiv{\psi}{x}(x, \mu) + 
-	% 		\Sigma_t(x) \psi(x,\mu) = 
-	% 		\frac{\Sigma_s(x)}{2} \phi(x) + 
-	% 		\frac{Q(x)}{2} 
-	% \end{equation*}
-
-	Take moments of Boltzmann equation until have enough equations for the number of unknowns 
+	Instead, solve 
+	\begin{equation*} \label{eq:drift}
+	-\dderiv{}{x} \frac{1}{\sigma_t(x)} \dderiv{}{x} \bracket{\edd\rellh(x)\phi\relll(x)} + \sigma_a(x) \phi\relll(x) = Q(x) \,,
+	\end{equation*}
+	for $\phi\relll(x)$ using transport information from iteration $\ell+1/2$
 
 	\pause 
-	Zeroth Moment: integrate over all angles \footnotesize
-	\begin{equation*}
-		\int_{-1}^{1} \mu \dderiv{\psi}{x}(x, \mu) \ud \mu \ + 
-		\int_{-1}^{1} \Sigma_t(x) \psi(x,\mu) \ud \mu = 
-		\int_{-1}^{1} \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + 
-		\int_{-1}^{1} \frac{Q(x)}{2} \ud \mu 
-	\end{equation*}
-	\normalsize
-
-	\pause
-	Use $J(x) = \int_{-1}^{1} \mu \psi(x,\mu) \ud \mu$, 
-		$\phi(x) = \int_{-1}^{1} \psi(x,\mu) \ud \mu$ 
-
-	\pause
-	\begin{block}{Zeroth Angular Moment}
-	\begin{equation*}
-		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x)
-	\end{equation*}
-	\end{block}
-
-	\pause
-	1 equation, 2 unknowns 
-
-\end{frame}
-
-\begin{frame}{Conservative Form of the Boltzmann Equation}
-
-	First Moment: multiply by $\mu$ and integrate 
-	{\footnotesize
-	\begin{equation*}
-		\only<1,2,3>{
-		\int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu}
-		\only<4>{\alert{\int_{-1}^{1} \mu^2 \dderiv{\psi}{x}(x, \mu) \ud \mu}} \ + 
-		\vphantom{\underbrace{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu}_{
-			\Sigma_t(x) J(x)}}
-		\only<1>{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu \ =}
-		\only<2,3,4>{\underbrace{\int_{-1}^{1} \mu \Sigma_t(x) \psi(x,\mu) \ud \mu}_{
-			\Sigma_t(x) J(x)
-		} \ =}
-		\only<1,2>{
-		\int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu \ + \ 
-		\int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu }
-		\only<3,4>{\underbrace{
-			\int_{-1}^{1} \mu \frac{\Sigma_s(x)}{2} \phi(x) \ud \mu + 
-			\int_{-1}^{1} \mu \frac{Q(x)}{2}  \ud \mu 
-		}_{\text{Isotropic} \Rightarrow 0}
-		}
-	\end{equation*}}
-
-\end{frame}
-
-\begin{frame}{Eddington Factor}
-
-	Rearrange derivative 
-	\only<1>{
-	\begin{equation*}
-		\dderiv{}{x} \int_{-1}^{1} 
-			\mu^2 \psi(x,\mu) \ud \mu 
-			\vphantom{
-				\underbrace{
-			\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu}_\text{Second Moment of $\psi$}
-			}
-	\end{equation*}
-	}
-	\only<2->{
-	\begin{equation*}
-		\dderiv{}{x} \underbrace{
-			\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu}_\text{\tiny Second Moment of $\psi(x,\mu)$}
-	\end{equation*}
-	}
-
-	\onslide<3->
-	Each moment adds an equation and an unknown
-
-	\onslide<4->
-	Multiply and divide by $\int_{-1}^{1} \psi(x,\mu) \ud \mu$
-	\begin{equation*}
-		\only<4>{\dderiv{}{x} \int_{-1}^{1} \psi(x,\mu) \ud \mu \ }
-		\only<5->{\dderiv{}{x} \underbrace{\int_{-1}^{1} \psi(x,\mu) \ud \mu
-			\vphantom{
-				\frac{
-					\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
-				}{
-					\int_{-1}^{1} \psi(x,\mu) \ud \mu
-				}
-			}}_{
-			\phi(x)
-		}}
-		\only<4>{
-			\frac{
-				\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
-			}{
-				\int_{-1}^{1} \psi(x,\mu) \ud \mu
-			}
-		}
-		\only<5->{\underbrace{\frac{
-			\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
-		}{
-			\int_{-1}^{1} \psi(x,\mu) \ud \mu
-		}
-		}_{\edd(x)}
-		}
-		\vphantom{
-			\underbrace{
-			\frac{
-				\int_{-1}^{1} \mu^2 \psi(x,\mu) \ud \mu
-			}{
-				\int_{-1}^{1} \psi(x,\mu) \ud \mu
-			}
-			}_{\edd(x)}
-		}
+	Variable Eddington Factor:
+	\begin{equation*} \label{eq:eddington} 
+		\edd\rellh(x) = \frac{\int_{-1}^1 \mu^2 \psi\rellh(x, \mu) \ud \mu}{\int_{-1}^1 \psi\rellh(x, \mu) \ud \mu}
 	\end{equation*}
 
-	\onslide<6->
-	Eddington Factor 
-	\begin{equation*}
-		\edd(x) = \frac{\int_{-1}^1 \mu^2 \psi(x,\mu) \ud \mu}{
-			\int_{-1}^1 \psi(x,\mu) \ud \mu
-		}
-	\end{equation*}
+	Angular flux weighted average of $\mu^2$ 
 
-	\onslide<7->
-	Angular flux weighted average of $\mu^2$
+	Depends on angular shape of the angular flux, not its magnitude 
 
 \end{frame}
 
-\begin{frame}{Moment Equations}
+\section{Discretization}
 
-	% \footnotesize
-	\begin{block}{Moment Equations}
-	\begin{equation*}
-		\dderiv{}{x} J(x) + \Sigma_a(x) \phi(x) = Q(x) \tag{\footnotesize Zeroth Moment}
-	\end{equation*}
-	\begin{equation*}
-		\dderiv{}{x} \edd(x) \phi(x) 
-		+ \Sigma_t(x) J(x) = 0 
-		\tag{\footnotesize First Moment}
-	\end{equation*}
-	\end{block}
+\section{Scattering Update Methods}
 
-	\pause 
-	3 unknowns ($\phi(x)$, $J(x)$, $\edd(x)$), 2 equations 
-
-	\pause 
-	Closure: $\edd(x)$ found through Boltzmann Equation  
-
-	\pause
-	Moment Equations = angular flux informed diffusion
-
-	\pause
-	Transport information passed through $\edd(x)$ and boundary conditions
-
-	% \pause
-	% Just as accurate as \SN
-
-	\pause 
-	Analytically pointless: if Boltzmann can be solved, don't need Moment Equations 
-
-	\pause 
-	Numerically: use \SN to compute estimate of $\edd(x)$, Moment Equations to find $\phi(x)$
-
-\end{frame}
-
-\begin{frame}{Eddington Acceleration}
-
-	\begin{exampleblock}{Eddington Acceleration}
-	\begin{enumerate}
-		\item Given the previous estimate for the scalar flux, $\phi^{\ell}(x)$, solve for $\psi_n^{\ell+1/2}(x)$
-
-		\item \alert{Compute $\edd^{\ell+1/2}(x)$ }
-
-		\item \alert{Solve the Moment Equations for $\phi^{\ell+1}(x)$ 
-			using $\edd^{\ell+1/2}(x)$} 
-
-		\item Update the scalar flux estimate with $\phi^{\ell+1}(x)$ and repeat the iteration process until the scalar flux converges
-	\end{enumerate}
-	\end{exampleblock}
-
-	\pause
-	Acceleration occurs because
-	\begin{enumerate}
-		\item Angular shape of the angular flux converges quickly $\Rightarrow$ Eddington factor quickly converges 
-
-		\item Moment Equations model all scattering at once $\Rightarrow$ dependence on source iterations to introduce scattering information is reduced 
-
-	\end{enumerate}
-
-\end{frame}
-
-\begin{frame}{Eddington Acceleration Properties}
-
-	Produces 2 solutions (\SN and Moment)
-
-	\pause
-	Relaxes consistent differencing requirements important in linear acceleration 
-
-	\pause 
-	Transport can be LDG and Moment can be MHFEM 
-
-	\pause 
-	Moment Equations are conservative and relatively inexpensive to solve 
-
-	\pause
-	Downside: Which solution is correct? 
-
-	\pause 
-	Difference between \SN and Moment solutions can be used as a measure of mesh convergence 
-
-\end{frame}
-
-\section{Results}
-
-% \begin{frame}{Test Problem} 
-
-% 	Slab with reflecting left boundary and vacuum right boundary 
-
-%     Thickness of \SI{20}{cm} 
-
-%     $\Sigma_t(x) = \SI{1}{cm^{-1}}$
-
-%     100 cells $\Rightarrow$ optical thickness of 20 and optical thickness per cell of 0.2 
-
-%     S$_8$ solved with lumped Linear Discontinuous Galerkin 
-
-%     Moment Equations solved with Mixed Hybrid Finite Element 
-
-%     Compare to acceleration to constistently differenced S$_2$SA 
-
-% \end{frame}
-
-% \begin{frame}{Iterations to Convergence Comparison}
-
-%     Vary ratio of $\Sigma_s$ to $\Sigma_t$ 
-
-%     More scattering $\Rightarrow$ more diffusive, harder for \SN to solve 
-
-%     \centerline{\includegraphics[width=.55\paperwidth]{figs/accel.pdf}}
-
-%     Accelerates between 2.5 and 650 times $\Rightarrow$ acceleration is occurring 
-
-%     Performs similarly to consistent acceleration scheme 
-
-% \end{frame}
-
-\begin{frame}{Test Problem}
-
-	S$_8$ in 1D slab geometry 
-
-	Lumped Linear Discontinuous Galerkin transport 
-
-	Mixed Hybrid Finite Element Method Moment 
-
-	\vfill
-	\centerline{\includegraphics[width=.5\paperwidth]{figs/exSol.pdf}}
-
-\end{frame}
-
-\begin{frame}{Diffusion Limit}
-
-	\footnotesize
-	Scale cross sections, source 
-	$$\Sigma_t \rightarrow \Sigma_t/\epsilon $$
-	$$\Sigma_a \rightarrow \epsilon \Sigma_a$$
-	$$Q \rightarrow \epsilon Q$$ 
-
-	System becomes diffusive as $\epsilon \rightarrow 0$ 
-
-	\pause
-	\centerline{\includegraphics[width=.5\paperwidth]{figs/diffLimit.pdf}}
-
-	\pause
-	Survives diffusion limit 
-
-	\pause
-	Performs similarly to consistently differenced, linear acceleration (S$_2$SA)
-
-\end{frame}
-
-\begin{frame}{Convergence Rate Comparison}
-
-	\begin{columns}
-	\begin{column}{.5\paperwidth}
-	\begin{figure} \centering
-		Unaccelerated
-		\includegraphics[width=.45\paperwidth]{figs/converge_una.pdf}
-	\end{figure}
-	\end{column}
-	\pause
-	\begin{column}{.5\paperwidth}
-	\begin{figure} \centering
-		Accelerated
-		\includegraphics[width=.45\paperwidth]{figs/converge_acc.pdf}
-	\end{figure}
-	\end{column}
-	\end{columns}
-
-	\pause
-	\vfill
-	\centerline{\textbf{Fast rate of convergence of $\edd(x)$ is transfered to $\phi(x)$}}
-
-\end{frame}
-
-\begin{frame}{Method of Manufactured Solutions Order of Accuracy} 
-
-	\footnotesize
-	Set $Q(x)$ to force solution to 
-	\begin{equation*}
-		\phi(x) = \sin\left(\frac{\pi x}{x_b}\right)
-	\end{equation*}
-
-	Compare numerical results to MMS solution as cell width is decreased 
-
-	\pause
-	\centerline{\includegraphics[width=.45\paperwidth]{figs/ooa.pdf}}
-
-	\pause
-	Data reconstruction: recover linear representation from MHFEM $\phi(x)$
-
-	\pause 
-	All second order as expected 
-
-	\pause
-	Eddington Acceleration did not effect the order of accuracy of lumped LDG 
-
-	\pause 
-	All slope recovery methods have similar accuracy 
-
-\end{frame}
-
-\begin{frame}{Data Reconstruction Solution Convergence}
-
-	Compare 
-	\begin{equation*}
-		\frac{\| \phi_{\text{S}_N}(x) - 
-			\phi_\text{Moment}(x)\|}{\|\phi_\text{Moment}(x) \|}
-	\end{equation*}
-	as $h\rightarrow 0$ 
-
-	\pause
-	\centerline{\includegraphics[width=.5\paperwidth]{figs/hlim.pdf}}
-
-	\pause
-	\SN and Moment solutions converge as mesh is refined 
-
-	\pause Slope recovery effects solution convergence but not accuracy 
-
-\end{frame}
-
-\begin{frame}{Data Reconstruction Diffusion Limit}
-
-	\centerline{\includegraphics[width=.6\paperwidth]{figs/perm_dl.pdf}}
-
-	\pause
-	% \vfill
-	All data reconstruction methods survived diffusion limit
-
-	\pause
-	\vfill
-	\centerline{\textbf{Eddington Acceleration is extemely robust}}
-
-\end{frame}
+\section{Computational Results}
 
 \section{Conclusions}
 
-\begin{frame}{Summary}
-
-	\onslide<+->
-	Conclusions
-	\begin{itemize} \vspace{-.1in}
-		\item Scheme successfully accelerated source iteration in 1D slab geometry
-
-		\item Eddington Acceleration is uniquely suited for radiation hydrodynamics 
-		\begin{itemize}
-			\item Transport and acceleration steps can be differenced with different methods 
-			\item Reduces expense of source iteration 
-			\item Provides inexpensive, conservative solution 
-		\end{itemize}
-
-		\item Showed MHFEM/LLDG pairing is robust 
-
-	\end{itemize}
-
-	\onslide<+->
-	Future Work 
-	\begin{itemize} \vspace{-.1in}
-
-		\item Add temperature for radiative transfer 
-
-		\item Higher dimensions 
-
-		\item Develop an efficient rad hydro algorithm that makes use of the inexpensive Moment solution in multiphysics iterations 
-
-	\end{itemize}
-
-\end{frame}
 
 % begin uncounted slides ---------------------------
 \appendix
 
-\begin{frame}{References}
+\begin{frame}[allowframebreaks]{References}
 
-	\nocite{adams,morel,llnl,alcouffe,mhfem,hydro,bolding,nonlinearAccel}
-	\setbeamerfont{bibliography item}{size=\footnotesize}
-	\setbeamerfont{bibliography entry author}{size=\footnotesize}
-	\setbeamerfont{bibliography entry title}{size=\footnotesize}
-	\setbeamerfont{bibliography entry location}{size=\footnotesize}
-	\setbeamerfont{bibliography entry note}{size=\footnotesize}
+	\nocite{*}
+	\setbeamerfont{bibliography item}{size=\scriptsize}
+	\setbeamerfont{bibliography entry author}{size=\scriptsize}
+	\setbeamerfont{bibliography entry title}{size=\scriptsize}
+	\setbeamerfont{bibliography entry location}{size=\scriptsize}
+	\setbeamerfont{bibliography entry note}{size=\scriptsize}
 	\setbeamertemplate{bibliography item}{\insertbiblabel}
 	\bibliographystyle{siam}
-	\bibliography{../bibliography}
+	\bibliography{references}
 
 \end{frame}
 
 \begin{frame}[standout]
   Questions?
-\end{frame}
-
-\begin{frame}{Data Reconstruction Methods}
-
-	MHFEM $\phi(x)$ is piecewise constant with discontinuous cell edges ($\phi_{i-1/2}$, $\phi_i$, $\phi_{i+1/2}$)
-
-	LLDG is linear discontinuous ($\phi_{i,L}$, $\phi_{i,R}$)
-
-	Need a way to recover slope information when \SN scattering term is updated with MHFEM $\phi(x)$ 
-
-	No Slopes: 
-	\begin{equation*}
-		\phi_{i,L/R} = \phi_{i\mp1/2}^*
-	\end{equation*}
-
-	Slopes from Edges: 
-	\begin{equation*}
-		\phi_{i,L/R} = \phi_i^* \mp \frac{1}{2} \left(
-		\phi_{i+1/2}^* - \phi_{i-1/2}^* \right)
-	\end{equation*}
-
-	vanLeer on Centers: 
-	\begin{equation*}
-		\phi_{i,L/R} = \phi_i^* \mp \frac{1}{4} \xi_\text{vanLeer} \left[ 
-			\left(\phi_{i+1}^* - \phi_i^*\right) + \left(\phi_{i}^* - \phi_{i-1}^*\right)
-		 \right]
-	\end{equation*}
-
-\end{frame}
-
-\begin{frame}{S$_8$ v. Diffusion}
-
-	Small system $\Rightarrow$ diffusion not expected to be accurate 
-	\begin{center}
-	\includegraphics[width=.45\paperwidth]{figs/dvs.pdf}
-	\includegraphics[width=.45\paperwidth]{figs/edd.pdf}
-	\end{center}
-
-\end{frame}
-
-\begin{frame}{S$_8$ v. Drift Diffusion}
-
-	\onslide<+->
-	Use $\edd(x)$ from S$_8$ in Moment Equations
-	\begin{center}
-	\includegraphics[width=.5\paperwidth]{figs/corrected.pdf}
-	\end{center}
-
-	\onslide<+->
-	Moment Equations and \SN match! 
-
-	\onslide<+-> 
-	Requires knowledge of angular flux
-
 \end{frame}
 
 \end{document}

@@ -67,12 +67,15 @@
 \definecolor{maroon}{RGB}{80,0,0}
 \definecolor{berkeleyblue}{HTML}{003262}
 \definecolor{calgold}{HTML}{FDB515}
-\setbeamercolor{progress bar}{fg=calgold, bg=berkeleyblue!30}
-\setbeamercolor{progress bar in head/foot}{fg=calgold, bg=berkeleyblue!30}
-\setbeamercolor{progress bar in section page}{fg=calgold, bg=berkeleyblue!30}
+\definecolor{founder}{HTML}{3B7EA1}
+\definecolor{medalist}{HTML}{C4820E}
+\definecolor{goldengate}{HTML}{ED4E33}
+\setbeamercolor{progress bar}{fg=founder, bg=berkeleyblue!30}
+\setbeamercolor{progress bar in head/foot}{fg=founder, bg=berkeleyblue!30}
+\setbeamercolor{progress bar in section page}{fg=founder, bg=berkeleyblue!30}
 \setbeamercolor{palette primary}{bg=berkeleyblue}
 
-\setbeamercolor{alerted text}{fg=calgold}
+\setbeamercolor{alerted text}{fg=founder}
 
 \setbeamertemplate{frametitle continuation}{}
 
@@ -477,7 +480,8 @@
 	\begin{figure}
 
 		\def\svgwidth{\textwidth}
-		\input{figs/scattering.pdf_tex}
+		% \input{figs/scattering.pdf_tex}
+		\input{figs/scattering_color.pdf_tex}
 
 	\end{figure}
 
@@ -491,13 +495,14 @@
 
 	Naive: flat update 
 	\begin{equation*}
-		\phi_{i,L/R} = \phi_i 
+		{\color{founder}\phi_{i,L/R}} = {\color{medalist}\phi_i} 
 	\end{equation*}
 
 	\begin{figure}
 
 		\def\svgwidth{\textwidth}
-		\input{figs/naive.pdf_tex}
+		% \input{figs/naive.pdf_tex}
+		\input{figs/naive_color.pdf_tex}
 
 	\end{figure}
 

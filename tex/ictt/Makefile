@@ -3,12 +3,12 @@ figdir = figs/
 
 MAIN = pres
 
-# FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err mfemgrid lldggrid
-FIGS = vef_flow vef_discretized lldg mfem
+FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err 
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
-INK = vef_flow vef_discretized lldg mfem scattering naive slopes average
+INK = vef_flow vef_discretized lldg mfem scattering naive slopes average \
+	scattering_color naive_color
 INK := $(addsuffix .pdf, $(INK))
 INK := $(addprefix $(figdir), $(INK))
 
@@ -32,6 +32,26 @@ $(figdir)%.pdf : ink/%.svg
 	sed -i 's/$(notdir $@)/figs\/$(notdir $@)/' $@_tex
 	# delete lines with page=2 
 	sed -i '/page=2/d' $@_tex
+
+# plot SI v VEF v S2SA
+$(figdir)si_vef_s2sa.pdf : acceleration.py 
+	./$< $@ 
+
+# plot convergence of phi and edd for VEF and SI 
+$(figdir)si.pdf : converge.py 
+	./$< $@ $(figdir)vef.pdf 
+
+# create table of MMS errors 
+$(figdir)mms.tex : mms.py
+	./$< $@ 
+
+# plot of solution convergence for homogeneous and Reed's problem 
+$(figdir)solconv_homo.pdf : solconv.py 
+	./$< $@ $(figdir)solconv_reed.pdf 
+
+# diff limit of 4 permutations 
+$(figdir)dl_it.pdf : perm_dl.py 
+	./$< $@ $(figdir)dl_err.pdf 
 
 # compile latex 
 $(MAIN).pdf: $(FIGS) $(TABS) $(INK) $(MAIN).tex

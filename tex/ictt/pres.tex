@@ -1,6 +1,6 @@
 \documentclass[10pt]{beamer}
 
-\usetheme[progressbar=foot, sectionpage=none]{metropolis}
+\usetheme[progressbar=foot]{metropolis}
 % font options
 \usefonttheme{professionalfonts}
 \usepackage{appendixnumberbeamer}
@@ -16,6 +16,8 @@
 \usepackage{cancel}
 
 \usepackage{color}
+
+\usepackage{subcaption}
 
 \usepackage{xspace}
 \usepackage{siunitx}
@@ -116,9 +118,9 @@
 		\begin{itemize}
 			\item Transport and diffusion must be consistently differenced to prevent instability 
 
-			\item Requires the diffusion equation to be expressed in $P_1$ form which is more difficult to solve (Warsa, Wareing, Morel, NSE 2002) 
+			\item Requires the diffusion equation to be expressed in $P_1$ form which is more difficult to solve (Warsa, Wareing, Morel NSE 2002) 
 
-			\item Partially consistent linear acceleration methods are generally difficult to develop (Wang and Ragusa, NSE 2010)
+			\item Partially consistent linear acceleration methods are generally difficult to develop (Wang and Ragusa NSE 2010)
 
 		\end{itemize}
 
@@ -156,7 +158,7 @@
 
 	\begin{itemize}
 
-		\item Mixed Finite Element Method (MFEM) is being used for high order hydrodynamics calculations (Dobrev, Kolev, Rieben, SIAM 2012)
+		\item Mixed Finite Element Method (MFEM) is being used for high order hydrodynamics calculations (Dobrev, Kolev, Rieben SIAM 2012)
 
 		\item MFEM is not appropriate for standard, first-order form of transport equation 
 
@@ -236,27 +238,26 @@
 	Depends on angular shape of the angular flux, not its magnitude 
 
 	\pause
-	Use $\phi\relll$ to update scattering term in \SN sweep 
+	Use $\phi\relll$ to update scattering term in \SN sweep or as final solution if converged 
 
 \end{frame}
 
-\begin{frame}{The Algorithm}
+\begin{frame}{Acceleration Properties}
 
-	\begin{figure}
+	Angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux 
 
-		\def\svgwidth{.8\textwidth}
-		\input{figs/vef_flow.pdf_tex}
+	Drift diffusion includes scattering 
 
-	\end{figure}
+
 
 \end{frame}
 
-\begin{frame}{With Discretization}
+\begin{frame}{VEF Algorithm}
 
 	\begin{figure}
 
-		\def\svgwidth{.8\textwidth}
-		\input{figs/vef_discretized.pdf_tex}
+		\only<1>{\def\svgwidth{.8\textwidth}\input{figs/vef_flow.pdf_tex}}%
+		\only<2>{\def\svgwidth{.8\textwidth}\input{figs/vef_discretized.pdf_tex}}
 
 	\end{figure}
 
@@ -264,11 +265,393 @@
 
 \section{Discretization}
 
+\begin{frame}{Lumped Linear Discontinuous Galerkin \SN}
+
+	\begin{columns}
+
+		\begin{column}{.5\textwidth}
+		\begin{itemize}
+
+			\item 
+			2 discontinuous, linear basis functions 
+
+			\item 
+			Cell edges uniquely defined through upwinding 
+
+			% \item Cell centers through polynomial interpolation (in linear case it is just the average of $\psi_{i,L}$ and $\psi_{i,R}$) 
+
+		\end{itemize}
+		\end{column}
+		\begin{column}{.5\textwidth}
+
+			\begin{figure}
+
+				\def\svgwidth{\textwidth}
+				\input{figs/lldg.pdf_tex}
+				\caption{Unknowns and upwinding for an LLDG cell. }
+				
+			\end{figure}
+
+		\end{column}
+
+	\end{columns} 
+
+	\vspace{-.2in}
+	\begin{columns}
+	\begin{column}{1.06\textwidth}
+	\begin{itemize}
+
+		\item 
+		Within the cell, 
+		\begin{equation*}
+			\psi_{n,i}(x) = \psi_{n,i,L} B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x) \,, \quad x \in (x_{i-1/2},x_{i+1/2})
+		\end{equation*}
+		\item 
+		Cell centers through through polynomial interpolation (evaluate at $x_i$) 
+
+		\item 
+		Linear case: average of $\psi_{n,i,L}$ and $\psi_{n,i,R}$ 
+
+	\end{itemize}
+
+	\end{column}
+	\end{columns}
+
+\end{frame}
+
+% --- alternate form of LLDG slide --- 
+% \begin{frame}{LLDG}
+
+% 	2 discontinuous, linear basis functions 
+
+% 	Cell edges uniquely defined through upwinding 
+
+% 	Within the cell, 
+% 	\begin{equation*}
+% 		\psi_{n,i}(x) = \psi_{n,i,L} B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x) \,, \quad x \in (x_{i-1/2},x_{i+1/2}) \,, 
+% 	\end{equation*}
+% 	Cell centers through through polynomial interpolation (evaluate at $x_i$) 
+
+% 	Linear case $\Rightarrow$ just average of $\psi_{n,i,L}$ and $\psi_{n,i,R}$ 
+
+% 	\vfill
+% 	\begin{figure}
+% 		\centering
+% 		\def\svgwidth{.8\textwidth}
+% 		\input{figs/upwind.pdf_tex}
+% 	\end{figure}
+
+% \end{frame}
+
+\begin{frame}{Handling Overlap in Eddington Factor}
+
+	For integration by parts in MFEM weak form, need:
+	\begin{itemize}
+		\item $\edd$ on cell boundary 
+		\item $\edd(x)$ on interior of cell 
+	\end{itemize}
+
+	Cell edges: use upwinded cell edge values of $\psi$ in Gauss Quadrature 
+	\begin{equation*} \label{lldg:edde}
+		\edd_{i\pm 1/2} = \frac{
+			\sum_{n=1}^N \mu_n^2 \psi_{n,i\pm 1/2} w_n
+		}{
+			\sum_{n=1}^N \psi_{n,i\pm 1/2} w_n 
+		} 
+	\end{equation*}
+
+	Cell centers: use polynomial interpolation function 
+	\begin{equation*} \label{lldg:eddi}
+			\edd(x) = \frac{
+				\sum_{n=1}^N \mu_n^2 \psi_{n}(x) w_n
+			}{
+				\sum_{n=1}^N \psi_{n}(x) w_n 
+			} \,, \quad x\in(x_{i-1/2},x_{i+1/2}),
+		\end{equation*}
+
+	This is a rational polynomial $\Rightarrow$ can't be integrated analytically 
+
+	Preserves linear spatial dependence of Eddington factor in MFEM formulation 
+
+\end{frame}
+
+\begin{frame}{Mixed Finite Element Drift Diffusion}
+
+	\begin{columns}
+	\begin{column}{.5\textwidth}
+
+		\begin{itemize}
+
+			\item Different basis functions for primary and secondary variables ($\phi$, $J$)
+
+			\item $\phi$: constant with discontinuous jumps at the edges 
+
+			\item $J$: linear discontinuous basis functions (same as in LLDG) 
+
+		\end{itemize}
+		
+	\end{column}
+	\begin{column}{.5\textwidth}
+
+		\begin{figure}
+
+			\def\svgwidth{\textwidth}
+			\input{figs/mfem.pdf_tex}
+			\caption{Distribution of unknowns for an MFEM cell. }
+
+		\end{figure}
+
+	\end{column}
+
+	\end{columns}
+
+	\vspace{-.2in}
+	\begin{columns}
+	\begin{column}{1.06\textwidth}
+
+		\begin{itemize}
+
+			\item 5 unknowns per cell 
+
+			\item $\phi$ and $J$ are doubly defined on the edges but will later be made continuous through enforcing continuity of flux and current 
+
+		\end{itemize}
+
+	\end{column}
+	\end{columns}
+
+\end{frame}
+
+\begin{frame}{Weak Form}
+
+	System of first order equations form of drift diffusion:
+	\begin{subequations} 
+	\begin{equation*} \label{eq:zero}
+		\dderiv{}{x} J (x) + \sigma_a(x) \phi(x) = Q(x)
+	\end{equation*} 
+	\begin{equation*} \label{eq:first}
+		\dderiv{}{x} \bracket{\edd(x) \phi (x)} + \sigma_t(x) J(x) = 0
+	\end{equation*}
+	\end{subequations}
+
+	Multiply by $\phi$ basis function and integrate over cell $i$: 
+	\begin{equation*}
+		\int_{x_{i-1/2}}^{x_{i+1/2}} \dderiv{}{x} J (x) + \sigma_a(x) \phi(x) \ \ud x 
+		= \int_{x_{i-1/2}}^{x_{i+1/2}} Q(x) \ \ud x
+	\end{equation*}
+
+	Multiply by $J$ basis functions ($B_{i,L}$ and $B_{i,R}$) and integrate: 
+	\begin{equation*}
+		\int_{x_{i-1/2}}^{x_{i+1/2}} 
+		B_{i,L/R}\dderiv{}{x} \bracket{\edd(x) \phi (x)} + B_{i,L/R}\sigma_t(x) J(x) = 0
+	\end{equation*}
+
+\end{frame}
+
+\begin{frame}{MFEM Closure}
+	
+	3 equations from finite element weak form but 5 unknowns per cell 
+
+	Enforce continuity of $\phi$ and $J$ at the interior cell edges:
+	\begin{equation*}
+		\phi_{i+1/2} = \phi_{(i+1)-1/2}
+	\end{equation*}
+	\begin{equation*}
+		J_{i,R} = J_{i+1,L}
+	\end{equation*}
+
+	Use transport consistent, Marshak-like boundary conditions
+	
+	Can then eliminate $J$ and assemble a system of equations of cell centers and edges of $\phi$ only 
+
+	Solve resulting Symmetric Positive Definite Matrix with a 5 band solver  
+
+\end{frame}
+
 \section{Scattering Update Methods}
+
+\begin{frame}{Scattering Update Overlap}
+
+	Must reconstruct an LLDG-like $\phi$ from the MFEM drift diffusion $\phi$ 
+
+	\begin{figure}
+
+		\def\svgwidth{\textwidth}
+		\input{figs/scattering.pdf_tex}
+
+	\end{figure}
+
+	To remain general, reconstruct from cell centers only 
+
+	Temperature equation will not have cell edges (no continuity of temperature)
+
+\end{frame}
+
+\begin{frame}{Flat Scattering Update}
+
+	Naive: flat update 
+	\begin{equation*}
+		\phi_{i,L/R} = \phi_i 
+	\end{equation*}
+
+	\begin{figure}
+
+		\def\svgwidth{\textwidth}
+		\input{figs/naive.pdf_tex}
+
+	\end{figure}
+
+	Converts constant MFEM to discontinuous constant in scattering term 
+
+\end{frame}
+
+\begin{frame}{Linear Reconstruction}
+
+	Compute slopes from neighboring cell centers 
+
+	\begin{figure}
+
+		\def\svgwidth{\textwidth}
+		\input{figs/slopes.pdf_tex}
+
+	\end{figure}
+
+	\vspace{-.1in}
+	Average slopes from left and right, apply van Leer-type slope limiting 
+
+	Interpolate to cell edge 
+
+	\begin{figure}
+
+		\def\svgwidth{\textwidth}
+		\input{figs/average.pdf_tex}
+
+	\end{figure}
+
+	\vspace{-.1in}
+	This method: 
+	\begin{itemize}
+
+		\item Preserves the cell center value from MFEM 
+
+		\item Reconstructs a linear, discontinuous $\phi$ from MFEM cell centers only 
+
+		\item Uses slope limiting to prevent unphysical oscillations 
+
+	\end{itemize}
+
+\end{frame}
 
 \section{Computational Results}
 
+\begin{frame}{Iterative Convergence Comparison}
+
+	Relative iterative convergence (crude measure of iterative convergence)
+	\begin{equation*}
+		\frac{\| f^{\ell+1} - f^\ell \|_2}{\| f^{\ell+1} \|_2}
+	\end{equation*}
+
+	\vspace{-.2in}
+	\begin{figure}[htb]
+	\centering
+	\begin{subfigure}{.515\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/si.pdf}
+		\caption{}
+		\label{fig:si}
+	\end{subfigure}
+	\hspace{-2em}
+	\begin{subfigure}{.515\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/vef.pdf}  
+		\caption{}
+		\label{fig:vef}
+	\end{subfigure}
+	\caption{Relative iterative change for $\phi(x)$ and $\edd(x)$ for (a) unaccelerated and (b) VEF accelerated SI. }
+	\end{figure}
+
+\end{frame}
+
+\begin{frame}{Comparison to SI and Consistently Differenced S$_2$SA}
+
+	\begin{figure}[htb]
+		\centering
+		\includegraphics[width=.75\textwidth]{figs/si_vef_s2sa.pdf} 
+		\caption{A comparison of the number of iterations required to converge for Source Iteration, VEF acceleration, and S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. } 
+		\label{fig:si_vef_s2sa}
+	\end{figure}
+
+\end{frame}
+
+\begin{frame}{Method of Manufactured Solutions}
+
+	\begin{table}[htb]
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	Update Method & Order & $C$ & $R^2$ \\ 
+	\hline
+		\input{figs/mms}
+	\hline
+	\end{tabular}
+	\caption{The order of accuracy, error, and $R^2$ values for flat and van Leer slope reconstruction scattering source update methods. }
+	\label{tab:mms}
+	\end{table}
+
+\end{frame}
+
+\begin{frame}{VEF Drift Diffusion/\SN Solution Convergence}
+
+	\begin{figure}[htb]
+		\centering
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{figs/solconv_homo.pdf}
+			\caption{}
+			\label{fig:homo}
+		\end{subfigure}
+		\hspace{-2em}
+		\begin{subfigure}{.5\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{figs/solconv_reed.pdf}
+			\caption{}
+			\label{fig:reed}
+		\end{subfigure}
+		\caption{The L2 norm of the difference between the \SN and drift-diffusion solutions as a function of cell width for the two scattering source update methods. Results for the homogeneous problem and Reed's problem are given in (a) and (b), respectively.}
+	\end{figure}
+
+\end{frame}
+
+\begin{frame}{Thick Diffusion Limit Test}
+
+	\begin{figure}[htb]
+		\centering
+		\includegraphics[height=.3\textheight]{figs/dl_it.pdf}
+		\caption{The number of iterations required for convergence in the diffusion limit ($\epsilon \rightarrow 0$). }
+		\label{fig:dl_it}
+	\end{figure}
+	\begin{figure}
+		\centering
+		\includegraphics[height=.3\textheight]{figs/dl_err.pdf}
+		\caption{The error between the VEF methods and the exact diffusion solution as $\epsilon \rightarrow 0$. }
+		\label{fig:dl_err}
+	\end{figure}
+
+\end{frame}
+
 \section{Conclusions}
+
+\begin{frame}{Conclusions}
+
+	
+
+\end{frame}
+
+\begin{frame}{Future Work}
+
+
+
+\end{frame}
 
 
 % begin uncounted slides ---------------------------

@@ -4,9 +4,13 @@ figdir = figs/
 MAIN = pres
 
 # FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err mfemgrid lldggrid
-FIGS = vef_flow vef_discretized
+FIGS = vef_flow vef_discretized lldg mfem
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
+
+INK = vef_flow vef_discretized lldg mfem scattering naive slopes average
+INK := $(addsuffix .pdf, $(INK))
+INK := $(addprefix $(figdir), $(INK))
 
 # TABS = mms
 TABS := $(addsuffix .tex, $(TABS))
@@ -16,22 +20,12 @@ LD = $(codedir)ld.py
 
 # generate all figures 
 .PHONY : all 
-all : $(figdir) $(FIGS) $(MAIN).pdf
+all : $(figdir) $(INK) $(MAIN).pdf
 
 $(figdir) :
 	mkdir $(figdir) 
 
-# algorithm flow chart figure 
-$(figdir)vef_flow.pdf : ink/vef_flow.svg 
-	# generate pdfs 
-	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
-	# make it recognize directory structure 
-	sed -i 's/$(notdir $@)/figs\/$(notdir $@)/' $@_tex
-	# delete lines with page=2 
-	sed -i '/page=2/d' $@_tex
-
-# colored version 
-$(figdir)vef_discretized.pdf : ink/vef_discretized.svg 
+$(figdir)%.pdf : ink/%.svg
 	# generate pdfs 
 	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
 	# make it recognize directory structure 
@@ -40,7 +34,7 @@ $(figdir)vef_discretized.pdf : ink/vef_discretized.svg
 	sed -i '/page=2/d' $@_tex
 
 # compile latex 
-$(MAIN).pdf: $(FIGS) $(TABS) $(MAIN).tex
+$(MAIN).pdf: $(FIGS) $(TABS) $(INK) $(MAIN).tex
 	latexmk -pdf \
 		-pdflatex="pdflatex --interaction=nonstopmode --shell-escape %O %S" $(MAIN)
 
@@ -60,4 +54,4 @@ clean :
 	rm -f $(MAIN).synctex.gz
 	rm -f $(MAIN).fff
 	rm -f $(MAIN).ttt
-	
+	rm -f $(MAIN).pdf	

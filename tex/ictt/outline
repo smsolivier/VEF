@@ -1,3 +1,8 @@
+To Do: 
+	Add conclusions/future work 
+	Redo plots with Berkeley color scheme 
+	Make last few plots transparent 
+
 Background 
 	old method for nonlinear acceleration 
 	description of 2 solutions 
@@ -94,3 +99,5 @@ Future Work
 
 Extra slides:
 	diagrams for other possible reconstruction methods 
+
+	LLDG equations 

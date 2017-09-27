@@ -25,9 +25,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="3.959798"
-     inkscape:cx="454.75756"
-     inkscape:cy="38.924849"
+     inkscape:zoom="2.8"
+     inkscape:cx="237.63996"
+     inkscape:cy="-19.186683"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -1264,7 +1264,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1289,7 +1289,7 @@
        ns0:preamble=""
        ns0:text="$x_{i-1/2}$"
        transform="matrix(0.4,0,0,0.4,-87.355878,231.20191)"
-       style="fill:#c4820e;fill-opacity:1">
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
       <defs
          id="defs11101">
         <g
@@ -1398,10 +1398,10 @@
       </defs>
       <g
          id="textext-5092ad6a-10"
-         style="fill:#c4820e;fill-opacity:1">
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
         <g
            id="g11105"
-           style="fill:#c4820e;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11103"
              y="134.765"
@@ -1409,11 +1409,11 @@
              xlink:href="#textext-5092ad6a-1"
              width="100%"
              height="100%"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11109"
-           style="fill:#c4820e;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11107"
              y="136.564"
@@ -1421,11 +1421,11 @@
              xlink:href="#textext-5092ad6a-3"
              width="100%"
              height="100%"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11113"
-           style="fill:#c4820e;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11111"
              y="136.564"
@@ -1433,11 +1433,11 @@
              xlink:href="#textext-5092ad6a-6"
              width="100%"
              height="100%"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11117"
-           style="fill:#c4820e;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11115"
              y="136.564"
@@ -1445,11 +1445,11 @@
              xlink:href="#textext-5092ad6a-8"
              width="100%"
              height="100%"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11121"
-           style="fill:#c4820e;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11119"
              y="136.564"
@@ -1457,11 +1457,11 @@
              xlink:href="#textext-5092ad6a-4"
              width="100%"
              height="100%"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11125"
-           style="fill:#c4820e;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11123"
              y="136.564"
@@ -1469,7 +1469,7 @@
              xlink:href="#textext-5092ad6a-9"
              width="100%"
              height="100%"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
       </g>
     </g>
@@ -1478,7 +1478,7 @@
        ns0:preamble=""
        ns0:text="$x_i$\n"
        transform="matrix(0.4,0,0,0.4,-52.739856,231.52213)"
-       style="fill:#c4820e;fill-opacity:1">
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
       <defs
          id="defs16189">
         <g
@@ -1528,10 +1528,10 @@
       <g
          transform="translate(-0.47247024,0.82682291)"
          id="textext-b9afa3e4-4"
-         style="fill:#c4820e;fill-opacity:1">
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
         <g
            id="g16193"
-           style="fill:#c4820e;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              height="100%"
              width="100%"
@@ -1539,11 +1539,11 @@
              y="134.765"
              x="223.43201"
              xlink:href="#textext-b9afa3e4-1"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g16197"
-           style="fill:#c4820e;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              height="100%"
              width="100%"
@@ -1551,7 +1551,7 @@
              y="136.259"
              x="229.12601"
              xlink:href="#textext-b9afa3e4-3"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
       </g>
     </g>
@@ -1560,7 +1560,7 @@
        ns0:text="$x_{i+1/2}$\n"
        ns0:preamble=""
        id="g16762"
-       style="fill:#c4820e;fill-opacity:1">
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
       <defs
          id="defs16737">
         <g
@@ -1659,9 +1659,9 @@
       </defs>
       <g
          id="textext-01e77cfb-9"
-         style="fill:#c4820e;fill-opacity:1">
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
         <g
-           style="fill:#c4820e;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16741">
           <use
              height="100%"
@@ -1670,10 +1670,10 @@
              x="223.43201"
              y="134.765"
              id="use16739"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
-           style="fill:#c4820e;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16745">
           <use
              height="100%"
@@ -1682,10 +1682,10 @@
              x="229.12601"
              y="136.564"
              id="use16743"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
-           style="fill:#c4820e;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16751">
           <use
              height="100%"
@@ -1694,7 +1694,7 @@
              x="231.94501"
              y="136.564"
              id="use16747"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
           <use
              height="100%"
              width="100%"
@@ -1702,10 +1702,10 @@
              x="238.06102"
              y="136.564"
              id="use16749"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
-           style="fill:#c4820e;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16755">
           <use
              height="100%"
@@ -1714,10 +1714,10 @@
              x="242.032"
              y="136.564"
              id="use16753"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
-           style="fill:#c4820e;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16759">
           <use
              height="100%"
@@ -1726,22 +1726,22 @@
              x="246.114"
              y="136.564"
              id="use16757"
-             style="fill:#c4820e;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
       </g>
     </g>
     <path
-       style="fill:#000000;stroke:#c4820e;stroke-width:0.18581958px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       style="fill:#000000;stroke:#000000;stroke-width:0.18581958px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="M 6.614582,281.12498 H 70.114585"
        id="path4497-3-7"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:#000000;stroke:#c4820e;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       style="fill:#000000;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 6.6145846,278.47915 v 2.64584"
        id="path4499-6-2"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:#000000;stroke:#c4820e;stroke-width:0.18581958px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       style="fill:#000000;stroke:#000000;stroke-width:0.18581958px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 70.114585,278.7868 v 2.33818"
        id="path4501-7-2"
        inkscape:connector-curvature="0" />
@@ -1762,7 +1762,7 @@
        ns0:preamble=""
        ns0:text="$x_{i-1/2}$"
        transform="matrix(0.39999999,0,0,0.39999999,-1.2504703,231.21096)"
-       style="fill:#3b7ea1;fill-opacity:1">
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
       <defs
          id="defs11101-8">
         <g
@@ -1871,10 +1871,10 @@
       </defs>
       <g
          id="textext-5092ad6a-10-7"
-         style="fill:#3b7ea1;fill-opacity:1">
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
         <g
            id="g11105-1"
-           style="fill:#3b7ea1;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11103-1"
              y="134.765"
@@ -1882,11 +1882,11 @@
              xlink:href="#textext-5092ad6a-1-9"
              width="100%"
              height="100%"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11109-1"
-           style="fill:#3b7ea1;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11107-7"
              y="136.564"
@@ -1894,11 +1894,11 @@
              xlink:href="#textext-5092ad6a-3-4"
              width="100%"
              height="100%"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11113-0"
-           style="fill:#3b7ea1;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11111-4"
              y="136.564"
@@ -1906,11 +1906,11 @@
              xlink:href="#textext-5092ad6a-6-2"
              width="100%"
              height="100%"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11117-0"
-           style="fill:#3b7ea1;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11115-8"
              y="136.564"
@@ -1918,11 +1918,11 @@
              xlink:href="#textext-5092ad6a-8-1"
              width="100%"
              height="100%"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11121-5"
-           style="fill:#3b7ea1;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11119-1"
              y="136.564"
@@ -1930,11 +1930,11 @@
              xlink:href="#textext-5092ad6a-4-71"
              width="100%"
              height="100%"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g11125-6"
-           style="fill:#3b7ea1;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              id="use11123-6"
              y="136.564"
@@ -1942,7 +1942,7 @@
              xlink:href="#textext-5092ad6a-9-4"
              width="100%"
              height="100%"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
       </g>
     </g>
@@ -1951,7 +1951,7 @@
        ns0:preamble=""
        ns0:text="$x_i$\n"
        transform="matrix(0.39999999,0,0,0.39999999,33.365552,231.53118)"
-       style="fill:#3b7ea1;fill-opacity:1">
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
       <defs
          id="defs16189-1">
         <g
@@ -2001,10 +2001,10 @@
       <g
          transform="translate(-0.47247024,0.82682291)"
          id="textext-b9afa3e4-4-9"
-         style="fill:#3b7ea1;fill-opacity:1">
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
         <g
            id="g16193-7"
-           style="fill:#3b7ea1;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              height="100%"
              width="100%"
@@ -2012,11 +2012,11 @@
              y="134.765"
              x="223.43201"
              xlink:href="#textext-b9afa3e4-1-80"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
            id="g16197-6"
-           style="fill:#3b7ea1;fill-opacity:1">
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
           <use
              height="100%"
              width="100%"
@@ -2024,7 +2024,7 @@
              y="136.259"
              x="229.12601"
              xlink:href="#textext-b9afa3e4-3-2"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
       </g>
     </g>
@@ -2033,7 +2033,7 @@
        ns0:text="$x_{i+1/2}$\n"
        ns0:preamble=""
        id="g16762-6"
-       style="fill:#3b7ea1;fill-opacity:1">
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
       <defs
          id="defs16737-3">
         <g
@@ -2132,9 +2132,9 @@
       </defs>
       <g
          id="textext-01e77cfb-9-4"
-         style="fill:#3b7ea1;fill-opacity:1">
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1">
         <g
-           style="fill:#3b7ea1;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16741-9">
           <use
              height="100%"
@@ -2143,10 +2143,10 @@
              x="223.43201"
              y="134.765"
              id="use16739-8"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
-           style="fill:#3b7ea1;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16745-3">
           <use
              height="100%"
@@ -2155,10 +2155,10 @@
              x="229.12601"
              y="136.564"
              id="use16743-8"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
-           style="fill:#3b7ea1;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16751-5">
           <use
              height="100%"
@@ -2167,7 +2167,7 @@
              x="231.94501"
              y="136.564"
              id="use16747-2"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
           <use
              height="100%"
              width="100%"
@@ -2175,10 +2175,10 @@
              x="238.06102"
              y="136.564"
              id="use16749-2"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
-           style="fill:#3b7ea1;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16755-2">
           <use
              height="100%"
@@ -2187,10 +2187,10 @@
              x="242.032"
              y="136.564"
              id="use16753-7"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
         <g
-           style="fill:#3b7ea1;fill-opacity:1"
+           style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1"
            id="g16759-0">
           <use
              height="100%"
@@ -2199,22 +2199,22 @@
              x="246.114"
              y="136.564"
              id="use16757-3"
-             style="fill:#3b7ea1;fill-opacity:1" />
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1" />
         </g>
       </g>
     </g>
     <path
-       style="fill:#3b7ea1;stroke:#3b7ea1;stroke-width:0.1858196px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       style="fill:#000000;stroke:#000000;stroke-width:0.1858196px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 92.71999,281.13404 h 63.5"
        id="path4497-3-7-4"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:#3b7ea1;stroke:#3b7ea1;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       style="fill:#000000;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 92.719992,278.48821 v 2.64584"
        id="path4499-6-2-6"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:#3b7ea1;stroke:#3b7ea1;stroke-width:0.1858196px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       style="fill:#000000;stroke:#000000;stroke-width:0.1858196px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
        d="m 156.21999,278.79586 v 2.33818"
        id="path4501-7-2-3"
        inkscape:connector-curvature="0" />

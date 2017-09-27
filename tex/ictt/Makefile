@@ -3,16 +3,16 @@ figdir = figs/
 
 MAIN = pres
 
-FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err 
+FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err reed_solution
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
-INK = vef_flow vef_discretized lldg mfem scattering naive slopes average \
+INK = vef_flow vef_discretized lldg mfem scattering naive slopes \
 	scattering_color naive_color average_color slopes_color interpolate_color
 INK := $(addsuffix .pdf, $(INK))
 INK := $(addprefix $(figdir), $(INK))
 
-# TABS = mms
+TABS = mms
 TABS := $(addsuffix .tex, $(TABS))
 TABS := $(addprefix $(figdir), $(TABS))
 
@@ -52,6 +52,10 @@ $(figdir)solconv_homo.pdf : solconv.py
 # diff limit of 4 permutations 
 $(figdir)dl_it.pdf : perm_dl.py 
 	./$< $@ $(figdir)dl_err.pdf 
+
+# reed solution 
+$(figdir)reed_solution.pdf : reed.py
+	./$< $@
 
 # compile latex 
 $(MAIN).pdf: $(FIGS) $(TABS) $(INK) $(MAIN).tex

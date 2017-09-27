@@ -97,7 +97,7 @@ err = np.zeros((size, len(N)))
 order = np.zeros(size)
 b = np.zeros(size)
 r = np.zeros(size)
-reconstruct = ['Flat', 'van Leer']
+reconstruct = ['Flat', 'Linear']
 # gauss = ['Average', 'Rational Polynomial', 'Average', 'Rational Polynomial']
 
 # err[0,:], order[0], b[0], r[0] = getOrder(ed00, N, tol, 'No Slopes, No Gauss')

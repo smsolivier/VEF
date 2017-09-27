@@ -19,6 +19,8 @@
 
 \usepackage{subcaption}
 
+\usepackage{xstring}
+
 \usepackage{xspace}
 \usepackage{siunitx}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
@@ -81,6 +83,29 @@
 
 \setbeamertemplate{frame numbering}[fraction]
 
+\makeatletter
+% \setlength{\metropolis@titleseparator@linewidth}{2pt}
+\setlength{\metropolis@progressonsectionpage@linewidth}{1.5pt}
+\setlength{\metropolis@progressinheadfoot@linewidth}{1.5pt}
+\makeatother
+
+\setbeamertemplate{block begin}
+{
+  \par\vskip\medskipamount%
+  \IfStrEq{\insertblocktitle}{}{}{
+      \begin{beamercolorbox}[colsep*=.75ex]{block title}
+        \usebeamerfont*{block title}\insertblocktitle%
+      \end{beamercolorbox}%
+  }
+  {\parskip0pt\par}%
+  \ifbeamercolorempty[bg]{block title}
+  {}
+  {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[colsep*=.75ex,vmode]{block body}%
+    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+
 
 % ---------------------------------------
 \begin{document}
@@ -94,32 +119,41 @@
 
 \section{Background}
 
-\begin{frame}{Variable Eddington Factor Method/Quasi Diffusion Background}
+\begin{frame}{Variable Eddington Factor Method Background}
 
-	\begin{itemize}
+	% \begin{itemize}
 	
-		\item One of the first nonlinear methods for accelerating source iterations 
+		% \item 
+		One of the first nonlinear methods for accelerating source iterations
 
-		\item Produces 2 solutions: one from \SN and one from a transport informed diffusion equation (drift diffusion)
+		% \item 
+		Use \SN to create a transport informed drift diffusion solution  
+
+		% \item 
+		Produces 2 solutions: one from \SN and one from drift diffusion 
 		\begin{itemize}
 			\item Do not necessarily become identical when the iterative process converges 
 			\item Solutions do converge as the mesh is refined $\Rightarrow$ built in truncation estimator 
 		\end{itemize}
 
+		Will show that the benefits outweigh producing 2 solutions 
 
-	\end{itemize}
+
+	% \end{itemize}
 
 \end{frame}
 
 \begin{frame}{Why Nonlinear Acceleration?}
 
-	\begin{itemize}
+	% \begin{itemize}
 
-		\item Classic discretizations (step, diamond) are not suitable for radiative transfer in High Energy Density Physics regime $\Rightarrow$ Discontinuous Galerkin (DG) 
+		% \item 
+		Classic discretizations (step, diamond) are not suitable for radiative transfer in High Energy Density Physics regime $\Rightarrow$ Discontinuous Galerkin (DG) 
 
-		\item Linear acceleration of Discontinuous Finite Element \SN is problematic 
+		% \item 
+		Linear acceleration of Discontinuous Finite Element \SN is problematic 
 		\begin{itemize}
-			\item Transport and diffusion must be consistently differenced to prevent instability 
+			\item Consistent differencing required 
 
 			\item Requires the diffusion equation to be expressed in $P_1$ form which is more difficult to solve (Warsa, Wareing, Morel NSE 2002) 
 
@@ -127,22 +161,24 @@
 
 		\end{itemize}
 
-	\end{itemize}
+	% \end{itemize}
 
 \end{frame}
 
-\begin{frame}{Why Nonlinear Acceleration? (Cont)}
+\begin{frame}{Why Nonlinear Acceleration? (cont.)}
 
-	\begin{itemize}
+	% \begin{itemize}
 
-		\item Nonlinear acceleration has relaxed consistency requirements 
+		% \item 
+		Nonlinear acceleration has relaxed consistency requirements 
 		\begin{itemize}
 			\item Drift diffusion acceleration equation can be discretized in any valid manner without regard for consistency with \SN  
 
 			\item Preserves the thick diffusion limit regardless of discretization consistency 
 		\end{itemize}
 
-		\item Can use VEF drift diffusion in multiphysics iterations 
+		% \item 
+		Can use VEF drift diffusion in multiphysics iterations 
 		\begin{itemize}
 
 			\item VEF drift diffusion is conservative and inexpensive (compared to an \SN sweep) 
@@ -153,22 +189,26 @@
 
 		\end{itemize}
 
-	\end{itemize}
+	% \end{itemize}
 
 \end{frame}
 
 \begin{frame}{Motivation}
 
-	\begin{itemize}
+	% \begin{itemize}
 
-		\item Mixed Finite Element Method (MFEM) is being used for high order hydrodynamics calculations (Dobrev, Kolev, Rieben SIAM 2012)
+		% \item 
+		Mixed Finite Element Method (MFEM) is being used for high order hydrodynamics calculations (Dobrev, Kolev, Rieben SIAM 2012)
 
-		\item MFEM is not appropriate for standard, first-order form of transport equation 
+		% \item 
+		MFEM is not appropriate for standard, first-order form of transport equation 
 
-		\item $\Rightarrow$ VEF method with DG \SN discretization + MFEM drift diffusion discretization 
+		% \item 
+		$\Rightarrow$ VEF method with DG \SN discretization + MFEM drift diffusion discretization 
 
-	\end{itemize}
+	% \end{itemize}
 
+	\vfill
 	\begin{alertblock}{Goals}
 		
 		Show Lumped Linear Discontinuous Galerkin (LLDG) \SN can be paired with MFEM drift diffusion for one group, 1D neutron transport 
@@ -229,16 +269,18 @@
 	for $\phi\relll(x)$ using transport information from iteration $\ell+1/2$
 
 	\pause 
-	Variable Eddington Factor:
+	Transport information passed through the \alert{Variable Eddington Factor:}
 	\begin{equation*} \label{eq:eddington} 
 		\edd\rellh(x) = \frac{\int_{-1}^1 \mu^2 \psi\rellh(x, \mu) \ud \mu}{\int_{-1}^1 \psi\rellh(x, \mu) \ud \mu}
 	\end{equation*}
 
-	\pause
-	Angular flux weighted average of $\mu^2$ 
+	\begin{itemize}
+		\pause
+		\item Angular flux weighted average of $\mu^2$ 
 
-	\pause
-	Depends on angular shape of the angular flux, not its magnitude 
+		\pause
+		\item Depends on angular shape of the angular flux, not its magnitude 
+	\end{itemize}
 
 	\pause
 	Use $\phi\relll$ to update scattering term in \SN sweep or as final solution if converged 
@@ -250,8 +292,6 @@
 	Angular shape of the angular flux, and thus the Eddington factor, converges much faster than the scalar flux 
 
 	Drift diffusion includes scattering 
-
-
 
 \end{frame}
 
@@ -266,13 +306,14 @@
 
 \end{frame}
 
-\section{Discretization}
+\section{Discretizations}
 
 \begin{frame}{Lumped Linear Discontinuous Galerkin \SN}
 
 	\begin{columns}
 
 		\begin{column}{.5\textwidth}
+		\vspace{.1in}
 		\begin{itemize}
 
 			\item 
@@ -291,7 +332,7 @@
 
 				\def\svgwidth{\textwidth}
 				\input{figs/lldg.pdf_tex}
-				\caption{Unknowns and upwinding for an LLDG cell. }
+				% \caption{Unknowns and upwinding for an LLDG cell. }
 				
 			\end{figure}
 
@@ -299,7 +340,6 @@
 
 	\end{columns} 
 
-	\vspace{-.2in}
 	\begin{columns}
 	\begin{column}{1.06\textwidth}
 	\begin{itemize}
@@ -314,6 +354,8 @@
 
 		\item 
 		Linear case: average of $\psi_{n,i,L}$ and $\psi_{n,i,R}$ 
+
+		\item Sweep through local systems 
 
 	\end{itemize}
 
@@ -354,7 +396,7 @@
 		\item $\edd(x)$ on interior of cell 
 	\end{itemize}
 
-	Cell edges: use upwinded cell edge values of $\psi$ in Gauss Quadrature 
+	Cell edges: use uniquely defined, upwinded cell edge values of $\psi$ in Gauss Quadrature 
 	\begin{equation*} \label{lldg:edde}
 		\edd_{i\pm 1/2} = \frac{
 			\sum_{n=1}^N \mu_n^2 \psi_{n,i\pm 1/2} w_n
@@ -372,13 +414,16 @@
 			} \,, \quad x\in(x_{i-1/2},x_{i+1/2}),
 		\end{equation*}
 
-	This is a rational polynomial $\Rightarrow$ can't be integrated analytically 
+	\begin{itemize}
+		\item This is a rational polynomial $\Rightarrow$ can't be integrated analytically 
 
-	Preserves linear spatial dependence of Eddington factor in MFEM formulation 
+		\item Preserves linear spatial dependence of Eddington factor in MFEM formulation 
+
+	\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Mixed Finite Element Drift Diffusion}
+\begin{frame}{Constant-Linear Mixed Finite Element Drift Diffusion}
 
 	\begin{columns}
 	\begin{column}{.5\textwidth}
@@ -400,7 +445,7 @@
 
 			\def\svgwidth{\textwidth}
 			\input{figs/mfem.pdf_tex}
-			\caption{Distribution of unknowns for an MFEM cell. }
+			% \caption{Distribution of unknowns for an MFEM cell. }
 
 		\end{figure}
 
@@ -408,7 +453,6 @@
 
 	\end{columns}
 
-	\vspace{-.2in}
 	\begin{columns}
 	\begin{column}{1.06\textwidth}
 
@@ -437,12 +481,14 @@
 	\end{equation*}
 	\end{subequations}
 
+	\pause
 	Multiply by $\phi$ basis function and integrate over cell $i$: 
 	\begin{equation*}
 		\int_{x_{i-1/2}}^{x_{i+1/2}} \dderiv{}{x} J (x) + \sigma_a(x) \phi(x) \ \ud x 
 		= \int_{x_{i-1/2}}^{x_{i+1/2}} Q(x) \ \ud x
 	\end{equation*}
 
+	\pause
 	Multiply by $J$ basis functions ($B_{i,L}$ and $B_{i,R}$) and integrate: 
 	\begin{equation*}
 		\int_{x_{i-1/2}}^{x_{i+1/2}} 
@@ -466,14 +512,15 @@
 		\edd(x) \phi(x) \dderiv{B_{i,L/R}}{x} \ud x}_\text{Interior Eddington Factors}
 	\end{multline*}
 
+	\pause
 	On the interior: 
 	\begin{itemize}
 
-		\item $\phi(x)$ and $\dderiv{B_{i,L/R}}{x}$ are constant 
+		\item $\phi(x)$ and $\dderiv{B_{i,L/R}}{x}$ are constant (for linear case)
 
 		\item Use Gauss Quadrature to approximate 
 		\begin{equation*}
-			\int_{x_{i-1/2}}^{x_{i+1/2}} \edd(x) \ud x 
+			\edd_i = \int_{x_{i-1/2}}^{x_{i+1/2}} \edd(x) \ud x 
 		\end{equation*}
 
 	\end{itemize}
@@ -482,7 +529,7 @@
 
 \begin{frame}{MFEM Closure}
 	
-	3 equations from finite element weak form but 5 unknowns per cell 
+	3 equations from weak form but 5 unknowns per cell 
 
 	Enforce continuity of $\phi$ and $J$ at the interior cell edges:
 	\begin{equation*}
@@ -516,7 +563,10 @@
 
 	To remain general, reconstruct from cell centers only 
 
-	Temperature equation will not have cell edges (no continuity of temperature)
+	\begin{itemize}
+		\item Temperature equation will not have cell edges (no continuity of temperature)
+	\end{itemize}
+
 
 \end{frame}
 
@@ -537,13 +587,15 @@
 
 	Converts constant MFEM to discontinuous constant in scattering term 
 
+	Better: construct a linear dependence from neighboring MFEM cell centers 
+
 \end{frame}
 
 \begin{frame}{Linear Reconstruction}
 
 	\onslide<1->{Compute slopes from neighboring cell centers}
 
-	\onslide<2->{Average slopes from left and right, apply van Leer-type slope limiting }
+	\onslide<2->{Generate an average slope from left and right slopes, apply van Leer-type slope limiting }
 
 	\onslide<3->{Interpolate to cell edge }
 
@@ -576,7 +628,7 @@
 
 \begin{frame}{Iterative Convergence Comparison}
 
-	Relative iterative convergence (crude measure of iterative convergence)
+	Relative iterative change (crude measure of iterative convergence)
 	\begin{equation*}
 		\frac{\| f^{\ell+1} - f^\ell \|_2}{\| f^{\ell+1} \|_2}
 	\end{equation*}
@@ -615,22 +667,56 @@
 
 \begin{frame}{Method of Manufactured Solutions}
 
+	Set $Q(x, \mu_n)$ to force solution to 
+	\begin{equation*}
+		\phi(x) = \sin\left(\frac{\pi x}{x_b}\right)
+	\end{equation*}
+
+	Fit error to 
+	\begin{equation*}
+		E = C h^p 
+	\end{equation*}
+
 	\begin{table}[htb]
 	\centering
 	\begin{tabular}{|c|c|c|c|}
 	\hline
-	Update Method & Order & $C$ & $R^2$ \\ 
+	Update Method & $p$ & $C$ & $R^2$ \\ 
 	\hline
 		\input{figs/mms}
 	\hline
 	\end{tabular}
-	\caption{The order of accuracy, error, and $R^2$ values for flat and van Leer slope reconstruction scattering source update methods. }
+	% \caption{The order of accuracy, error, and $R^2$ values for flat and linear slope reconstruction scattering source update methods. }
 	\label{tab:mms}
 	\end{table}
+
+	\pause 
+	\begin{block}{}
+		\centering Same order of accuracy but linear reconstruction is more accurate 
+	\end{block}
 
 \end{frame}
 
 \begin{frame}{VEF Drift Diffusion/\SN Solution Convergence}
+
+	Compare the L$_2$ norm of the difference between \SN and drift diffusion solutions for:
+	\begin{itemize} 
+
+		\item Homogeneous system with $\frac{\sigma_s}{\sigma_t} = .99$ 
+
+		\item Reed's problem 
+
+	\end{itemize}
+
+	\begin{figure}
+		\centering
+		\includegraphics[width=\textwidth]{figs/reed_solution.pdf}
+		\caption{VEF solution for Reed's problem. }
+	\end{figure}
+
+\end{frame}
+
+\begin{frame}{VEF Drift Diffusion/\SN Solution Convergence (cont.)}
 
 	\begin{figure}[htb]
 		\centering
@@ -647,8 +733,13 @@
 			\caption{}
 			\label{fig:reed}
 		\end{subfigure}
-		\caption{The L2 norm of the difference between the \SN and drift-diffusion solutions as a function of cell width for the two scattering source update methods. Results for the homogeneous problem and Reed's problem are given in (a) and (b), respectively.}
+		\caption{Comparison of difference between solutions for both scattering update methods for (a) homogeneous problem and (b) Reed's problem. }
 	\end{figure}
+
+	\pause
+	\begin{block}{}
+		\centering Linearly reconstructed solution is more convergent to \SN for homogeneous problem only 
+	\end{block}
 
 \end{frame}
 
@@ -685,17 +776,39 @@
 
 \end{frame}
 
-\section{Conclusions}
+\section{Conclusions and Future Work }
 
 \begin{frame}{Conclusions}
 
-	
+	Successfully paired Lumped Linear Discontinuous Galerkin \SN with constant-linear Mixed Finite Element drift diffusion 
+
+	Acceleration is as effective as consistently differenced S$_2$SA 
+
+	Thick diffusion limit is preserved 
+
+	Overlap between discretizations:
+	\begin{itemize}
+		\item Carried linear dependence from LLDG into MFEM 
+
+		\item Used slope reconstruction with limiting to regenerate a linear dependence from MFEM 
+
+	\end{itemize}
+
+	Conservative drift diffusion equation can be coupled to other physics components
+
+	Drift diffusion discretization can match other physics components while retaining benefits of DG \SN 
+
+	Built in error estimator 
 
 \end{frame}
 
 \begin{frame}{Future Work}
 
+	Extend to high order finite elements in 2/3D 
 
+	Radiative transfer 
+
+	Investigate the impact of the linear reconstruction method on the "teleportation effect"
 
 \end{frame}
 

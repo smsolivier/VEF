@@ -1,6 +1,6 @@
 %% Creator: Inkscape inkscape 0.92.2, www.inkscape.org
 %% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
-%% Accompanies image file 'figs/mfemgrid.pdf' (pdf, eps, ps)
+%% Accompanies image file 'figs/interpolate_color.pdf' (pdf, eps, ps)
 %%
 %% To include the image in your LaTeX document, write
 %%   \input{<filename>.pdf_tex}
@@ -36,7 +36,7 @@
   }%
   \providecommand\rotatebox[2]{#2}%
   \ifx\svgwidth\undefined%
-    \setlength{\unitlength}{209.53818604bp}%
+    \setlength{\unitlength}{540.6383533bp}%
     \ifx\svgscale\undefined%
       \relax%
     \else%
@@ -48,8 +48,8 @@
   \global\let\svgwidth\undefined%
   \global\let\svgscale\undefined%
   \makeatother%
-  \begin{picture}(1,0.74509902)%
-    \put(0,0){\includegraphics[width=\unitlength,page=1]{figs/mfemgrid.pdf}}%
-    \put(0.04312022,0.19827669){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{}}}%
+  \begin{picture}(1,0.14031476)%
+    \put(-0.00624263,0.0705636){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{figs/interpolate_color.pdf}}%
   \end{picture}%
 \endgroup%

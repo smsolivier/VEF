@@ -305,7 +305,7 @@
 	\begin{itemize}
 
 		\item 
-		Within the cell, 
+		Within the cell, $\psi$ is a linear combination of the basis functions:
 		\begin{equation*}
 			\psi_{n,i}(x) = \psi_{n,i,L} B_{i,L}(x) + \psi_{n,i,R} B_{i,R}(x) \,, \quad x \in (x_{i-1/2},x_{i+1/2})
 		\end{equation*}
@@ -446,8 +446,37 @@
 	Multiply by $J$ basis functions ($B_{i,L}$ and $B_{i,R}$) and integrate: 
 	\begin{equation*}
 		\int_{x_{i-1/2}}^{x_{i+1/2}} 
-		B_{i,L/R}\dderiv{}{x} \bracket{\edd(x) \phi (x)} + B_{i,L/R}\sigma_t(x) J(x) = 0
+		B_{i,L/R}(x)\dderiv{}{x} \bracket{\edd(x) \phi (x)} + B_{i,L/R}(x)\sigma_t(x) J(x) \ud x = 0
 	\end{equation*}
+
+	
+
+\end{frame}
+
+\begin{frame}{Weak Form (cont.)}
+
+	Integrate by parts:
+	\begin{multline*}
+		\int_{x_{i-1/2}}^{x_{i+1/2}} 
+			B_{i,L/R}(x)\dderiv{}{x} \bracket{\edd(x) \phi (x)} \ud x = \\ 
+		\underbrace{\vphantom{\int_{x_{i-1/2}}}
+		\bracket{B_{i,L/R}(x)\edd(x)\phi(x)}_{x_{i-1/2}}^{x_{i+1/2}}}_\text{Edge Eddington Factors}
+		- 
+		\underbrace{\int_{x_{i-1/2}}^{x_{i+1/2}}
+		\edd(x) \phi(x) \dderiv{B_{i,L/R}}{x} \ud x}_\text{Interior Eddington Factors}
+	\end{multline*}
+
+	On the interior: 
+	\begin{itemize}
+
+		\item $\phi(x)$ and $\dderiv{B_{i,L/R}}{x}$ are constant 
+
+		\item Use Gauss Quadrature to approximate 
+		\begin{equation*}
+			\int_{x_{i-1/2}}^{x_{i+1/2}} \edd(x) \ud x 
+		\end{equation*}
+
+	\end{itemize}
 
 \end{frame}
 
@@ -512,28 +541,23 @@
 
 \begin{frame}{Linear Reconstruction}
 
-	Compute slopes from neighboring cell centers 
+	\onslide<1->{Compute slopes from neighboring cell centers}
+
+	\onslide<2->{Average slopes from left and right, apply van Leer-type slope limiting }
+
+	\onslide<3->{Interpolate to cell edge }
 
 	\begin{figure}
 
-		\def\svgwidth{\textwidth}
-		\input{figs/slopes.pdf_tex}
+		% \def\svgwidth{\textwidth}
+		% \input{figs/slopes.pdf_tex}
+		\only<1>{\def\svgwidth{\textwidth}\input{figs/slopes_color.pdf_tex}}%
+		\only<2>{\def\svgwidth{\textwidth}\input{figs/average_color.pdf_tex}}%
+		\only<3,4>{\def\svgwidth{\textwidth}\input{figs/interpolate_color.pdf_tex}}
 
 	\end{figure}
 
-	\vspace{-.1in}
-	Average slopes from left and right, apply van Leer-type slope limiting 
-
-	Interpolate to cell edge 
-
-	\begin{figure}
-
-		\def\svgwidth{\textwidth}
-		\input{figs/average.pdf_tex}
-
-	\end{figure}
-
-	\vspace{-.1in}
+	\onslide<4->{
 	This method: 
 	\begin{itemize}
 
@@ -544,6 +568,7 @@
 		\item Uses slope limiting to prevent unphysical oscillations 
 
 	\end{itemize}
+	}
 
 \end{frame}
 
@@ -629,18 +654,34 @@
 
 \begin{frame}{Thick Diffusion Limit Test}
 
+	Scale cross sections and source according to:
+	\begin{equation*}
+		\sigma_t(x) \rightarrow \sigma_t(x)/\epsilon, \
+		\sigma_s(x) \rightarrow \epsilon \sigma_s(x), \
+		Q(x) \rightarrow \epsilon Q(x)
+	\end{equation*}
+
+	Diffusion length is invariant 
+	\begin{equation*}
+		L^2 = \frac{D}{\sigma_a} = \frac{1}{3\sigma_t\sigma_a} \rightarrow
+			\frac{1}{3 \sigma_t /\epsilon \sigma_a \epsilon}
+	\end{equation*}
+
+	As $\epsilon \rightarrow 0$, the system becomes diffusive 
+
+	\vspace{-.2in}
 	\begin{figure}[htb]
 		\centering
-		\includegraphics[height=.3\textheight]{figs/dl_it.pdf}
-		\caption{The number of iterations required for convergence in the diffusion limit ($\epsilon \rightarrow 0$). }
+		\includegraphics[height=.55\textheight]{figs/dl_it.pdf}
+		% \caption{The number of iterations required for convergence in the diffusion limit ($\epsilon \rightarrow 0$). }
 		\label{fig:dl_it}
 	\end{figure}
-	\begin{figure}
-		\centering
-		\includegraphics[height=.3\textheight]{figs/dl_err.pdf}
-		\caption{The error between the VEF methods and the exact diffusion solution as $\epsilon \rightarrow 0$. }
-		\label{fig:dl_err}
-	\end{figure}
+	% \begin{figure}
+	% 	\centering
+	% 	\includegraphics[height=.3\textheight]{figs/dl_err.pdf}
+	% 	\caption{The error between the VEF methods and the exact diffusion solution as $\epsilon \rightarrow 0$. }
+	% 	\label{fig:dl_err}
+	% \end{figure}
 
 \end{frame}
 

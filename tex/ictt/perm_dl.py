@@ -65,13 +65,13 @@ diff1, it1 = getIt(eps, 2, 1)
 colors = ['#3B7EA1', '#FDB515', '#ED4E33']
 
 plt.figure()
-plt.loglog(eps, it0, '--', clip_on=False, label='Flat', color=colors[0])
-plt.loglog(eps, it1, '-', clip_on=False, label='van Leer', color=colors[1])
+plt.semilogx(eps, it0, '--', clip_on=False, label='Flat', color=colors[0])
+plt.semilogx(eps, it1, '-', clip_on=False, label='van Leer', color=colors[1])
 
 plt.xlabel(r'$\epsilon$', fontsize=18)
 plt.ylabel('Number of Iterations', fontsize=18)
-plt.legend(loc='best', frameon=False)
-hidespines(plt.gca())
+plt.legend(loc='best', frameon=False, fontsize=18)
+hidespines(plt.gca(), 14)
 if (outfile != None):
 	plt.savefig(outfile[0], transparent=True)
 

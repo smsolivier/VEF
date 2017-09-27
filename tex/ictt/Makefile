@@ -8,7 +8,7 @@ FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
 INK = vef_flow vef_discretized lldg mfem scattering naive slopes average \
-	scattering_color naive_color
+	scattering_color naive_color average_color slopes_color interpolate_color
 INK := $(addsuffix .pdf, $(INK))
 INK := $(addprefix $(figdir), $(INK))
 

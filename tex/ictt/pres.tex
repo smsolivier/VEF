@@ -27,7 +27,7 @@
 
 \usepackage[usestackEOL]{stackengine}
 
-\title{\color{berkeleyblue} Variable Eddington Factor Method for Inconsistently Differenced Source Iteration}
+\title{\color{berkeleyblue} Variable Eddington Factor Method with Hybrid Spatial Discretization}
 \subtitle{\normalsize International Conference on Transport Theory \\ Novel Numerical Methods}
 % \date{\today}
 \date{October 19, 2017}
@@ -36,7 +36,7 @@
 \scriptsize
 % \url{https://github.com/smsolivier/EddingtonAcceleration.git} \\ 
 \vfill
-% \centerline{\includegraphics[height=.75cm]{nuen-logo.png}}
+\includegraphics[height=1cm]{berkeley.eps}
 % \titlegraphic{\hfill\includegraphics[height=1.5cm]{nuen-logo.png}}
 }
 
@@ -132,11 +132,12 @@
 		% \item 
 		Produces 2 solutions: one from \SN and one from drift diffusion 
 		\begin{itemize}
-			\item Do not necessarily become identical when the iterative process converges 
+			\item Do not necessarily become identical when the iterative process converges if not consistently differenced 
+
 			\item Solutions do converge as the mesh is refined $\Rightarrow$ built in truncation estimator 
 		\end{itemize}
 
-		Will show that the benefits outweigh producing 2 solutions 
+		Will show that the benefits outweigh producing 2 separate solutions 
 
 
 	% \end{itemize}
@@ -151,9 +152,9 @@
 		Classic discretizations (step, diamond) are not suitable for radiative transfer in High Energy Density Physics regime $\Rightarrow$ Discontinuous Galerkin (DG) 
 
 		% \item 
-		Linear acceleration of Discontinuous Finite Element \SN is problematic 
+		Linear acceleration of Discontinuous Finite Element \SN is somewhat problematic 
 		\begin{itemize}
-			\item Consistent differencing required 
+			\item Consistent differencing required (Adams and Martin NSE 1992)
 
 			\item Requires the diffusion equation to be expressed in $P_1$ form which is more difficult to solve (Warsa, Wareing, Morel NSE 2002) 
 
@@ -174,11 +175,11 @@
 		\begin{itemize}
 			\item Drift diffusion acceleration equation can be discretized in any valid manner without regard for consistency with \SN  
 
-			\item Preserves the thick diffusion limit regardless of discretization consistency 
+			\item Preserves the thick diffusion limit regardless of discretization consistency as long as \SN solution becomes isotropic 
 		\end{itemize}
 
 		% \item 
-		Can use VEF drift diffusion in multiphysics iterations 
+		Can use VEF drift diffusion in multiphysics calculations  
 		\begin{itemize}
 
 			\item VEF drift diffusion is conservative and inexpensive (compared to an \SN sweep) 
@@ -211,7 +212,7 @@
 	\vfill
 	\begin{alertblock}{Goals}
 		
-		Show Lumped Linear Discontinuous Galerkin (LLDG) \SN can be paired with MFEM drift diffusion for one group, 1D neutron transport 
+		Show Lumped Linear Discontinuous Galerkin (LLDG) \SN can be efficiently and accurately paired with MFEM drift diffusion for one group, 1D neutron transport 
 
 	\end{alertblock}
 
@@ -405,7 +406,7 @@
 		} 
 	\end{equation*}
 
-	Cell centers: use polynomial interpolation function 
+	Cell centers: use polynomial interpolation function for the angular flux 
 	\begin{equation*} \label{lldg:eddi}
 			\edd(x) = \frac{
 				\sum_{n=1}^N \mu_n^2 \psi_{n}(x) w_n
@@ -417,7 +418,7 @@
 	\begin{itemize}
 		\item This is a rational polynomial $\Rightarrow$ can't be integrated analytically 
 
-		\item Preserves linear spatial dependence of Eddington factor in MFEM formulation 
+		\item Preserves nonlinear spatial dependence of Eddington factor in MFEM formulation 
 
 	\end{itemize}
 
@@ -471,7 +472,7 @@
 
 \begin{frame}{Weak Form}
 
-	System of first order equations form of drift diffusion:
+	System of first order equations equivalent to drift diffusion:
 	\begin{subequations} 
 	\begin{equation*} \label{eq:zero}
 		\dderiv{}{x} J (x) + \sigma_a(x) \phi(x) = Q(x)
@@ -738,7 +739,7 @@
 
 	\pause
 	\begin{block}{}
-		\centering Linearly reconstructed solution is more convergent to \SN for homogeneous problem only 
+		\centering Linearly reconstructed solution is more accurate for homogeneous problem only 
 	\end{block}
 
 \end{frame}
@@ -755,7 +756,7 @@
 	Diffusion length is invariant 
 	\begin{equation*}
 		L^2 = \frac{D}{\sigma_a} = \frac{1}{3\sigma_t\sigma_a} \rightarrow
-			\frac{1}{3 \sigma_t /\epsilon \sigma_a \epsilon}
+			\frac{1}{3 \frac{\sigma_t}{\epsilon} \sigma_a \epsilon}
 	\end{equation*}
 
 	As $\epsilon \rightarrow 0$, the system becomes diffusive 
@@ -790,7 +791,7 @@
 	\begin{itemize}
 		\item Carried linear dependence from LLDG into MFEM 
 
-		\item Used slope reconstruction with limiting to regenerate a linear dependence from MFEM 
+		\item Used slope reconstruction with limiting to regenerate a linear \SN source from MFEM 
 
 	\end{itemize}
 

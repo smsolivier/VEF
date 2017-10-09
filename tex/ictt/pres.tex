@@ -237,7 +237,7 @@
 
 	where 
 	\begin{equation*}
-		\phi(x) = \sum_{n=1}^N w_n \psi_n(x) \,, \psi_n(x) = \psi(x, \mu_n)
+		\phi(x) = \sum_{n=1}^N w_n \psi_n(x) \,, \quad \psi_n(x) = \psi(x, \mu_n)
 	\end{equation*}
 
 \end{frame}
@@ -397,7 +397,7 @@
 		\item $\edd(x)$ on interior of cell 
 	\end{itemize}
 
-	Cell edges: use uniquely defined, upwinded cell edge values of $\psi$ in Gauss Quadrature 
+	Cell edges: use \alert{uniquely defined, upwinded} cell edge values of $\psi$ in Gauss Quadrature 
 	\begin{equation*} \label{lldg:edde}
 		\edd_{i\pm 1/2} = \frac{
 			\sum_{n=1}^N \mu_n^2 \psi_{n,i\pm 1/2} w_n
@@ -416,7 +416,7 @@
 		\end{equation*}
 
 	\begin{itemize}
-		\item This is a rational polynomial $\Rightarrow$ can't be integrated analytically 
+		\item Rational polynomial $\Rightarrow$ can't be integrated analytically 
 
 		\item Preserves nonlinear spatial dependence of Eddington factor in MFEM formulation 
 
@@ -492,11 +492,17 @@
 	\pause
 	Multiply by $J$ basis functions ($B_{i,L}$ and $B_{i,R}$) and integrate: 
 	\begin{equation*}
-		\int_{x_{i-1/2}}^{x_{i+1/2}} 
-		B_{i,L/R}(x)\dderiv{}{x} \bracket{\edd(x) \phi (x)} + B_{i,L/R}(x)\sigma_t(x) J(x) \ud x = 0
+		% \only<+>{
+		% 	\int_{x_{i-1/2}}^{x_{i+1/2}} 
+		% 		B_{i,L/R}(x)\dderiv{}{x} \bracket{\edd(x) \phi (x)} + B_{i,L/R}(x)\sigma_t(x) J(x) \ud x = 0
+		% }%
+		% \only<+>{
+		% \alert{\int_{x_{i-1/2}}^{x_{i+1/2}} 
+		% 	B_{i,L/R}(x)\dderiv{}{x} \bracket{\edd(x) \phi (x)}} + B_{i,L/R}(x)\sigma_t(x) J(x) \ud x = 0
+		% }
+		\alert<4>{\int_{x_{i-1/2}}^{x_{i+1/2}} 
+			B_{i,L/R}(x)\dderiv{}{x} \bracket{\edd(x) \phi (x)}} + B_{i,L/R}(x)\sigma_t(x) J(x) \ud x = 0
 	\end{equation*}
-
-	
 
 \end{frame}
 
@@ -544,7 +550,7 @@
 	
 	Can then eliminate $J$ and assemble a system of equations of cell centers and edges of $\phi$ only 
 
-	Solve resulting Symmetric Positive Definite Matrix with a 5 band solver  
+	Solve resulting \alert{Symmetric Positive Definite Matrix} with a 5 band solver  
 
 \end{frame}
 
@@ -588,6 +594,7 @@
 
 	Converts constant MFEM to discontinuous constant in scattering term 
 
+	\pause
 	Better: construct a linear dependence from neighboring MFEM cell centers 
 
 \end{frame}

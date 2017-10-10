@@ -44,15 +44,13 @@ def makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol):
 
 	print(err0/err1)
 
-	fsize = 18
 	plt.figure()
 	plt.loglog(h, err0, '-o', clip_on=False, label='Flat', color=colors[0])
 	plt.loglog(h, err1, '-*', clip_on=False, label='Linear', color=colors[1])
 	plt.xlim(h[0], h[-1])
-	plt.legend(loc='best', frameon=False, fontsize=fsize)
-	plt.xlabel('$h$', fontsize=fsize)
-	plt.ylabel('SI/VEF Convergence', fontsize=fsize)
-	hidespines(plt.gca(), 14)
+	plt.legend()
+	plt.xlabel('$h$')
+	plt.ylabel('SI/VEF Convergence')
 
 colors = ['#3B7EA1', '#FDB515', '#ED4E33']
 

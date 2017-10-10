@@ -79,13 +79,12 @@ print(itLD/itED)
 
 colors = ['#3B7EA1', '#FDB515', '#ED4E33']
 
-fsize = 20 
 plt.semilogy(c, itLD, '-o', clip_on=False, label='SI', color=colors[0])
 plt.semilogy(c, itED, '-*', clip_on=False, label='VEF', color=colors[1])
 plt.semilogy(c, itS2, '->', clip_on=False, label='S$_2$SA', color=colors[2])
-plt.legend(loc='best', frameon=False)
-plt.xlabel(r'$\sigma_s/\sigma_t$', fontsize=fsize)
-plt.ylabel('Number of Iterations', fontsize=fsize)
+plt.legend(loc='best')
+plt.xlabel(r'$\sigma_s/\sigma_t$')
+plt.ylabel('Number of Iterations')
 hidespines(plt.gca())
 if (outfile != None):
 	plt.savefig(outfile, transparent=True)

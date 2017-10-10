@@ -30,7 +30,7 @@ ed = LD.Eddington(x, n, Sigmaa, Sigmat, Q, OPT=3, GAUSS=1)
 
 x, phi, it = ed.sourceIteration(tol)
 
-plt.figure(figsize=(16,6))
+plt.figure(figsize=(16, 5.25))
 line = 1.75
 plt.plot(x, phi)
 plt.xlim(0, xb)
@@ -73,6 +73,6 @@ plt.xlabel(r'$x$ (cm)')
 plt.ylabel(r'$\phi$ (1/cm$^2$-s)')
 
 if (outname != None):
-	plt.savefig(outname, transparent=True)
+	plt.savefig(outname)
 else:
 	plt.show()

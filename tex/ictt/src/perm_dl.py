@@ -68,9 +68,9 @@ plt.figure()
 plt.semilogx(eps, it0, '--', clip_on=False, label='Flat', color=colors[0])
 plt.semilogx(eps, it1, '-', clip_on=False, label='Linear', color=colors[1])
 
-plt.xlabel(r'$\epsilon$', fontsize=18)
-plt.ylabel('Number of Iterations', fontsize=18)
-plt.legend(loc='best', frameon=False, fontsize=18)
+plt.xlabel(r'$\epsilon$')
+plt.ylabel('Number of Iterations')
+plt.legend(loc='best', frameon=False)
 hidespines(plt.gca(), 14)
 if (outfile != None):
 	plt.savefig(outfile[0], transparent=True)
@@ -79,8 +79,8 @@ plt.figure()
 plt.loglog(eps, diff0, '--', clip_on=False, label='Flat', color=colors[0])
 plt.loglog(eps, diff1, '-', clip_on=False, label='Linear', color=colors[1])
 
-plt.xlabel(r'$\epsilon$', fontsize=18)
-plt.ylabel('Error', fontsize=18)
+plt.xlabel(r'$\epsilon$')
+plt.ylabel('Error')
 plt.legend(loc='best', frameon=False)
 hidespines(plt.gca())
 if (outfile != None):

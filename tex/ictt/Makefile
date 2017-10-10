@@ -78,5 +78,4 @@ clean :
 	rm -f $(MAIN).synctex.gz
 	rm -f $(MAIN).fff
 	rm -f $(MAIN).ttt
-	rm -f $(MAIN).pdf
 	rm -f berkeley-eps-converted-to.pdf

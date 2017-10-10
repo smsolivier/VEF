@@ -52,10 +52,10 @@ plt.semilogy(np.arange(1, len(unac.phiConv)+1),
 	unac.phiConv, label=r'$\phi(x)$', clip_on=False, color=colors[0])
 plt.semilogy(np.arange(1, len(unac.eddConv)+1), 
 	unac.eddConv, label=r'$\langle \mu^2 \rangle(x)$', clip_on=False, color=colors[1])
-plt.xlabel('Iteration Number', fontsize=fontsize)
-plt.ylabel('Relative Iterative Change', fontsize=fontsize)
-plt.legend(loc='best', frameon=False, fontsize=fontsize)
-hidespines(plt.gca())
+plt.xlabel('Iteration Number')
+plt.ylabel('Relative Iterative Change')
+plt.legend(loc='best', frameon=False)
+plt.title('Source Iteration')
 if (outfile != None):
 	plt.savefig(outfile[0], transparent=True)
 
@@ -65,10 +65,10 @@ plt.semilogy(np.arange(1, len(acc.phiConv)+1),
 	acc.phiConv, '-o', label=r'$\phi(x)$', clip_on=False, color=colors[0])
 plt.semilogy(np.arange(1, len(acc.eddConv)+1), 
 	acc.eddConv, '-*', label=r'$\langle \mu^2 \rangle(x)$', clip_on=False, color=colors[1])
-plt.xlabel('Iteration Number', fontsize=fontsize)
-plt.ylabel('Relative Iterative Change', fontsize=fontsize)
-plt.legend(loc='best', frameon=False, fontsize=fontsize)
-hidespines(plt.gca())
+plt.xlabel('Iteration Number')
+plt.ylabel('Relative Iterative Change')
+plt.legend(loc='best', frameon=False)
+plt.title('VEF')
 if (outfile != None):
 	plt.savefig(outfile[1], transparent=True)
 if (outfile == None):

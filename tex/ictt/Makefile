@@ -1,14 +1,17 @@
 codedir = ../../code/
 figdir = figs/
+SRC = src/
+MPL = matplotlibrc
 
 MAIN = pres
 
-FIGS = si_vef_s2sa si vef solconv_homo solconv_reed dl_it dl_err reed_solution
+FIGS = si_vef_s2sa si vef solconv_homo dl_it dl_err reed_solution
 FIGS := $(addsuffix .pdf, $(FIGS))
 FIGS := $(addprefix $(figdir), $(FIGS))
 
 INK = vef_flow vef_discretized lldg mfem scattering naive slopes \
-	scattering_color naive_color average_color slopes_color interpolate_color
+	scattering_color naive_color average_color slopes_color interpolate_color \
+	MFEM_grid_color
 INK := $(addsuffix .pdf, $(INK))
 INK := $(addprefix $(figdir), $(INK))
 
@@ -34,27 +37,27 @@ $(figdir)%.pdf : ink/%.svg
 	sed -i '/page=2/d' $@_tex
 
 # plot SI v VEF v S2SA
-$(figdir)si_vef_s2sa.pdf : acceleration.py 
+$(figdir)si_vef_s2sa.pdf : $(SRC)acceleration.py $(MPL)
 	./$< $@ 
 
 # plot convergence of phi and edd for VEF and SI 
-$(figdir)si.pdf : converge.py 
+$(figdir)si.pdf : $(SRC)converge.py $(MPL)
 	./$< $@ $(figdir)vef.pdf 
 
 # create table of MMS errors 
-$(figdir)mms.tex : mms.py
+$(figdir)mms.tex : $(SRC)mms.py
 	./$< $@ 
 
 # plot of solution convergence for homogeneous and Reed's problem 
-$(figdir)solconv_homo.pdf : solconv.py 
+$(figdir)solconv_homo.pdf : $(SRC)solconv.py $(MPL)
 	./$< $@ $(figdir)solconv_reed.pdf 
 
 # diff limit of 4 permutations 
-$(figdir)dl_it.pdf : perm_dl.py 
+$(figdir)dl_it.pdf : $(SRC)perm_dl.py $(MPL)
 	./$< $@ $(figdir)dl_err.pdf 
 
 # reed solution 
-$(figdir)reed_solution.pdf : reed.py
+$(figdir)reed_solution.pdf : $(SRC)reed.py $(MPL)
 	./$< $@
 
 # compile latex 

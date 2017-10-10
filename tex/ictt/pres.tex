@@ -601,23 +601,24 @@
 
 \begin{frame}{Linear Reconstruction}
 
-	\onslide<1->{Compute slopes from neighboring cell centers}
+	\onslide<2->{Compute slopes from neighboring cell centers}
 
-	\onslide<2->{Generate an average slope from left and right slopes, apply van Leer-type slope limiting }
+	\onslide<3->{Generate an average slope from left and right slopes, apply van Leer-type slope limiting }
 
-	\onslide<3->{Interpolate to cell edge }
+	\onslide<4->{Interpolate to cell edge }
 
 	\begin{figure}
 
 		% \def\svgwidth{\textwidth}
 		% \input{figs/slopes.pdf_tex}
-		\only<1>{\def\svgwidth{\textwidth}\input{figs/slopes_color.pdf_tex}}%
-		\only<2>{\def\svgwidth{\textwidth}\input{figs/average_color.pdf_tex}}%
-		\only<3,4>{\def\svgwidth{\textwidth}\input{figs/interpolate_color.pdf_tex}}
+		\only<1>{\def\svgwidth{\textwidth}\input{figs/MFEM_grid_color.pdf_tex}}%
+		\only<2>{\def\svgwidth{\textwidth}\input{figs/slopes_color.pdf_tex}}%
+		\only<3>{\def\svgwidth{\textwidth}\input{figs/average_color.pdf_tex}}%
+		\only<4,5>{\def\svgwidth{\textwidth}\input{figs/interpolate_color.pdf_tex}}
 
 	\end{figure}
 
-	\onslide<4->{
+	\onslide<5->{
 	This method: 
 	\begin{itemize}
 
@@ -642,23 +643,39 @@
 	\end{equation*}
 
 	\vspace{-.2in}
-	\begin{figure}[htb]
-	\centering
-	\begin{subfigure}{.515\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{figs/si.pdf}
-		\caption{}
-		\label{fig:si}
-	\end{subfigure}
-	\hspace{-2em}
-	\begin{subfigure}{.515\textwidth}
-		\centering
-		\includegraphics[width=\textwidth]{figs/vef.pdf}  
-		\caption{}
-		\label{fig:vef}
-	\end{subfigure}
-	\caption{Relative iterative change for $\phi(x)$ and $\edd(x)$ for (a) unaccelerated and (b) VEF accelerated SI. }
-	\end{figure}
+	% \begin{figure}[htb]
+	% \centering
+	% \begin{subfigure}{.515\textwidth}
+	% 	\centering
+	% 	\includegraphics[width=\textwidth]{figs/si.pdf}
+	% 	\caption{}
+	% 	\label{fig:si}
+	% \end{subfigure}
+	% \hspace{-2em}
+	% \begin{subfigure}{.515\textwidth}
+	% 	\centering
+	% 	\includegraphics[width=\textwidth]{figs/vef.pdf}  
+	% 	\caption{}
+	% 	\label{fig:vef}
+	% \end{subfigure}
+	% \caption{Relative iterative change for $\phi(x)$ and $\edd(x)$ for (a) unaccelerated and (b) VEF accelerated SI. }
+	% \end{figure}
+
+	\begin{columns}
+
+		\begin{column}{.55\textwidth}
+		\begin{figure}
+			\centering
+			\onslide<1->{\includegraphics[width=\textwidth]{figs/si.pdf}}
+		\end{figure}
+		\end{column}
+		\begin{column}{.55\textwidth}
+		\begin{figure}
+			\centering
+			\onslide<2->{\includegraphics[width=\textwidth]{figs/vef.pdf}}
+		\end{figure}
+		\end{column}
+	\end{columns}
 
 \end{frame}
 

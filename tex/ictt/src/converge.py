@@ -26,7 +26,7 @@ Sigmaa = Sigmat*(1 - c)
 n = 8 
 q = lambda x, mu: 1
 
-xb = 20 
+xb = 10
 
 tol = 1e-6 
 
@@ -42,34 +42,40 @@ x, phi, it = unac.sourceIteration(tol, maxiter)
 
 xac, phiac, itac = acc.sourceIteration(tol, maxiter)
 
-fontsize = 20
-
-colors = ['#3B7EA1', '#FDB515', '#ED4E33']
-
 # unaccelerated 
 plt.figure()
 plt.semilogy(np.arange(1, len(unac.phiConv)+1), 
-	unac.phiConv, label=r'$\phi(x)$', clip_on=False, color=colors[0])
+	unac.phiConv, label=r'$\phi(x)$', clip_on=False)
 plt.semilogy(np.arange(1, len(unac.eddConv)+1), 
-	unac.eddConv, label=r'$\langle \mu^2 \rangle(x)$', clip_on=False, color=colors[1])
+	unac.eddConv, label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
 plt.xlabel('Iteration Number')
 plt.ylabel('Relative Iterative Change')
+plt.ylim(1e-12, 1)
 plt.legend(loc='best', frameon=False)
 plt.title('Source Iteration')
 if (outfile != None):
-	plt.savefig(outfile[0], transparent=True)
+	plt.savefig(outfile[0])
 
 # accelerated 
 plt.figure()
 plt.semilogy(np.arange(1, len(acc.phiConv)+1), 
-	acc.phiConv, '-o', label=r'$\phi(x)$', clip_on=False, color=colors[0])
+	acc.phiConv, '-o', label=r'$\phi(x)$', clip_on=False)
 plt.semilogy(np.arange(1, len(acc.eddConv)+1), 
-	acc.eddConv, '-*', label=r'$\langle \mu^2 \rangle(x)$', clip_on=False, color=colors[1])
+	acc.eddConv, '-*', label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
 plt.xlabel('Iteration Number')
 plt.ylabel('Relative Iterative Change')
 plt.legend(loc='best', frameon=False)
+plt.ylim(1e-12, 1)
 plt.title('VEF')
 if (outfile != None):
-	plt.savefig(outfile[1], transparent=True)
-if (outfile == None):
+	plt.savefig(outfile[1])
+
+# plot of scalar flux 
+plt.figure()
+plt.plot(x, phi)
+plt.xlabel(r'$x$ (cm)')
+plt.ylabel(r'$\phi(x)$ (1/cm$^2$-s)')
+if (outfile != None):
+	plt.savefig(outfile[2])
+else:
 	plt.show()

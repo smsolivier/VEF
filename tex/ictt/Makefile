@@ -23,7 +23,7 @@ LD = $(codedir)ld.py
 
 # generate all figures 
 .PHONY : all 
-all : $(figdir) $(INK) $(MAIN).pdf
+all : $(figdir) $(INK) $(FIGS) $(MAIN).pdf
 
 $(figdir) :
 	mkdir $(figdir) 
@@ -42,7 +42,7 @@ $(figdir)si_vef_s2sa.pdf : $(SRC)acceleration.py $(MPL)
 
 # plot convergence of phi and edd for VEF and SI 
 $(figdir)si.pdf : $(SRC)converge.py $(MPL)
-	./$< $@ $(figdir)vef.pdf 
+	./$< $@ $(figdir)vef.pdf $(figdir)phi_solution.pdf
 
 # create table of MMS errors 
 $(figdir)mms.tex : $(SRC)mms.py

@@ -23,6 +23,9 @@
 
 \usepackage{xspace}
 \usepackage{siunitx}
+\sisetup{per-mode=fraction, inter-unit-product={}\cdot{}}
+\DeclareSIUnit\particles{particles}
+
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 
 \usepackage[usestackEOL]{stackengine}
@@ -571,9 +574,9 @@
 
 	To remain general, reconstruct from cell centers only 
 
-	\begin{itemize}
-		\item Temperature equation will not have cell edges (no continuity of temperature)
-	\end{itemize}
+	% \begin{itemize}
+	% 	\item Temperature equation will not have cell edges (no continuity of temperature)
+	% \end{itemize}
 
 
 \end{frame}
@@ -636,6 +639,28 @@
 
 \section{Computational Results}
 
+\begin{frame}{Homogeneous Test Problem}
+
+	Homogeneous cross sections, source
+
+	Left reflecting, right vacuum, total thickness of \SI{10}{cm}
+
+	50 uniform spatial cells with S$_8$ quadrature 
+
+	Scattering ratio of 0.99 ($\sigma_t = \SI{1}{\per\cm}\,, \sigma_s = \SI{0.99}{\per\cm}$)
+
+	Source set to $Q = \SI{1}{\particles\per\second\per\cm\cubed}$
+
+	Implemented with Python
+
+	\vspace{-.1in}
+	\begin{figure}
+		\centering
+		\includegraphics[width=.5\textwidth]{figs/phi_solution.pdf}
+	\end{figure}
+
+\end{frame}
+
 \begin{frame}{Iterative Convergence Comparison}
 
 	Relative iterative change (crude measure of iterative convergence)
@@ -670,6 +695,7 @@
 			\onslide<1->{\includegraphics[width=\textwidth]{figs/si.pdf}}
 		\end{figure}
 		\end{column}
+		\hspace{-2em}
 		\begin{column}{.55\textwidth}
 		\begin{figure}
 			\centering
@@ -717,7 +743,7 @@
 	\centering
 	\begin{tabular}{|c|c|c|c|}
 	\hline
-	Update Method & $p$ & $C$ & $R^2$ \\ 
+	Update Method & $p$ & $C$ \\ 
 	\hline
 		\input{figs/mms}
 	\hline
@@ -738,7 +764,7 @@
 	Compare the L$_2$ norm of the difference between \SN and drift diffusion solutions for:
 	\begin{itemize} 
 
-		\item Homogeneous system with $\frac{\sigma_s}{\sigma_t} = .99$ 
+		\item Homogeneous system with $\frac{\sigma_s}{\sigma_t} = 0.99$ 
 
 		\onslide<2->
 		\item Reed's problem 
@@ -788,7 +814,7 @@
 	\SN and VEF solutions converge as mesh is refined (difference is $\propto$ LTE)
 
 	\pause
-	Linear reconstruction was 3 times as accurate in homogeneous case but only .1\% more accurate in Reed's problem 
+	Linear reconstruction was 3 times as accurate in homogeneous case but only 0.1\% more accurate in Reed's problem 
 
 \end{frame}
 

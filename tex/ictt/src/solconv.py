@@ -45,16 +45,14 @@ def makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol):
 	print(err0/err1)
 
 	plt.figure()
-	plt.loglog(h, err0, '-o', clip_on=False, label='Flat', color=colors[0])
-	plt.loglog(h, err1, '-*', clip_on=False, label='Linear', color=colors[1])
+	plt.loglog(h, err0, '-o', clip_on=False, label='Flat')
+	plt.loglog(h, err1, '-*', clip_on=False, label='Linear')
 	plt.xlim(h[0], h[-1])
 	plt.legend()
-	plt.xlabel('$h$')
-	plt.ylabel(r'S$_N$/VEF Convergence')
+	plt.xlabel('$h$', fontsize=14)
+	plt.ylabel(r'S$_N$/VEF Convergence', fontsize=14)
 
-colors = ['#3B7EA1', '#FDB515', '#ED4E33']
-
-nrun = 5
+nrun = 4
 h = np.logspace(-2, -1, nrun)
 n = 8 
 xb = 8
@@ -67,7 +65,9 @@ Q = lambda x, mu: 1
 makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol)
 plt.title('Homogeneous')
 if (outfile != None):
-	plt.savefig(outfile[0], transparent=True)
+	plt.savefig(outfile[0])
+else:
+	plt.show()
 
 h = np.logspace(-2.3, -1.3, nrun)
 Sigmamax = 10
@@ -78,6 +78,6 @@ Q = lambda x, mu: Sigmamax*(x<2) + 1*(x>=7)*(x<=8)
 makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol)
 plt.title('Reed\'s Problem')
 if (outfile != None):
-	plt.savefig(outfile[1], transparent=True)
+	plt.savefig(outfile[1])
 else:
 	plt.show()

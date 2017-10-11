@@ -62,11 +62,9 @@ diff1, it1 = getIt(eps, 2, 1)
 # diff20, it20 = getIt(eps, 2, 0)
 # diff21, it21 = getIt(eps, 2, 1)
 
-colors = ['#3B7EA1', '#FDB515', '#ED4E33']
-
 plt.figure()
-plt.semilogx(eps, it0, '--', clip_on=False, label='Flat', color=colors[0])
-plt.semilogx(eps, it1, '-', clip_on=False, label='Linear', color=colors[1])
+plt.semilogx(eps, it0, '-o', clip_on=False, label='Flat')
+plt.semilogx(eps, it1, '-*', clip_on=False, label='Linear')
 
 plt.xlabel(r'$\epsilon$')
 plt.ylabel('Number of Iterations')
@@ -75,8 +73,8 @@ if (outfile != None):
 	plt.savefig(outfile[0])
 
 plt.figure()
-plt.loglog(eps, diff0, '--', clip_on=False, label='Flat', color=colors[0])
-plt.loglog(eps, diff1, '-', clip_on=False, label='Linear', color=colors[1])
+plt.loglog(eps, diff0, '-o', clip_on=False, label='Flat')
+plt.loglog(eps, diff1, '-*', clip_on=False, label='Linear')
 
 plt.xlabel(r'$\epsilon$')
 plt.ylabel('VEF/Exact Diffusion Error')

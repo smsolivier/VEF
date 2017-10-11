@@ -130,7 +130,6 @@ for i in range(len(reconstruct)):
 		reconstruct[i], 
 		tex.utils.writeNumber(order[i], '{:.4}'),
 		tex.utils.writeNumber(b[i], '{:.3}'),
-		tex.utils.writeNumber(r[i], '{:.4e}')
 		)
 if (outfile != None):
 	table.save(outfile)

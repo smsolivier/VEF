@@ -50,7 +50,7 @@ def makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol):
 	plt.xlim(h[0], h[-1])
 	plt.legend()
 	plt.xlabel('$h$')
-	plt.ylabel('SI/VEF Convergence')
+	plt.ylabel(r'S$_N$/VEF Convergence')
 
 colors = ['#3B7EA1', '#FDB515', '#ED4E33']
 
@@ -65,6 +65,7 @@ Sigmat = lambda x: 1
 Sigmaa = lambda x: Sigmat(x) * (1 - c) 
 Q = lambda x, mu: 1 
 makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol)
+plt.title('Homogeneous')
 if (outfile != None):
 	plt.savefig(outfile[0], transparent=True)
 
@@ -75,6 +76,7 @@ Sigmat = lambda x: Sigmamax*(x<2) + .001*(x>=2)*(x<4) + \
 Sigmaa = lambda x: Sigmamax*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)*(x<=8) 
 Q = lambda x, mu: Sigmamax*(x<2) + 1*(x>=7)*(x<=8)
 makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol)
+plt.title('Reed\'s Problem')
 if (outfile != None):
 	plt.savefig(outfile[1], transparent=True)
 else:

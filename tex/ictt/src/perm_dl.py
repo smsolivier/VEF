@@ -70,20 +70,18 @@ plt.semilogx(eps, it1, '-', clip_on=False, label='Linear', color=colors[1])
 
 plt.xlabel(r'$\epsilon$')
 plt.ylabel('Number of Iterations')
-plt.legend(loc='best', frameon=False)
-hidespines(plt.gca(), 14)
+plt.legend()
 if (outfile != None):
-	plt.savefig(outfile[0], transparent=True)
+	plt.savefig(outfile[0])
 
 plt.figure()
 plt.loglog(eps, diff0, '--', clip_on=False, label='Flat', color=colors[0])
 plt.loglog(eps, diff1, '-', clip_on=False, label='Linear', color=colors[1])
 
 plt.xlabel(r'$\epsilon$')
-plt.ylabel('Error')
-plt.legend(loc='best', frameon=False)
-hidespines(plt.gca())
+plt.ylabel('VEF/Exact Diffusion Error')
+plt.legend()
 if (outfile != None):
-	plt.savefig(outfile[1], transparent=True)
+	plt.savefig(outfile[1])
 else:
 	plt.show()

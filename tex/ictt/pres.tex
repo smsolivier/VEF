@@ -119,7 +119,7 @@
 
 \section{Background}
 
-\begin{frame}{Variable Eddington Factor Method Background}
+\begin{frame}{Variable Eddington Factor Method}
 
 	% \begin{itemize}
 	
@@ -127,7 +127,7 @@
 		One of the first nonlinear methods for accelerating source iterations
 
 		% \item 
-		Use \SN to create a transport informed drift diffusion solution  
+		Use \SN to iteratively create a transport-informed drift diffusion solution  
 
 		% \item 
 		Produces 2 solutions: one from \SN and one from drift diffusion 
@@ -149,7 +149,7 @@
 	% \begin{itemize}
 
 		% \item 
-		Classic discretizations (step, diamond) are not suitable for radiative transfer in High Energy Density Physics regime $\Rightarrow$ Discontinuous Galerkin (DG) 
+		Classic discretizations (step, diamond) are not suitable for radiative transfer in High Energy Density Physics regime $\Rightarrow$ Discontinuous Galerkin (DG) \SN
 
 		% \item 
 		Linear acceleration of Discontinuous Finite Element \SN is somewhat problematic 
@@ -412,7 +412,7 @@
 				\sum_{n=1}^N \mu_n^2 \psi_{n}(x) w_n
 			}{
 				\sum_{n=1}^N \psi_{n}(x) w_n 
-			} \,, \quad x\in(x_{i-1/2},x_{i+1/2}),
+			} \,, \quad x\in(x_{i-1/2},x_{i+1/2}) 
 		\end{equation*}
 
 	\begin{itemize}
@@ -529,6 +529,7 @@
 		\begin{equation*}
 			\edd_i = \int_{x_{i-1/2}}^{x_{i+1/2}} \edd(x) \ud x 
 		\end{equation*}
+		where $\edd(x)$ is the rational polynomial shown before 
 
 	\end{itemize}
 
@@ -677,6 +678,12 @@
 		\end{column}
 	\end{columns}
 
+	\vspace{.2in}
+	\onslide<3->
+	\begin{block}{}
+	\centerline{Fast rate of convergence of $\edd(x)$ transfered to $\phi(x)$}
+	\end{block}
+
 \end{frame}
 
 \begin{frame}{Comparison to SI and Consistently Differenced S$_2$SA}
@@ -684,9 +691,13 @@
 	\begin{figure}[htb]
 		\centering
 		\includegraphics[width=.75\textwidth]{figs/si_vef_s2sa.pdf} 
-		\caption{A comparison of the number of iterations required to converge for Source Iteration, VEF acceleration, and S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. } 
+		% \caption{A comparison of the number of iterations required to converge for Source Iteration, VEF acceleration, and S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. } 
 		\label{fig:si_vef_s2sa}
 	\end{figure}
+
+	\begin{block}{}
+		\centerline{VEF method performs similarly to consistently-differenced S$_2$SA}
+	\end{block}
 
 \end{frame}
 
@@ -729,6 +740,7 @@
 
 		\item Homogeneous system with $\frac{\sigma_s}{\sigma_t} = .99$ 
 
+		\onslide<2->
 		\item Reed's problem 
 
 	\end{itemize}
@@ -736,46 +748,56 @@
 	\begin{figure}
 		\centering
 		\includegraphics[width=\textwidth]{figs/reed_solution.pdf}
-		\caption{VEF solution for Reed's problem. }
+		% \caption{VEF solution for Reed's problem. }
 	\end{figure}
 
 \end{frame}
 
 \begin{frame}{VEF Drift Diffusion/\SN Solution Convergence (cont.)}
 
+	Compare 
+		\begin{equation*}
+			\frac{\|\phi_\text{Sn} - \phi_\text{VEF}\|}{\| \phi_\text{Sn}\|}
+		\end{equation*}
+	as cell spacing is decreased 
+
 	\begin{figure}[htb]
 		\centering
 		\begin{subfigure}{.5\textwidth}
 			\centering
 			\includegraphics[width=\textwidth]{figs/solconv_homo.pdf}
-			\caption{}
+			% \caption{}
 			\label{fig:homo}
 		\end{subfigure}
 		\hspace{-2em}
 		\begin{subfigure}{.5\textwidth}
 			\centering
 			\includegraphics[width=\textwidth]{figs/solconv_reed.pdf}
-			\caption{}
+			% \caption{}
 			\label{fig:reed}
 		\end{subfigure}
-		\caption{Comparison of difference between solutions for both scattering update methods for (a) homogeneous problem and (b) Reed's problem. }
+		% \caption{Comparison of difference between solutions for both scattering update methods for (a) homogeneous problem and (b) Reed's problem. }
 	\end{figure}
 
 	\pause
-	\begin{block}{}
-		\centering Linearly reconstructed solution is more accurate for homogeneous problem only 
-	\end{block}
+	\vspace{-.15in}
+	% \begin{block}{}
+	% 	\centering Linearly reconstructed solution is more accurate for homogeneous problem only 
+	% \end{block}
+
+	\SN and VEF solutions converge as mesh is refined (difference is $\propto$ LTE)
+
+	\pause
+	Linear reconstruction was 3 times as accurate in homogeneous case but only .1\% more accurate in Reed's problem 
 
 \end{frame}
 
 \begin{frame}{Thick Diffusion Limit Test}
 
 	Scale cross sections and source according to:
-	\begin{equation*}
-		\sigma_t(x) \rightarrow \sigma_t(x)/\epsilon, \
-		\sigma_s(x) \rightarrow \epsilon \sigma_s(x), \
-		Q(x) \rightarrow \epsilon Q(x)
-	\end{equation*}
+	$$ \sigma_t(x) \rightarrow \sigma_t(x)/\epsilon, \ $$
+	$$ \sigma_a(x) \rightarrow \epsilon \sigma_a(x), \ $$
+	$$ Q(x) \rightarrow \epsilon Q(x) $$
 
 	Diffusion length is invariant 
 	\begin{equation*}
@@ -785,19 +807,35 @@
 
 	As $\epsilon \rightarrow 0$, the system becomes diffusive 
 
-	\vspace{-.2in}
-	\begin{figure}[htb]
-		\centering
-		\includegraphics[height=.55\textheight]{figs/dl_it.pdf}
-		% \caption{The number of iterations required for convergence in the diffusion limit ($\epsilon \rightarrow 0$). }
-		\label{fig:dl_it}
-	\end{figure}
-	% \begin{figure}
-	% 	\centering
-	% 	\includegraphics[height=.3\textheight]{figs/dl_err.pdf}
-	% 	\caption{The error between the VEF methods and the exact diffusion solution as $\epsilon \rightarrow 0$. }
-	% 	\label{fig:dl_err}
-	% \end{figure}
+\end{frame}
+
+\begin{frame}{Thick Diffusion Limit Test (cont.)}
+
+	\begin{columns}
+	\begin{column}{.5\textwidth}
+		\begin{figure}[htb]
+			\centering
+			\includegraphics[width=1.05\textwidth]{figs/dl_it.pdf}
+			% \caption{The number of iterations required for convergence in the diffusion limit ($\epsilon \rightarrow 0$). }
+			\label{fig:dl_it}
+		\end{figure}
+	\end{column}
+	\begin{column}{.5\textwidth}
+		\begin{figure}
+			\centering
+			\includegraphics[width=1.05\textwidth]{figs/dl_err.pdf}
+			% \caption{The error between the VEF methods and the exact diffusion solution as $\epsilon \rightarrow 0$. }
+			\label{fig:dl_err}
+		\end{figure}
+	\end{column}
+	\end{columns}
+
+	\pause
+	VEF solution $\rightarrow$ exact diffusion as $\epsilon \rightarrow 0$
+
+	\pause 
+	Inconsistent discretization still preserves acceleration in thick diffusion limit 
+
 
 \end{frame}
 

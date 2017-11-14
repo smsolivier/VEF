@@ -1,0 +1,298 @@
+\documentclass[12pt]{article}
+\usepackage{afterpage}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{bm}
+\usepackage{epsfig}
+\usepackage{rotating}
+\usepackage{setspace}
+\usepackage{tabls}
+\usepackage{hhline}
+\usepackage{float}
+% \usepackage{subfigure}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{xspace}
+\usepackage{siunitx}
+%\usepackage{subfigmat}
+%\usepackage{citesort}
+%\usepackage{cites}
+%\usepackage{overcite}
+%\usepackage[section]{placeins}
+
+% uncomment for submission of manuscript to NSE
+% \usepackage[nolists, nomarkers]{endfloat}
+%
+% use to include postscript figures
+\usepackage{graphicx,color}
+%
+%\usepackage[light,firsttwo]{draftcopy}
+%\draftcopySetGrey{0.90}
+
+%\usepackage{dbl}
+
+% -----------------------------------------------------------------------------
+% define newcommands
+% -----------------------------------------------------------------------------
+
+%\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+%\setlength{\textfloatsep}{8pt plus 1pt minus 1pt}
+%\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+%\setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}
+%\setlength{\belowdisplayskip}{4pt plus 1pt minus 1pt}
+
+% \makeatletter
+% \renewcommand{\@thesubfigure}{\thefigure\thesubfigure\space}
+% \makeatother
+% =================================================================================================
+% more new commands
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.in}
+\setlength{\oddsidemargin}{0in}
+%\setlength{\topmargin}{0.75in}
+\setlength{\headsep}{12pt}
+%\addtolength{\oddsidemargin}{-0.5in}
+%\addtolength{\textwidth}{1.0in}
+%\addtolength{\textheight}{1.0in}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+%
+% -----------------------------------------------------------------------------
+% define newcommands
+% -----------------------------------------------------------------------------
+
+%\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+%\setlength{\textfloatsep}{8pt plus 1pt minus 1pt}
+%\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+%\setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}
+%\setlength{\belowdisplayskip}{4pt plus 1pt minus 1pt}
+
+% =================================================================================================
+% more new commands
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+% Ways of grouping things
+%
+\newcommand{\bracket}[1]{\left[ #1 \right]}
+\newcommand{\bracet}[1]{\left\{ #1 \right\}}
+\newcommand{\fn}[1]{\left( #1 \right)}
+\newcommand{\ave}[1]{\left\langle #1 \right\rangle}
+%
+% Derivative forms
+%
+\newcommand{\dx}[1]{\,d#1}
+\newcommand{\dxdy}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dxdt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\dxdz}[1]{\frac{\partial #1}{\partial z}}
+\newcommand{\dddx}[1]{\frac{d #1}{d x}}
+\newcommand{\dfdt}[1]{\frac{\partial}{\partial t} \fn{#1}}
+\newcommand{\dfdz}[1]{\frac{\partial}{\partial z} \fn{#1}}
+\newcommand{\ddt}[1]{\frac{\partial}{\partial t} #1}
+\newcommand{\ddz}[1]{\frac{\partial}{\partial z} #1}
+\newcommand{\dd}[2]{\frac{\partial}{\partial #1} #2}
+\newcommand{\ddx}[1]{\frac{\partial}{\partial x} #1}
+\newcommand{\ddy}[1]{\frac{\partial}{\partial y} #1}
+\newcommand{\ddxf}{\frac{d}{dx}}
+%
+% Vector forms 
+%
+%\renewcommand{\vec}[1]{\ensuremath{\stackrel{\rightarrow}{#1}}}
+%\renewcommand{\div}{\ensuremath{\vec{\nabla} \cdot}}
+%\newcommand{\grad}{\ensuremath{\vec{\nabla}}}
+\renewcommand{\vec}[1]{\overrightarrow{#1}}
+\renewcommand{\div}{\vec{\nabla}\! \cdot \!}
+\newcommand{\grad}{\vec{\nabla}}
+\newcommand{\oa}[1]{\fn{\frac{1}{3}\hat{\Omega}\!\cdot\!\overrightarrow{A_{#1}}}}
+
+%
+% Equation beginnings and endings
+%
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\beas}{\begin{eqnarray*}}
+\newcommand{\eeas}{\end{eqnarray*}}
+\newcommand{\bdm}{\begin{displaymath}}
+\newcommand{\edm}{\end{displaymath}}
+
+
+%
+% Equation punctuation
+%
+\newcommand{\pec}{\; ,}
+\newcommand{\pep}{\; .}
+%
+% Equation labels and references, figure references, table references
+%
+\newcommand{\LEQ}[1]{\label{eq:#1}}
+\newcommand{\EQ}[1]{Eq.~(\ref{eq:#1})}
+\newcommand{\EQS}[1]{Eqs.~(\ref{eq:#1})}
+\newcommand{\REQ}[1]{\ref{eq:#1}}
+\newcommand{\LFI}[1]{\label{fi:#1}}
+\newcommand{\FI}[1]{Fig.~\ref{fi:#1}}
+\newcommand{\RFI}[1]{\ref{fi:#1}}
+\newcommand{\LTA}[1]{\label{ta:#1}}
+\newcommand{\TA}[1]{Table~\ref{ta:#1}}
+\newcommand{\RTA}[1]{\ref{ta:#1}}
+
+%
+% List beginnings and endings
+%
+\newcommand{\bl}{\bss\begin{itemize}}
+\newcommand{\el}{\vspace{-.5\baselineskip}\end{itemize}\ess}
+\newcommand{\ben}{\bss\begin{enumerate}}
+\newcommand{\een}{\vspace{-.5\baselineskip}\end{enumerate}\ess}
+%
+% Figure and table beginnings and endings
+%
+\newcommand{\bfg}{\begin{figure}}
+\newcommand{\efg}{\end{figure}}
+\newcommand{\bt}{\begin{table}}
+\newcommand{\et}{\end{table}}
+%
+% Tabular and center beginnings and endings
+%
+\newcommand{\bc}{\begin{center}}
+\newcommand{\ec}{\end{center}}
+\newcommand{\btb}{\begin{center}\begin{tabular}}
+\newcommand{\etb}{\end{tabular}\end{center}}
+%
+% Single space command
+%
+%\newcommand{\bss}{\begin{singlespace}}
+%\newcommand{\ess}{\end{singlespace}}
+\newcommand{\bss}{\singlespacing}
+\newcommand{\ess}{\doublespacing}
+%
+%---New environment "arbspace". (modeled after singlespace environment
+%                                in Doublespace.sty)
+%   The baselinestretch only takes effect at a size change, so do one.
+%
+\def\arbspace#1{\def\baselinestretch{#1}\@normalsize}
+\def\endarbspace{}
+\newcommand{\bas}{\begin{arbspace}}
+\newcommand{\eas}{\end{arbspace}}
+%
+% An explanation for a function
+%
+\newcommand{\explain}[1]{\mbox{\hspace{2em} #1}}
+%
+% Quick commands for symbols
+%
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\halff}{1/2}
+\newcommand{\third}{\frac{1}{3}}
+\newcommand{\twothird}{\frac{2}{3}}
+\newcommand{\mdot}{\dot{m}}
+\newcommand{\ten}[1]{\times 10^{#1}\,}
+\newcommand{\cL}{{\cal L}}
+\newcommand{\cD}{{\cal D}}
+\newcommand{\cF}{{\cal F}}
+\newcommand{\cE}{{\cal E}}
+\renewcommand{\Re}{\mbox{Re}}
+\newcommand{\Ma}{\mbox{Ma}}
+% 
+% Inclusion of Graphics Data
+%
+%\input{psfig}
+%\psfiginit
+%
+% More Quick Commands
+%
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\dxi}{\Delta x_i}
+\newcommand{\dyj}{\Delta y_j}
+\newcommand{\ts}[1]{\textstyle #1}
+% Mark URL's
+\newcommand{\URL}[1]{{\textcolor{blue}{#1}}}
+
+
+
+% Alter some LaTeX defaults for better treatment of figures:
+    % See p.105 of "TeX Unbound" for suggested values.
+    % See pp. 199-200 of Lamport's "LaTeX" book for details.
+    %   General parameters, for ALL pages:
+    \renewcommand{\topfraction}{0.9}	% max fraction of floats at top
+    \renewcommand{\bottomfraction}{0.8}	% max fraction of floats at bottom
+    %   Parameters for TEXT pages (not float pages):
+    \setcounter{topnumber}{2}
+    \setcounter{bottomnumber}{2}
+    \setcounter{totalnumber}{2}     % 2 may work better
+    \setcounter{dbltopnumber}{2}    % for 2-column pages
+    \renewcommand{\dbltopfraction}{0.9}	% fit big float above 2-col. text
+    \renewcommand{\textfraction}{0.07}	% allow minimal text w. figs
+    %   Parameters for FLOAT pages (not text pages):
+    \renewcommand{\floatpagefraction}{0.7}	% require fuller float pages
+	% N.B.: floatpagefraction MUST be less than topfraction !!
+    \renewcommand{\dblfloatpagefraction}{0.7}	% require fuller float pages
+
+	% remember to use [htp] or [htpb] for placement 
+
+\newcommand{\SN}{S$_N$\xspace}
+\renewcommand{\vec}[1]{\bm{#1}} %vector is bold italic
+\newcommand{\vd}{\bm{\cdot}} % slightly bold vector dot
+\newcommand{\ud}{\mathop{}\!\mathrm{d}} % upright derivative symbol
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dderiv}[2]{\frac{d #1}{d #2}}
+\newcommand{\edd}{\langle \mu^2 \rangle} 	
+	
+% =================================================================================================
+\date{}
+
+\begin{document}
+
+%\bibliographystyle{nse}
+%\bibnum{p}
+
+\thispagestyle{empty}
+\bc
+{\Large \bf Variable Eddington Factor Method for the \SN Equations with Lumped Discontinuous Galerkin Spatial Discretization 
+Coupled to a Drift-Diffusion Acceleration Equation with Mixed Finite-Element Discretization}\\
+\vspace{0.5in}
+{\large {\bf Samuel S. Olivier, Jim E. Morel}\\
+$ $\\
+Department of Nuclear Engineering\\
+Texas A\&M University\\
+College Station, TX 77843}\\
+\ec
+$ $\\
+\bc
+{\large \bf Abstract}\\
+\ec
+\noindent
+\emph{
+\input{abstract}
+}\\
+$ $\\
+\noindent
+{\bf Keywords}\\
+\noindent Variable Eddington Factor, Source Iteration Acceleration, Lumped Linear Discontinuous Galerkin, Mixed Finite Element Method  \\
+$ $\\
+\noindent {\bf Running Head}\\
+\noindent Variable Eddington Factor Method \\
+$ $\\
+\noindent{\bf Corresponding Author}\\
+\noindent Samuel S. Olivier, email: \emph{smsolivier@gmail.com}. 
+$ $\\
+\newpage
+\ess
+
+\setcounter{page}{1} % reset page count to ignore title page 
+\section{Introduction}
+\input{introduction2}
+
+\input{body}
+\input{mfem}
+
+% \input{results}
+\input{res}
+
+\input{conclusions}
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+\end{document}

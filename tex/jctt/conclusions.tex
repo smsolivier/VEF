@@ -1,0 +1,15 @@
+%!TEX root = ./jctt.tex
+
+\section{Conclusions and Future Work}
+We have presented a VEF method for the one-group slab-geometry neutron transport equation coupling \SN equations having a Lumped Linear Discontinuous Galerkin spatial discretization with a drift-diffusion equation having a constant-linear Mixed Finite-Element discretization. We have numerically demonstrated that our LLDG/MFEM VEF method is as effective as consistently-differenced S$_2$SA; 
+that both the \SN and drift-diffusion equations exhibit second-order accuracy and thus approach each other with second-order accuracy as the spatial mesh is refined; and that the thick diffusion limit is preserved.  We also investigated two methods for updating the \SN scattering source given the drift-diffusion solution for the scalar flux. The first was to simply use the flat scalar flux dependence of the drift-diffusion solution in the \SN scattering source.  The other was to reconstruct a linear discontinuous scattering source 
+using the flat or cell-average MFEM fluxes together with standard slope reconstruction methods. For a homogeneous problems, the linear update was more accurate, but there was little difference between the flat and linear updates for a highly inhomogeneous problem.  All of the desired VEF properties such as order accuracy and preservation of the diffusion limit were obtained independent of the scattering source update procedure. Most importantly, it is clear that \SN and and drift-diffusion solutions that differ in proportion to truncation 
+error is a small price to pay for the versatility afforded by the VEF method for multiphysics calculations. The conservative drift-diffusion equation can be coupled to the other physics equations and discretized in a manner compatible with those equations.  Furthermore, the difference between the \SN and drift-diffusion equations is a measure of the truncation error of the drift-diffusion solution, which is a very useful error estimator naturally provided by the VEF method.  
+
+% add rational polynomial conclusions: expected to be important in rad transfer 
+% mfem is conservative and can be paired to multiphysics 
+% take out consistency talk 
+
+In the future we intend to extend the VEF method presented in this paper to the radiative transfer equations, with higher order discretizations in 2-D and 3-D geometries.  A major question that we intend to address in the near term is the impact of the linear 
+scattering source update technique in radiative transfer calculations, particularly in Marshak wave problems, where slope reconstruction 
+for the emission source is known to be important to mitigate a numerical artifact referred to as the ``teleportation'' effect  \cite{tele}. 

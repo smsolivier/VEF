@@ -1,0 +1,1046 @@
+\documentclass[12pt]{article}
+\usepackage{afterpage}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{bm}
+\usepackage{epsfig}
+\usepackage{rotating}
+\usepackage{setspace}
+\usepackage{tabls}
+\usepackage{hhline}
+\usepackage{float}
+\usepackage{subfigure}
+\usepackage{float}
+%\usepackage{subfigmat}
+%\usepackage{citesort}
+%\usepackage{cites}
+%\usepackage{overcite}
+%\usepackage[section]{placeins}
+
+% uncomment for submission of manuscript to NSE
+\usepackage[nolists, nomarkers]{endfloat}
+%
+% use to include postscript figures
+\usepackage{graphicx,color}
+%
+%\usepackage[light,firsttwo]{draftcopy}
+%\draftcopySetGrey{0.90}
+
+%\usepackage{dbl}
+
+% -----------------------------------------------------------------------------
+% define newcommands
+% -----------------------------------------------------------------------------
+
+%\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+%\setlength{\textfloatsep}{8pt plus 1pt minus 1pt}
+%\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+%\setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}
+%\setlength{\belowdisplayskip}{4pt plus 1pt minus 1pt}
+
+\makeatletter
+\renewcommand{\@thesubfigure}{\thefigure\thesubfigure\space}
+\makeatother
+% =================================================================================================
+% more new commands
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.in}
+\setlength{\oddsidemargin}{0in}
+%\setlength{\topmargin}{0.75in}
+\setlength{\headsep}{12pt}
+%\addtolength{\oddsidemargin}{-0.5in}
+%\addtolength{\textwidth}{1.0in}
+%\addtolength{\textheight}{1.0in}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+%
+% -----------------------------------------------------------------------------
+% define newcommands
+% -----------------------------------------------------------------------------
+
+%\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+%\setlength{\textfloatsep}{8pt plus 1pt minus 1pt}
+%\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+%\setlength{\abovedisplayskip}{4pt plus 1pt minus 1pt}
+%\setlength{\belowdisplayskip}{4pt plus 1pt minus 1pt}
+
+% =================================================================================================
+% more new commands
+% +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+% Ways of grouping things
+%
+\newcommand{\bracket}[1]{\left[ #1 \right]}
+\newcommand{\bracet}[1]{\left\{ #1 \right\}}
+\newcommand{\fn}[1]{\left( #1 \right)}
+\newcommand{\ave}[1]{\left\langle #1 \right\rangle}
+%
+% Derivative forms
+%
+\newcommand{\dx}[1]{\,d#1}
+\newcommand{\dxdy}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\dxdt}[1]{\frac{\partial #1}{\partial t}}
+\newcommand{\dxdz}[1]{\frac{\partial #1}{\partial z}}
+\newcommand{\dddx}[1]{\frac{d #1}{d x}}
+\newcommand{\dfdt}[1]{\frac{\partial}{\partial t} \fn{#1}}
+\newcommand{\dfdz}[1]{\frac{\partial}{\partial z} \fn{#1}}
+\newcommand{\ddt}[1]{\frac{\partial}{\partial t} #1}
+\newcommand{\ddz}[1]{\frac{\partial}{\partial z} #1}
+\newcommand{\dd}[2]{\frac{\partial}{\partial #1} #2}
+\newcommand{\ddx}[1]{\frac{\partial}{\partial x} #1}
+\newcommand{\ddy}[1]{\frac{\partial}{\partial y} #1}
+%
+% Vector forms
+%
+%\renewcommand{\vec}[1]{\ensuremath{\stackrel{\rightarrow}{#1}}}
+%\renewcommand{\div}{\ensuremath{\vec{\nabla} \cdot}}
+%\newcommand{\grad}{\ensuremath{\vec{\nabla}}}
+\renewcommand{\vec}[1]{\overrightarrow{#1}}
+\renewcommand{\div}{\vec{\nabla}\! \cdot \!}
+\newcommand{\grad}{\vec{\nabla}}
+\newcommand{\oa}[1]{\fn{\frac{1}{3}\hat{\Omega}\!\cdot\!\overrightarrow{A_{#1}}}}
+
+%
+% Equation beginnings and endings
+%
+\newcommand{\bea}{\begin{eqnarray}}
+\newcommand{\eea}{\end{eqnarray}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\beas}{\begin{eqnarray*}}
+\newcommand{\eeas}{\end{eqnarray*}}
+\newcommand{\bdm}{\begin{displaymath}}
+\newcommand{\edm}{\end{displaymath}}
+
+
+%
+% Equation punctuation
+%
+\newcommand{\pec}{\; ,}
+\newcommand{\pep}{\; .}
+%
+% Equation labels and references, figure references, table references
+%
+\newcommand{\LEQ}[1]{\label{eq:#1}}
+\newcommand{\EQ}[1]{Eq.~(\ref{eq:#1})}
+\newcommand{\EQS}[1]{Eqs.~(\ref{eq:#1})}
+\newcommand{\REQ}[1]{\ref{eq:#1}}
+\newcommand{\LFI}[1]{\label{fi:#1}}
+\newcommand{\FI}[1]{Fig.~\ref{fi:#1}}
+\newcommand{\RFI}[1]{\ref{fi:#1}}
+\newcommand{\LTA}[1]{\label{ta:#1}}
+\newcommand{\TA}[1]{Table~\ref{ta:#1}}
+\newcommand{\RTA}[1]{\ref{ta:#1}}
+
+%
+% List beginnings and endings
+%
+\newcommand{\bl}{\bss\begin{itemize}}
+\newcommand{\el}{\vspace{-.5\baselineskip}\end{itemize}\ess}
+\newcommand{\ben}{\bss\begin{enumerate}}
+\newcommand{\een}{\vspace{-.5\baselineskip}\end{enumerate}\ess}
+%
+% Figure and table beginnings and endings
+%
+\newcommand{\bfg}{\begin{figure}}
+\newcommand{\efg}{\end{figure}}
+\newcommand{\bt}{\begin{table}}
+\newcommand{\et}{\end{table}}
+%
+% Tabular and center beginnings and endings
+%
+\newcommand{\bc}{\begin{center}}
+\newcommand{\ec}{\end{center}}
+\newcommand{\btb}{\begin{center}\begin{tabular}}
+\newcommand{\etb}{\end{tabular}\end{center}}
+%
+% Single space command
+%
+%\newcommand{\bss}{\begin{singlespace}}
+%\newcommand{\ess}{\end{singlespace}}
+\newcommand{\bss}{\singlespacing}
+\newcommand{\ess}{\doublespacing}
+%
+%---New environment "arbspace". (modeled after singlespace environment
+%                                in Doublespace.sty)
+%   The baselinestretch only takes effect at a size change, so do one.
+%
+\def\arbspace#1{\def\baselinestretch{#1}\@normalsize}
+\def\endarbspace{}
+\newcommand{\bas}{\begin{arbspace}}
+\newcommand{\eas}{\end{arbspace}}
+%
+% An explanation for a function
+%
+\newcommand{\explain}[1]{\mbox{\hspace{2em} #1}}
+%
+% Quick commands for symbols
+%
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\halff}{1/2}
+\newcommand{\third}{\frac{1}{3}}
+\newcommand{\twothird}{\frac{2}{3}}
+\newcommand{\mdot}{\dot{m}}
+\newcommand{\ten}[1]{\times 10^{#1}\,}
+\newcommand{\cL}{{\cal L}}
+\newcommand{\cD}{{\cal D}}
+\newcommand{\cF}{{\cal F}}
+\newcommand{\cE}{{\cal E}}
+\renewcommand{\Re}{\mbox{Re}}
+\newcommand{\Ma}{\mbox{Ma}}
+%
+% Inclusion of Graphics Data
+%
+%\input{psfig}
+%\psfiginit
+%
+% More Quick Commands
+%
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\dxi}{\Delta x_i}
+\newcommand{\dyj}{\Delta y_j}
+\newcommand{\ts}[1]{\textstyle #1}
+% Mark URL's
+\newcommand{\URL}[1]{{\textcolor{blue}{#1}}}
+
+
+
+% Alter some LaTeX defaults for better treatment of figures:
+    % See p.105 of "TeX Unbound" for suggested values.
+    % See pp. 199-200 of Lamport's "LaTeX" book for details.
+    %   General parameters, for ALL pages:
+    \renewcommand{\topfraction}{0.9}	% max fraction of floats at top
+    \renewcommand{\bottomfraction}{0.8}	% max fraction of floats at bottom
+    %   Parameters for TEXT pages (not float pages):
+    \setcounter{topnumber}{2}
+    \setcounter{bottomnumber}{2}
+    \setcounter{totalnumber}{2}     % 2 may work better
+    \setcounter{dbltopnumber}{2}    % for 2-column pages
+    \renewcommand{\dbltopfraction}{0.9}	% fit big float above 2-col. text
+    \renewcommand{\textfraction}{0.07}	% allow minimal text w. figs
+    %   Parameters for FLOAT pages (not text pages):
+    \renewcommand{\floatpagefraction}{0.7}	% require fuller float pages
+	% N.B.: floatpagefraction MUST be less than topfraction !!
+    \renewcommand{\dblfloatpagefraction}{0.7}	% require fuller float pages
+
+	% remember to use [htp] or [htpb] for placement
+	
+	
+% =================================================================================================
+\date{}
+
+\begin{document}
+
+%\bibliographystyle{nse}
+%\bibnum{p}
+
+\thispagestyle{empty}
+\bc
+{\Large \bf ASYMPTOTIC P$_N$-EQUIVALENT S$_{N+1}$ EQUATIONS}\\
+\vspace{0.5in}
+{\large {\bf J.E. Morel$^{a}$, J.C. Ragusa$^{a}$, M.L.\ Adams$^{a}$, G. Kanschat$^{b}$}\\
+$ $\\
+$^a$Department of Nuclear Engineering\\
+$^b$Department of Mathematics\\
+Texas A\&M University\\
+College Station, TX 77843}\\
+\ec
+$ $\\
+\bc
+{\large \bf Abstract}\\
+\ec
+\noindent
+\emph{
+The 1-D one-speed slab-geometry P$_N$ equations with isotropic scattering can be 
+modified via an alternative moment closure to preserve the two asymptotic eigenmodes 
+associated with the transport equation.  Pomraning referred to these equations as 
+the asymptotic P$_N$ equations. It is well-known that the 1-D slab-geometry S$_{N+1}$ 
+equations with Gauss quadrature are equivalent to the standard P$_{N}$ equations.  
+In this paper, we first show that if any quadrature set meets a certain criterion, 
+the corresponding S$_{N+1}$ equations will be equivalent to a set of P$_N$ equations with a 
+quadrature-dependent closure.  We then derive a particular family of quadrature sets that make 
+the S$_{N+1}$ equations equivalent to the asymptotic P$_N$ equations. Next we theoretically demonstrate 
+several of the properties of these sets, relate them to an existing family of quadratures, 
+numerically generate several example quadrature sets, and give numerical results that 
+confirm several of their theoretically predicted properties.
+}\\
+$ $\\
+\noindent
+{\bf Keywords}\\
+\noindent P$_N$ equations, S$_N$ equations, asymptotic decay lengths.\\
+$ $\\
+\noindent {\bf Running Head}\\
+\noindent Variable Eddington Factor Acceleration \\
+$ $\\
+\noindent{\bf Corresponding Author}\\
+\noindent Jim E. Morel, Phone: (979)845-6072, FAX: (979)845-6075, E-mail: \emph{morel@tamu.edu}.
+$ $\\
+\newpage
+\ess
+%\bc
+%{\large \bf I. Introduction}
+%\ec
+\section{Introduction}
+
+Pomraning developed a generalized P$_N$ method based upon alternatives to the usual closure that 
+assumes the angular flux moment corresponding to P$_{N+1}$ is zero \cite{pomraning}.  This generalized 
+approach takes two forms.  One preserves forward-peaked and backward-peaked delta-function solutions, 
+and the other preserves the two asymptotic eigenmodes associated with the exact transport 
+solution. We refer to the latter approximation as the asymptotic P$_N$ equations.  Both of the asymptotic 
+modes have a decay length that is larger than those of all other eigenmodes, so the asymptotic modes 
+dominate at deep penetration in a homogeneous medium.   
+
+
+It is well known that in 1-D slab geometry the S$_{N+1}$ equations with Gauss quadrature are equivalent 
+to the standard P$_{N}$ equations.  The purpose of this paper is to demonstrate that an analogous equivalence 
+exists between the $S_{N+1}$ equations with appropriate quadrature and the asymptotic P$_N$ equations.  Several 
+families of S$_N$ quadrature sets that preserve the transport asymptotic decay length were derived by Ganguley, 
+et al. \cite{ganguley}. Although these sets were derived without consideration of P$_N$ equations, we have found 
+that our family of asymptotic quadratures is identical to one of those families. We have no proof of this property, 
+but rather have simply observed it by comparing quadrature sets that we generated with those published 
+by Ganguley, et. al. 
+
+The remainder of this paper is organized as follows.  First we derive Ponraning's asmptotic P$_N$ equations. 
+Next we show that under the assumption of a certain property of the quadrature set, the S$_{N+1}$ equations are 
+equivalent to the P$_N$ equations with a truncation determined by the quadrature set. This is a general property 
+independent of Pomraning's closure.  The particular quadrature sets that produce Ponraning's asymptotic closure 
+are next derived.  Various properties of these sets are then demonstrated including certain properties that 
+Ganguly, et al., did not make reference to.  Boundary conditions and interface conditions are next given for the 
+S$_{N+1}$ equations corresponding to our asymptotic quadrature sets. We then discuss the equations that 
+Ganguley, et al., used to generate the quadrature sets that are identical to ours. Finally, we numerically generate 
+several of our sets and numerical demonstrate several of their properties. 
+
+
+%\bc
+%{\large \bf II. The Asymptotic P$_N$ Equations}
+%\ec
+\section{The Asymptotic P$_N$ Equations}
+
+The purpose of this section is to derive Pomraning's asymptotic P$_N$ equations.  We begin with the transport equation:
+\be
+\mu\dxdy{\psi}{z} + \sigma_t \psi =  \frac{\sigma_s} {2} \phi + \frac{q}{2} \pec
+\LEQ{1}
+\ee
+where $\psi(z,\mu)$ $(p/cm^2-sec-steradian)$ is the angular flux, $\mu$ is the cosine of the polar angle associated with the particle direction, $\sigma_t $ $(cm^{-1})$ is the macroscopic total cross section, $\sigma_s $ $(cm^{-1})$ is the macroscopic scattering 
+cross section, $q(z)/2$ $(p/cm^3-sec-steradian)$ is the inhomogeneous source, and $\phi(z)$ $(p/cm^2-sec)$ is the scalar flux:
+\be
+\phi(z) = \int_{-1}^{+1} \psi(z,\mu) \, d\mu \pep
+\LEQ{2}
+\ee
+It is convenient for our purposes to re-express the spatial variable in \EQ{1} in mean-free-paths.  Let $x$ denote this 
+variable, then 
+\be
+x= \sigma_t z \pec
+\LEQ{3}
+\ee
+and \EQ{1} becomes
+\be
+\mu\dxdy{\psi}{x} + \psi =   \frac{c}{2} \phi + \frac{\varrho}{2} \pec
+\LEQ{4}
+\ee
+where $c=\sigma_s/\sigma_t$ is the scattering ratio and $\varrho = q/\sigma_t$.
+We next take the $k$'th Legendre moment of the transport equation by first multiplying \EQ{1} by the $k$'th Legendre polynomial, 
+$P_k(\mu)$, and integrating over all directions.  Using the identity
+\be
+\mu P_k(\mu) = \frac{k+1}{2k+1} P_{k+1}(\mu) + \frac{k}{2k+1} P_{k-1}(\mu) \pec
+\LEQ{4a}
+\ee
+and taking the moments for $k=0,N$, with $N$ restricted to odd values, we obtain the following system of exact moment equations:
+\begin{gather}
+\LEQ{5}
+\dddx{\Phi_1} + (1-c) \Phi_0 = \varrho \pec \\
+\LEQ{6}
+\frac{k+1}{2k+1} \dddx{\Phi_{k+1}} + \frac{k}{2k+1} \dddx{\Phi_{k-1}} +  \Phi_k = 0 \pec \quad k=1,N-1, \\
+\LEQ{7}
+\frac{N+1}{2N+1} \dddx{\Phi_{N+1}} + \frac{N}{2N+1} \dddx{\Phi_{N-1}} + \Phi_N = 0 \pec
+\end{gather}
+where the $k$'th Legendre moment of the angular flux is given by 
+\be
+\Phi_k (x) = \int_{-1}^{+1} P_k(x,\mu) \psi(x,\mu) \, d\mu \pec
+\LEQ{8}
+\ee
+and $\sigma_a = \sigma_t-\sigma_s$ $(cm^{-1})$ is the macroscopic absorption cross section.
+These moment equations are exact, but the system is open because there are $N+1$ unknowns and 
+$N$ equations. The standard P$_N$ approximation is simply to set $\Phi_{N+1}=0$.  Pomraning obtains 
+the asymptotic closure by assuming that the solution is given by a linear combination of the Legendre 
+polynomials of degree $N-2$ or less and the two asymptotic transport modes. These modes have the following 
+form:
+\be
+\psi^+_{\nu}(x,\mu) = \frac{a^+}{1 + \nu \mu}\exp(\nu x) \pec
+\LEQ{10}
+\ee
+and 
+\be
+\psi^-_{\nu}(x,\mu) = \frac{a^-}{1 - \nu \mu} \exp(-\nu x) \pec
+\LEQ{11}
+\ee
+where each $a^{\pm}$ is an arbitrary constant, and $\nu$ is the decay constant or the reciprocal of the asymptotic decay length 
+that satisfies the following dispersion relation,
+\be
+\frac{2\nu}{c}=\ln\frac{1+\nu}{1-\nu} \pec
+\LEQ{12}
+\ee
+Because $0 \le c  \le 1$, $\nu$ is real and continuously varies from zero to one as $c$ varies from one to zero. 
+Equation~(12) admits negative $\mu$ values as well, but we have accounted for these values by defining $\psi^{\pm}$.
+The generalized closure is mechanically expressed in terms of a constant, $\alpha_N$, 
+where 
+\be
+\Phi_{N+1}=\alpha_N \Phi_{N-1} \pep
+\LEQ{13}
+\ee
+Thus \EQ{7} becomes 
+\be
+\bracket{ \alpha_N \frac{N+1}{2N+1}  +  \frac{N}{2N+1} }\dddx{\Phi_{N-1}} + \Phi_N = 0 \pep
+\LEQ{13a}
+\ee
+Due to the orthogonality of the Legendre polynomials and the assumption that the solution is given by 
+a linear combination of the Legendre polynomials of degree $N-2$ or less and the two asymptotic transport modes , 
+only the asymptotic modes contribute to $\Phi_{N-1}$ and $\Phi_{N+1}$. Thus 
+\be
+\alpha_N = \frac{
+ \int_{-1}^{+1} P_{N-1}(\mu) \bracket{a^+ \exp(\nu x)(1 + \nu \mu)^{-1} + a^-(x) \exp(-\nu x)(1 + \nu \mu)^{-1}} \, d\mu
+}
+{
+ \int_{-1}^{+1} P_{N+1}(\mu) \bracket{a^+ \exp(\nu x)(1 + \nu \mu)^{-1} + a^- \exp(-\nu x) (1 + \nu \mu)^{-1}} \, d\mu
+}
+\LEQ{14}
+\ee
+Since both P$_{N-1}(\mu)$ and P$_{N+1}(\mu)$ are even functions of $\mu$, and $\psi^+_{\nu}(\mu)=\psi^-_{\nu}(-\mu)$, 
+\EQ{14} reduces to 
+\be
+\alpha_N = \frac{\int_{-1}^{+1} P_{N-1}(\mu)(1 + \nu \mu)^{-1} \, d\mu}{\int_{-1}^{+1} P_{N+1}(\mu)(1 + \nu \mu)^{-1} \, d\mu} \pep
+\LEQ{15}
+\ee 
+For a given value of $N$, the constant $\alpha_N$ is purely a function of $c$ and continuously varies from zero to one as $c$ varies from one to zero. 
+This constant can be directly evaluated numerically using adaptive quadrature integration for any values of $c$ other than 
+zero and one. However, as previously noted, $c=1$ yields $\alpha_N=0$ and $c=0$ yields $\alpha_N=1$.  As $c \rightarrow 1$, the 
+modal functions become isotropic and as $c \rightarrow 0$, (with proper normalization) they become delta-functions at 
+$\mu=\pm 1$. 
+
+%&\bc
+%{\large \bf III. General Equivalence of S$_{N+1}$ and P$_N$ Equations}
+%\ec
+\section{General Equivalence of S$_{N+1}$ and P$_N$ Equations}
+\label{sec:genequiv}
+
+In this section we first show that if any quadrature set meets a certain general criterion, the S$_{N+1}$ equations formed with that set will be equivalent 
+to a set of P$_N$ equations with a closure determined by the quadrature.  We begin our consideration of the general S$_{N+1}$ equations by assuming a standard $(N+1)$-point quadrature set for discrete-ordinates 
+calculations: $\{\mu_m, w_m\}_{m=1}^{N+1}$, where the weights sum to 2, the quadrature points are symmetric about $\mu=0$, and the 
+set exactly integrates at least 1, $\mu$, and $\mu^2$.  The corresponding S$_{N+1}$ equations can be written as follows:
+\be
+\mu_m\dddx{\psi_m} + \psi_m = \frac{c}{2} \phi + \frac{\varsigma}{2} \pec \quad m=1,N+1,
+\LEQ{16}
+\ee
+where $\psi_m (x)= \psi(x,\mu_m)$ and 
+\be
+\phi(x) = \sum_{m=1}^{N+1} \psi_m(x) w_m  \pep
+\LEQ{17}
+\ee
+We next take the $k$'th Legendre moment of \EQ{16} using the quadrature formula:
+\be
+\sum_{m=1}^{N+1} P_k(\mu_m) \bracket{ 
+\mu_m\dddx{\psi_m} + \psi_m - \frac{c}{2} \phi + \frac{\varsigma}{2} } w_m = 0 \pep
+\LEQ{18}
+\ee
+Substituting from \EQ{4a} into \EQ{18}, we get
+\be
+\sum_{m=1}^{N+1} \bracket{ 
+\fn{\frac{k+1}{2k+1} P_{k+1}(\mu_m) + \frac{k}{2k+1} P_{k-1}(\mu_m)} \dddx{\psi_m}  + 
+\psi_m - \frac{c}{2} \phi + \frac{\varsigma}{2} } w_m = 0 \pep
+\LEQ{19}
+\ee
+Equation~(19) is trivially evaluated for $k=0,N+1$:
+\begin{gather}
+\LEQ{20}
+\dddx{\Phi_1} + (1-c) \Phi_0 = \varsigma \pec \\
+\LEQ{21}
+\frac{k+1}{2k+1} \dddx{\Phi_{k+1}} + \frac{k}{2k+1} \dddx{\Phi_{k-1}} +  \Phi_k = 0 \pec \quad k=1,N-1, \\
+\LEQ{22}
+\frac{N+1}{2N+1} \dddx{\Phi_{N+1}} + \frac{N}{2N+1} \dddx{\Phi_{N-1}} + \Phi_N = 0 \pec
+\end{gather}
+where the $k$'th Legendre moment of the angular flux is given by 
+\be
+\Phi_k(x) = \sum_{m=1}^{N+1} P_k(\mu_m) \psi_m(x) w_m  \pep
+\LEQ{23}
+\ee
+Note that Eqs.~(\REQ{20}) through (\REQ{22}) are identical to Eqs.~(\REQ{5}) through (\REQ{7}).  However, it can be 
+shown that if we assume a certain property of the quadrature formula, Eqs.~(\REQ{20}) through (\REQ{22}) are closed, 
+whereas Eqs.~(\REQ{5}) through (\REQ{7}) are open unless a specific closure relating $\Phi_{N+1}$ to the lower-order 
+flux moments is defined. The potential implicit closure of Eqs.~(\REQ{20}) through (\REQ{22}) relates to the fact 
+that all of the S$_{N+1}$ moments are a function of $N+1$ independent angular flux values. If these angular flux values can 
+be uniquely expressed in terms of the first $N+1$ moments, then it follows that $\Phi_{N+1}$ can be expressed in terms of 
+these lower-order moments, which in turn closes the system.  We can begin to demonstrate a specific expression for the 
+closure by first considering the discrete-to-moment matrix $\mathbf{D}$ defined via \EQ{23} \cite{morel}:
+\be
+D_{k,m} = P_{k}(\mu_m) w_m \pec \quad \mbox{$k=0,N$, and $m=1,N+1$}.  
+\LEQ{24}
+\ee
+Note that this matrix maps $N+1$ Legendre moments to $N+1$ discrete angular flux values:
+\be
+\vec{\psi} = \mathbf{D}\vec{\Phi} \pec
+\LEQ{25}
+\ee
+where
+\be
+\vec{\psi} = \fn{\psi_1,\psi_2, \ldots ,\psi_{N+1}}^t \pec
+\LEQ{26}
+\ee
+and
+\be
+\vec{\Phi} = \fn{\Phi_0,\Phi_1, \ldots ,\Phi_{N}}^t \pep
+\LEQ{27}
+\ee
+If we assume that $\mathbf{D}$ is invertible, then it follows that 
+\be
+\psi_m = \sum_{k=0}^{N} \mathbf{M}_{m,k} \Phi_k \pec \quad m=1,N+1.
+\LEQ{28}
+\ee
+where $\mathbf{M}=\mathbf{D}^{-1}$. 
+Substituting from \EQ{28} into \EQ{23} for $k=N+1$, we obtain the desired closure expression:
+\be
+\Phi_{N+1} = \sum_{m=1}^{N+1} P_{N+1}(\mu_m) \bracket{\sum_{k=0}^{N} \mathbf{M}_{m,k} \Phi_k } w_m \pep
+\LEQ{29}
+\ee
+The matrix $\mathbf{M}$ is called the moment-to-discrete matrix \cite{morel}. It is important to realize 
+that if the discrete-to-moment matrix is not invertible Eqs.~(\REQ{20}) through (\REQ{22}) are nonetheless 
+satisfied by the S$_{N+1}$-generated moments, but these equations cannot be solved for those moments or  
+for the discrete angular flux values given those moments. 
+
+%\bc
+%{\large \bf IV. Asymptotic P$_{N}$-Equivalent S$_{N+1}$ Equations }
+%\ec
+\section{Asymptotic P$_{N}$-Equivalent S$_{N+1}$ Equations}
+
+
+In this section we define a procedure for obtaining quadrature sets that yield Pomraning's closure given 
+the value of $\alpha_N$.  In this regard, we want \EQ{13} to be satisfied using the quadrature definition for 
+the moments given in \EQ{23}:
+\be
+\sum_{m=1}^{N+1} P_{N+1}(\mu_m) \psi_m w_m = \alpha \sum_{m=1}^{N+1} P_{N-1}(\mu_m) \psi_m w_m  \pep
+\LEQ{30}
+\ee
+It is useful to rearrange \EQ{30} a bit:
+\be
+\sum_{m=1}^{N+1} G_N(\mu_m) \psi_m w_m = 0 \pec
+\LEQ{31}
+\ee
+where 
+\be
+G_N(\mu) = P_{N+1}(\mu) - \alpha_N P_{N-1}(\mu)\pep
+\LEQ{32}
+\ee
+Note from \EQ{31} that if we choose the quadrature points to be the roots of $G_{N}(\mu)$, \EQ{30} is guaranteed 
+to be satisfied independent of the values of $\psi$.
+
+We next show that the polynomial $G_N(\mu)$ has $N+1$ real non-zero roots symmetrically 
+located about $\mu=0$, and if $\alpha < 1$, these roots are located within the open interval $(-1,1)$, and if $\alpha=1$, 
+these roots are located within the closed interval $[-1,1]$.
+Using \EQ{4a}, we can rewrite $G_N(\mu)$ as follows:
+\begin{gather}
+  \label{eq:polynomials:2}
+  G_N(\mu) = \frac{2N+1}{n+1} \mu P_N(\mu)
+  - \left(\frac{N}{N+1}+\alpha\right) P_{N-1}(\mu).
+\end{gather}
+We next make the following definitions:
+  \begin{gather}
+    \label{eq:polynomials:3}
+    G_N(\mu) = a(\mu) - b(\mu),
+    \qquad a(\mu) = \frac{2N+1}{n+1} \mu P_N(\mu),
+    \quad b(\mu) = \left(\frac{N}{N+1}+\alpha\right) P_{N-1}(\mu).
+  \end{gather}
+  First, nothing needs to be shown for $\alpha = 0$, since $G_N(\mu)$ is equal to 
+  $P_{N+1}(\mu)$ in this case, and $P_{N+1}(\mu)$ is known to have the desired properties.
+  
+  Hence, we consider $\alpha > 0$.  It is known that $P_{N-1}(\mu)$ has one real root 
+  within every interval between adjacent roots of $P_N(\mu)$. Let $\xi_k$ and $\xi_{k+1}$ be 
+  adjacent roots of $P_{N}(\mu)$.  Then, we have $G_N(\xi_k) = -b(\xi_k)$ 
+  and $G_N(\xi_{k+1}) = -b(\xi_{k+1})$. Since $b(\mu)$ changes sign between 
+  these two roots, $G_N(\mu)$ must similarly change sign and thereby must 
+  have at least one root between them. Thus, $G_N(\mu)$ must have at least one root in {\it every} 
+  interval between roots of $P_N(\mu)$. There are $N-1$ such intervals.
+  
+  Since $N$ is odd, $P_N(\mu)$ has $(N+1)/2$ nonnegative roots,
+  and $G_N(\mu)$ has $(N-1)/2$ positive zeros on the
+  interval $(0,\xi_N)$, where $\xi_N$ is the largest root of
+  $P_N$. Furthermore, $P_{N-1}(\xi_N)$ must be positive.  This follows from 
+  the fact that $P_{N-1}(1)=1$, so if $P_{N-1}(\xi_N)$ were negative, it would have a root 
+  on $(\xi_N,1)$, which would not be between two roots of $P_{N}(\mu)$. Thus,
+  $G_N(\xi_N)< 0$. Furthermore, since
+  \begin{gather}
+    \label{eq:polynomials:4}
+    P_{N-1}(1) = P_{N}(1) = 1 \quad\text{and}\quad
+    \frac{2N+1}{N+1} = \frac{N}{N+1} + 1 \ge \frac{N}{N+1}+\alpha,
+  \end{gather}
+  we find that $G_N(1) \ge 0$, so it has at least one additional root in
+  $(\xi_N,1]$.  This root is equal to $1$ if and only if $\alpha = 1$.  Thus, $G_N(\mu)$ has at least
+  $(N+1)/2$ positive roots. Since $G_N(\mu)$ is even, the negative of each positive root must also be a root. 
+  Thus, $G_N(\mu)$ has at least $N+1$ roots symmetrically arranged about $\mu=0$.  
+  Since $G_N(\mu)$ is a polynomial of degree $N+1$, it can have no more than $N+1$ roots.  Hence, we conclude 
+  that $G_N(\mu)$ has exactly one root in each interval between roots of $P_N(\mu)$, exactly one root on 
+  $(\xi_N,1)$ and $(-1,-\xi_N)$ if $\alpha < 1$, and roots at $1$ and $-1$ if $\alpha=1$.  This concludes the 
+  demonstration of the desired properties. 
+  
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "main"
+%%% End: 
+
+Once the quadrature points have been obtained by solving for the roots of $G_N(\mu)$, 
+the quadrature weights are obtained simply by requiring that 
+the quadrature set be exact for all polynomials of degree $N$.  In particular, the equations for the weights 
+can be expressed in the following well-conditioned form:
+\be
+\sum_{m=1}^{N+1} P_k(\mu_m) w_m = 2 \delta_{k,0} \pec \quad k=0,N \pep
+\LEQ{33}
+\ee
+
+There are two closure cases from which we obtain standard quadrature sets. The first 
+corresponds to $\alpha=0$, which yields the standard P$_N$ closure.  In this case, $G(\mu)$ is just $P_{N+1}(\mu)$.  
+It is well known that the quadrature points for an $(N+1)$-point Gauss set are the roots of $P_{N+1}(\mu)$. Furthermore, 
+it is well-known that the standard P$_N$ equations are equivalent to the S$_{N+1}$ equations with Gauss quadrature. Thus 
+our prescription clearly works for this case.  The other case is Pomraning's ``maximum anisotropy'' case which corresponds 
+to $\alpha=1$.  Interestingly, we have numerically determined that our prescription yields Lobatto quadrature sets, which 
+always include points at $\mu=\pm 1$.  As previously noted, $\alpha=1$ corresponds to $c=0$, which is a purely absorbing medium. 
+In this case, the asymptotic value of $\nu$ is one.  The Lobatto set clearly preserves this asymptotic decay rate. 
+For instance, let us assume a purely absorbing right half-space problem with the incoming fluxes defined at $x=0$ in the 
+positive Lobatto directions by $\{\psi_m=f_m\}_{m=1}^{(N+1)/2}$, where $\mu_1 = 1$. The analytic solution for this problem 
+is given by 
+\be
+\psi(x)_m = f_m \exp(-x/\mu_m) \pec \quad m=1,(N+1)/2 \pep
+\LEQ{34}
+\ee
+Since $\mu_m < \mu_1$ for all $m > 1$, it follows that the flux decays most slowly in direction 1 and thus that the decay rate 
+for this mode, which clearly corresponds to $\nu=1$, is the asymptotic rate.  We have numerically confirmed that the discrete-to-moment matrices 
+associated with Lobatto quadrature sets are invertible.  Thus our prescription clearly works for this case as well. It is 
+interesting to note that the usual definition for the quadrature points of a $(N+1)$-point Lobatto set is that all directions 
+other than $\pm 1$ are the roots of $P^{\prime}_{N}(\mu)$.  Our definition states that {\it all} of the Lobatto points including $\mu=\pm 1$ are 
+roots of $P_{N+1}(\mu)-P_{N-1}(\mu)$, which is apparently not well-known.
+
+
+
+%\bc
+%{ \bf IV.a Various Properties of the Sets}
+%\ec
+\subsection{Various Properties of the Sets}
+
+In this section we demonstrate various properties of the asymptotic quadrature sets.  The first property we demonstrate is that the asymptotic quadrature set with $N+1$ points exactly integrates polynomials through degree $2N-1$. 
+Note from \EQ{32} that $G_{N}$ is a polynomial of degree $N+1$.  Thus we can express any polynomial $h(\mu)$ of degree $2N-1$ or less, as follows:
+\be
+h(\mu)=q(\mu)G_{N}(\mu) + r(\mu)   \pec
+\LEQ{35}
+\ee
+where $q$ is a polynomial of degree $N-2$ and $r$ is a polynomial of degree $N$ or less. All polynomials of degree $N-2$ are orthogonal to $G_N$, so 
+\be
+\int_{-1}^{+1} h(\mu) \, d\mu = \int_{-1}^{+1} \bracket{q(\mu)G_{N}(\mu) + r(\mu)} \, d\mu = \int_{-1}^{+1} r(\mu) \, d\mu \pep
+\LEQ{36}
+\ee
+Using the asymptotic quadrature formula to evaluate the integral of $h$, and recognizing that the quadrature points are the roots of $G$, we get
+\be
+\sum_{m=1}^{N+1} h(\mu_m) w_m = \sum_{m=1}^{N+1} \bracket{q(\mu_m)G_{N}(\mu_m) + r(\mu_m)} w_m = \sum_{m=1}^{N+1} r(\mu_m) w_m \pep
+\LEQ{37}
+\ee
+If follows from \EQ{33} that the quadrature exactly integrates $r$.  Thus it follows from \EQ{37} that the quadrature exactly integrates polynomials 
+of degree $2N-1$ or less.  If $\alpha_N=0$, $P_{N-1}$ drops out of the expression for $G_N$ and we can raise the degree of $h$ by 2 while maintaining 
+the orthogonality of $q$ and $G_N$.  Of course, when $\alpha_N=0$, the asymptotic quadrature set is the standard Gauss set.  Otherwise, all of the 
+asymptotic sets have the same polynomial integration accuracy as the Lobatto sets ($\alpha_N=1$).
+
+The second property we demonstrate is that the asymptotic quadrature sets exactly integrate the transport asymptotic modes. 
+The analytic dispersion relationship satisfied by the asymptotic decay constant is 
+\be
+\int_{-1}^{+1} \frac{d\mu}{1 + \nu \mu }  = \frac{2}{c} \pep
+\LEQ{38}
+\ee
+It is easy to show that \EQ{38} is satisfied when $-\nu$ is substituted for $\nu$. Thus we can rewrite \EQ{38} as follows:
+\be
+\int_{-1}^{+1} \frac{d\mu}{1 \pm \nu \mu }  = \frac{2}{c} \pep
+\LEQ{39}
+\ee
+An analogous discrete expression is satisfied by the S$_{N+1}$ asymptotic decay constant, $\nu_s$: 
+\be
+\sum_{m=1}^{N+1} \frac{w_m}{1 \pm \nu_{s} \mu_m } = \frac{2}{c} \pec
+\LEQ{40}
+\ee
+Since the asymptotic quadrature sets ensure that $\nu_{s}=\nu$, it follows that 
+\be
+\sum_{m=1}^{N+1} \frac{w_m}{1 \pm \nu \mu_m } = \frac{2}{c} \pec
+\LEQ{41}
+\ee
+Recognizing that $f^{\pm}_{\nu}(\mu) \equiv (1 \pm \nu \mu_m)^{-1}$ has the angular shape of $\psi^{\pm}_{\nu}(x,\mu)$, 
+and comparing Eqs.~(\REQ{39}) and(\REQ {41}), we find that each asymptotic quadrature set exactly integrates its corresponding 
+asymptotic modes. 
+
+The third and final property we demonstrate is that the asymptotic quadrature set with $N+1$ points exactly integrates the Legendre 
+moments of the asymptotic modes through degree $2N$.  We begin by considering $f^{+}_{\nu}(\mu)$, but all of the results 
+we obtain apply if we substitute $-\nu$ for $\nu$.  Thus our results also apply to $f^{-}_{\nu}(\mu)$.
+Note that  
+\be
+(1 + \nu \mu)(1 + \nu \mu)^{-1} = 1 \pep
+\LEQ{42}
+\ee
+We can re-express \EQ{42} as follows:
+\be
+(P_0(\mu) + \nu P_1(\mu))(1 + \nu \mu)^{-1} = 1 \pep
+\LEQ{43}
+\ee
+If we analytically integrate \EQ{43} over all directions, we get 
+\be
+\Phi^{+}_0 + \nu \Phi^{+}_1  = 2   \pec 
+\LEQ{44}
+\ee
+where $\Phi^{+}_0$ and $\Phi^{+}_1$ denote the zeroth and first Legendre moments of $f^{+}(\mu)$.  
+If we integrate \EQ{43} using the asymptotic quadrature set with $N+1$ points, we get 
+\be
+\tilde{\Phi}^{+}_0 + \nu \tilde{\Phi}^{+}_1  = 2   \pec 
+\LEQ{45}
+\ee
+where $\tilde{\Phi}$ denotes a quadrature-generated moment.  Note that since the quadrature set is exact for 
+polynomials of degree $2N-1$, the right side of \EQ{43} is exactly integrated.
+From previous results, we know that $\tilde{\Phi}^{+}_0=\Phi^{+}_0$, so substituting this result into \EQ{45}, 
+we get 
+\be
+\Phi^{+}_0 + \nu \tilde{\Phi}^{+}_1  = 2   \pec 
+\LEQ{46}
+\ee
+Comparing Eqs.~(\REQ{44}) and (\REQ{46}), we find that $\tilde{\Phi}^{+}_1$ and $\Phi^{+}_1$ satisfy the same equation and 
+therefore are equal.  
+
+We next multiply \EQ{43} by $\mu$ and substitute from \EQ{5} into the resultant 
+equation to obtain 
+\be
+\bracet{P_1(\mu) + \nu \bracket{\frac{2}{3}P_2(\mu) + \frac{1}{3} P_0(\mu)}}(1 + \nu \mu)^{-1} = \mu  \pec 
+\LEQ{47}
+\ee
+If we analytically integrate \EQ{47} over all directions, we obtain 
+\be
+\Phi^{+}_1 + \nu \bracket{\frac{2}{3}\Phi^{+}_2 + \frac{1}{3} \Phi^{+}_0} = 0 \pep
+\LEQ{48}
+\ee
+If we integrate \EQ{47} using the asymptotic quadrature set with $N+1$ points, we get
+\be
+\tilde{\Phi}^{+}_1 + \nu \bracket{\frac{2}{3}\tilde{\Phi}^{+}_2 + \frac{1}{3} \tilde{\Phi}^{+}_0} = 0 \pec
+\LEQ{49}
+\ee
+assuming that $\mu$ is exactly integrated. This will be so if $N$ is greater than 1.
+Taking the exactness of $\tilde{\Phi^{+}_0}$ and $\tilde{\Phi^{+}_1}$ into account, \EQ{50} becomes
+\be
+\Phi^{+}_1 + \nu \bracket{\frac{2}{3}\tilde{\Phi}^{+}_2 + \frac{1}{3} \Phi^{+}_0} = 0 \pep
+\LEQ{50}
+\ee
+Comparing Eqs.~(\REQ{48}) and (\REQ{50}), we find that $\Phi^{+}_2$ and $\tilde{\Phi}^{+}_2$ satisfy the same equation, and thus are equal. 
+
+By generalizing this process, we can make an inductive argument to show that the quadrature set with $N+1$ points exactly integrates the Legendre 
+moments of the asymptotic mode through degree $2N$.  In particular, we proceed as follows.
+\begin{itemize}  
+\item Multiply \EQ{43} by $\mu^{K-1}$, and apply \EQ{4a} to the left side of that equation $K-1$ times, after which it will contain  
+$P_{0}(\mu)$ through $P_{K}(\mu)$ with no remaining products of $\mu$ and a Legendre polynomial.  Denote this equation as the base equation. 
+\item Analytically integrate the base equation to obtain an equation containing $\Phi^{+}_0$ through $\Phi^{+}_K $. 
+\item Integrate the base equation using the asymptotic quadrature set with $N+1$ points to obtain an equation containing $\tilde{\Phi}^{+}_0$ through 
+$\tilde{\Phi}^{+}_K$.  
+\item If one assumes that the quadrature set is exact for all moments of the asymptotic mode through degree $K-1$, and that the quadrature set 
+exactly integrates $\mu^{K-1}$ on the right side of the base equation, one finds that $\tilde{\Phi}^{+}_K$ and $\Phi^{+}_K$ are equal since their respective equations 
+are identical.
+\end{itemize}
+This equivalence will be lost if the quadrature set does not exactly integrate $\mu^{K-1}$.  Since the set with $N+1$ points is exact for polynomials 
+of degree $2N-1$, it follows that this set will be exact for evaluating the Legendre moments of the asymptotic modes through degree $2N$.
+
+
+%\bc
+%{ \bf IV.b Boundary Conditions }
+%\ec
+\subsection{Boundary Conditions}
+
+
+We next define boundary conditions for our asymptotic S$_{N+1}$ equations.  From our viewpoint there is some flexibility in these 
+conditions since they do not affect the preservation of the asymptotic decay length.  Pomraning \cite{pomraning} defines Marshak-type 
+boundary conditions for his asymptotic P$_N$ equations, but one needs not necessarily use these conditions to achieve convergence to the 
+transport solution as $N \rightarrow \infty$.  We prefer to use traditional Mark-type boundary conditions for our asymptotic 
+S$_{N+1}$ equations since such conditions decouple the directions at boundaries for the source (incident radiation) and vacuum conditions. For instance, 
+let us assume that the analytic source condition at the left boundary of the system is given by 
+\be
+\psi(\mu) =  h(\mu) \pec \quad \mu > 0.
+\LEQ{55}
+\ee
+Then the Mark condition is given by 
+\be
+\psi_m = \gamma h(\mu_m) \pec \quad \mu_m > 0.
+\LEQ{56}
+\ee
+where the normalization constant $\gamma$ is chosen to preserve the exact half-range current:
+\be
+\gamma \sum_{\mu_m > 0} h(\mu_m) \mu_m w_m =  \int_{-1}^{+1} h(\mu) \mu \, d\mu \pep
+\LEQ{57}
+\ee
+The vacuum condition simply corresponds to $h(\mu) = 0$. The reflective condition requires each 
+incoming discrete flux value with cosine $\mu_m$ to equal the outgoing discrete flux value with cosine $-\mu_m$. 
+Note that our asymptotic quadrature sets are symmetric about $\mu=0$, so the reflective condition can 
+be met.
+
+%\bc
+%{ \bf IV.c Interface Conditions}
+%\ec
+\subsection{Interface Conditions}
+
+We next define interface conditions for our asymptotic S$_{N+1}$ equations.  Pomraning derives interface conditions  
+by integrating the asymptotic P$_N$ equations across an interface and taking the limit as the width of the domain of 
+integration approaches zero.  This approach yields continuity of the odd moments and discontinuity of the even moments across the 
+interface.  However, one need not necessarily use these interface conditions to achieve convergence to the transport solution as 
+$N \rightarrow \infty$.  Pomraning's conditions couple all of the discrete angular fluxes at an interface.  We prefer to use 
+Marshak-like interface conditions because only angular fluxes having direction cosines of the same sign couple to each other, which makes 
+it possible to solve the source-iteration equations via a sweeping approach. Let us consider an interface at $x=x_0$.  We denote a 
+quantity to the immediate left of the interface with a subscript $L$ and a quantity to the immediate right of the interface with a 
+subscript $R$. Our interface conditions preserve half-range odd moments of the angular flux:
+\be
+\bracet{\sum_{\mu_{m}>0} \psi_m \mu_m P_{k}(\mu_{m}) w_{m}}_L = 
+\bracet{\sum_{\mu_{m}>0} \psi_m \mu_m P_{k}(\mu_{m}) w_{m}}_R \pec \quad k=0,2, \ldots, (N-1),
+\LEQ{58}
+\ee
+\be
+\bracet{ \sum_{\mu_{m}<0} \psi_m \mu_m P_{k}(\mu_{m}) w_{m}}_R = 
+\bracet{ \sum_{\mu_{m}<0} \psi_m \mu_m P_{k}(\mu_{m}) w_{m}}_L
+\pec \quad k=0,2, \ldots, (N-1).
+\LEQ{59}
+\ee
+These conditions ensure that all of the odd moments are continuous across the interface, while the even moments will generally be 
+discontinuous across the interface.  These are also properties of Pomraning's conditions.  The above conditions are easily implemented with 
+a discontinous spatial discretization.  For the case of a continuous spatial discretization, additional unknowns will be required 
+at each interface where the $\alpha_N$-parameter jumps.  
+
+%\bc
+%{ \bf IV.d The Equations of Ganguly, et al.}
+%\ec
+\subsection{The Equations of Ganguly, et al.}
+
+Ganguley, et al., previously generated our asymptotic quadrature sets using a principle based directly 
+upon preservation of the transport asymptotic decay length, preservation of the exact leakage for the half-space 
+constant source problem, and exact integration of polynomials through degree $2N-1$ for a set with $N+1$ 
+points. We have shown that our sets preserve the transport asymptotic decay length and possess the same integration 
+accuracy as the sets of Ganguley, et al., but our derivation does not explicitly relate to the preservation of 
+the exact leakage for the half-space constant source problem. Thus we presently have no proof that our sets are identical 
+to theirs.  We have simply observed it to be so by comparing numerically-generated sets. Ganguley, et al., solved a system 
+of constrained nonlinear equations for both the directions and weights \cite{ganguley}.  Our equations 
+are much simpler. The directions are obtained by computing the roots of a polynomial, after which the weights are 
+obtained by solving a linear system.
+
+
+%\bc
+%{\large \bf V. Computational Results}
+%\ec
+\section{Computational Results}
+
+In this section we compute various quantities to demonstrate the validity of our formalism.  A study of the accuracy of the these sets for various types 
+of transport problems is beyond the scope of this paper.  Ganguley, et al., \cite{ganguley} present results that largely address this point.  All of the data presented in this section was generated with MATLAB using default tolerance and convergence parameters.  We first tabulate the asymptotic S$_4$ quadrature sets for $c=0.25$, $c=0.5$, and $c=0.75$ in \TA{1}.  
+\begin{table}[!h]
+\begin{center} 
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\hline
+\multicolumn{2}{|c|}{$c=0.25$}&\multicolumn{2}{|c|}{$c=0.5$}&\multicolumn{2}{|c|}{$c=0.75$}\\
+\hline
+ cosine & weight & cosine & weight & cosine & weight\\
+ \hline
+0.431098  & 0.803396  & 0.399586  &  0.746664 &  0.367456    & 0.693277\\
+0.967482  & 0.196604  & 0.919335  &  0.253336 &  0.884062    & 0.306723\\
+\hline
+\hline
+\end{tabular}
+\caption{Asymptotic S$_4$ quadrature for various values of $c$.}
+\LTA{1}
+\end{center}
+\end{table}
+\afterpage{\clearpage}
+
+The corresponding Lobatto and Gauss sets are tabulated in \TA{2}. 
+It can be seen by comparing Tables (\RTA{1}) and (\RTA{2}) that the $c=0.25$ set is closer to the Lobatto set and the $c=0.75$ set is closer to the 
+Gauss set, as expected.  Also note that the quadrature dependence upon $c$ is clearly nonlinear as the $c=0.25$ set is much closer to the Lobatto set 
+than the $c=0.75$ set is to the Gauss set.  Ganguley, et al., presented a S$_4$ set for ``Case (a)'' and $c=0.5$ in Table I of their paper \cite{ganguley}.
+It can be seen by comparison that their set is identical (at least to six digits) with our corresponding asymptotic set.
+\begin{table}[!h]
+\begin{center} 
+\begin{tabular}{|c|c|c|c|}
+\hline
+\hline
+\multicolumn{2}{|c|}{Lobatto} &\multicolumn{2}{|c|}{Gauss}\\
+\hline
+ cosine & weight & cosine & weight\\
+ \hline
+0.447214 & 0.833333 & 0.339981 & 0.652145  \\
+1.000000 & 0.166667 & 0.861136 & 0.347855  \\
+\hline
+\hline
+\end{tabular}
+\caption{S$_4$ Lobatto and Gauss quadrature.}
+\LTA{2}
+\end{center}
+\end{table}
+\afterpage{\clearpage}
+
+We have computed the $\mathbf{D}$ and $\mathbf{M}$ matrices, which map the discrete 
+fluxes and moments to each other as explained in Section~(\ref{sec:genequiv}).  These two matrices are given below 
+for the $c=0.5$ set. 
+\be
+\mathbf{D} = \bracket{
+\begin{tabular}{cccc}
+   0.253336 &  0.746663   &  0.746664 &   0.253336 \\
+  -0.232901 &  -0.298357  &  0.298357 &   0.232901 \\
+   0.194503 &  -0.194503  & -0.194503 &   0.194503 \\
+  -0.142755 &   0.328439  & -0.328439 &   0.142755 
+\end{tabular} 
+} \pec
+\LEQ{dmat}
+\ee
+
+\be
+\mathbf{M} = \bracket{
+\begin{tabular}{cccc}
+   0.500000  & -1.37900  & 1.91941 &  -1.25270  \\
+   0.500000  & -0.599380 &  -0.651240  &  0.977872  \\
+   0.500000  &  0.599380 &  -0.651240  & -0.977872  \\
+   0.500000  &  1.37900  &  1.91941   & 1.25270  
+\end{tabular} 
+} \pec
+\LEQ{mmat}
+\ee
+where the vectors corresponding to these matrices are 
+\be
+\vec{\psi} = \bracket{
+\begin{tabular}{c}
+$\psi(-0.919335)$ \\
+$\psi(-0.399586)$ \\
+$\psi(+0.399586)$ \\
+$\psi(+0.919335)$
+\end{tabular}
+} \pec
+\LEQ{psivec}
+\ee
+and 
+\be
+\vec{\phi} = 
+\bracket{
+\begin{tabular}{c}
+$\phi_0$ \\
+$\phi_1$ \\
+$\phi_2$ \\
+$\phi_3$ 
+\end{tabular}
+} \pep
+\LEQ{phivec}
+\ee
+The condition number of the $\mathbf{D}$-matrix is 3.28, which indicates a very well-conditioned system. The $\mathbf{M}$-matrix is the inverse of $\mathbf{D}$ with the latter being formed assuming generation of the 
+Legendre angular flux moments via quadrature integration. 
+
+The asymptotic decay length associated with the transport equation satisfies \EQ{12} while the asymptotic decay length associated with the S$_{N+1}$ equations satisfies \EQ{40}. 
+The exact transport values and the asymptotic S$_4$ values are given in \TA{3} for $c=0.25$, $c=0.5$, and $c=0.75$.
+The transport and S$_{N+1}$ values are in complete agreement.  
+\begin{table}[!htbp]
+\begin{center} 
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\hline
+\multicolumn{2}{|c|}{$c=0.25$}&\multicolumn{2}{|c|}{$c=0.5$}&\multicolumn{2}{|c|}{$c=0.75$}\\
+\hline
+ exact & S$_4$ & exact & S$_4$ & exact & S$_4$ \\
+ \hline
+0.999326  & 0.999326  & 0.957504  &  0.957504 &  0.775516  & 0.775516 \\
+\hline
+\hline
+\end{tabular}
+\caption{Exact and asymptotic S$_4$ quadrature values for the decay constant.}
+\LTA{3}
+\end{center}
+\end{table} 
+\afterpage{\clearpage}
+
+We have computationally confirmed the ability of the S$_4$ quadrature sets to exactly integrate polynomials of degree 5 or less.  
+For instance, consider the following matrix, $\mathbf{D}_e$, which exactly computes the P$_0$ through P$_3$ Legendre moments of the  
+polynomial interpolating the discrete angular flux values defined by the vector $\psi$.    
+\be
+\mathbf{D} = \bracket{
+\begin{tabular}{cccc}
+   0.253336 &  0.746663   &  0.746664 &   0.253336 \\
+  -0.232901 &  -0.298357  &  0.298357 &   0.232901 \\
+   0.194503 &  -0.194503  & -0.194503 &   0.194503 \\
+  -0.090673 &   0.208612  & -0.208612 &   0.090673 \\
+\end{tabular} 
+} \pec
+\LEQ{dmate}
+\ee
+Comparing this matrix 
+with the asymptotic $\mathbf{D}$-matrix given in \EQ{dmat}, we find that they differ only in the fourth row.  This implies that 
+the S$_4$ quadrature integrates polynomials of through degree 5, but fails to integrate polynomials of degree 6.
+Finally, we have computed the Legendre moments through degree 6 of the asymptotic mode, $(1 + \nu\mu)^{-1}$, both exactly (MATLAB) and 
+with the S$_4$ quadrature set. These moments are compared in \TA{4}.  It can be seen from this table that the moments are identical 
+though P$_6$ but differ at P$_7$.
+\begin{table}[!htbp]
+\begin{center} 
+\begin{tabular}{|c|r|r|}
+\hline
+\hline
+Moment & Exact & S$_4$ \\
+\hline
+0 &   4.00000 &  4.00000  \\
+1 & -2.08876 & -2.08876  \\
+2 &  1.27220 &  1.27220  \\
+3 &  -0.82193 & -0.82193  \\
+4 &   0.54807 &  0.54807  \\
+5 &  -0.37276 & -0.37276  \\
+6 &   0.25700 &  0.25700  \\
+7 &   0.55634 & -0.17896  \\
+\hline
+\hline
+\end{tabular}
+\caption{Exact and S$_4$ Legendre moments of the asymptotic mode.}
+\LTA{4}
+\end{center}
+\end{table} 
+\afterpage{\clearpage}
+
+Finally, we coded the method of 
+Ganguley, et al., for generating the asymptotic quadrature sets and found our method simpler, better conditioned, 
+and more efficient.
+
+
+
+%\bc
+%{\large \bf  VI. Summary and Conclusions}
+%\ec
+\section{Summary and Conclusions}
+
+
+We have shown that a general equivalance exists between the S$_{N+1}$ equations and the 
+P$_N$ equations with a quadrature-dependent closure if the discrete-to-moment matrix defined in Section~(\ref{sec:genequiv}) is invertible.  In addition, we have identified a family of quadrature sets that yield S$_{N+1}$ equations 
+equivalent to Pomraning's asymptotic P$_N$ equations.  This equivalence implies that the corresponding S$_{N+1}$ solutions preserve the exact transport asymptotic decay length.
+Ganguley, et al., previously generated these quadrature sets using a formalism based directly 
+upon preservation of the asymptotic decay length, preservation of the exact leakage for the half-space 
+constant source problem, and exact integration of polynomials. They solved a system 
+of constrained nonlinear equations \cite{ganguley}. In contrast, we have shown that the quadrature points 
+are roots of a polynomial. Once the quadrature points are known, a linear system can be solved for the 
+weights.  Thus our equations for the quadrature sets are simpler and easier to solve than those of 
+Ganguley, et al. We have also theoretically demonstrated that the asymptotic sets with $N+1$ points exactly integrate 
+polynomials through degree $2N-1$ and exactly integrate polynomial moments of the asymptotic modes through 
+degree $2N$.  This integration accuracy for polynomials is consistent with the requirements imposed by 
+Ganguley, et al.  The integration accuracy for polynomial moments of the asymptotic modes appears to have 
+been previously unknown.
+
+
+\begin{thebibliography}{99}
+\bibitem{pomraning} Pomraning, G. C. (1964). A generalized P$_N$ approximation for neutron transport
+problems. \emph{Nukleonik} 6:348.
+\bibitem{ganguley} Ganguley, K., Allen, E. J., Coskun, E., and Nielsen, S. (1993). 
+On the discrete-ordinates method via Case's solution, \emph{J. Comp. Phys.}, 107:66.
+\bibitem{morel} Morel, J. E. (1989). A hybrid collocation-Galerkin-$S_N$  method for solving the
+Boltzmann transport equation, {\emph Nucl. Sci. and Eng.}, 101:72.
+\bibitem{DLMF}  Digital Library of Mathematical Functions.2011-08-29.National Institute of Standards and Technology from URL http://dlmf.nist.gov/14.7E11.
+\bibitem{larsen1} Larsen, E. W., McGhee, J. M., Morel, J. E. (1992). The simplified P$_N$ equations
+as an asymptotic limit of the transport equation. \emph{Trans. Am. Nucl. Soc.} 66:231.
+\bibitem{larsen2} Larsen, E. W., Morel, J. E., McGhee, J. M. (1996). Asymptotic derivation of the
+multigroup P$_1$ and simplified $P_N$ equations with anisotropic scattering. \emph{Nucl. Sci. Eng.}
+123:328.
+\bibitem{larsen3} Larsen, E. W., Asymptotic diffusion and simplified Pn
+approximations for diffusive and deep
+penetration problems. part 1: theory. (2011) \emph{TTSP} 39:110.
+\end{thebibliography} 
+\end{document}

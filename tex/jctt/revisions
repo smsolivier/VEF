@@ -1,0 +1,11 @@
+R1
+1. cited Raviart Thomas when MFEM is introduced 
+
+3. they were asking about why Eq. 1 is partial but Eq. 2 is "total" derivative. Equation 1 is partial since psi is a function of x and mu while Eq. 2 is just a function of x. They also might be confused by the use of an upright d instead of a slanted one. Should I switch to slanted for all the regular derivatives? 
+
+R2 
+1. added Goldin and Mihalas in the introduction as old methods 
+
+2. Not sure how to reference in the introduction. Add a line about other pairings? 
+
+3. Where to put hybrid MC/VEF method reference 

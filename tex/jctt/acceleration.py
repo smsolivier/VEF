@@ -81,11 +81,10 @@ fsize = 20
 plt.semilogy(c, itLD, '-o', clip_on=False, label='SI')
 plt.semilogy(c, itED, '-*', clip_on=False, label='VEF')
 plt.semilogy(c, itS2, '->', clip_on=False, label='S$_2$SA')
-plt.legend(loc='best', frameon=False)
-plt.xlabel(r'$\sigma_s/\sigma_t$', fontsize=fsize)
-plt.ylabel('Number of Iterations', fontsize=fsize)
-hidespines(plt.gca())
+plt.legend()
+plt.xlabel(r'$\sigma_s/\sigma_t$')
+plt.ylabel('Number of Iterations')
 if (outfile != None):
-	plt.savefig(outfile, transparent=True)
+	plt.savefig(outfile)
 else:
 	plt.show()

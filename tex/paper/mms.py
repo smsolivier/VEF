@@ -24,6 +24,9 @@ if (len(sys.argv) > 1):
 else:
 	outfile = None 
 
+# use MMS solution with mu in it 
+OPT = 1 
+
 def getOrder(sol, N, tol, label):
 
 	print('Method =', sol[0].name)
@@ -33,7 +36,7 @@ def getOrder(sol, N, tol, label):
 	err = np.zeros(len(sol))
 	for i in range(len(sol)):
 
-		sol[i].setMMS()
+		sol[i].setMMS(OPT)
 		# make video 
 		# x, phi, it = sol[i].sourceIteration(tol, PLOT='phi' + str(N[i]))
 		x, phi, it = sol[i].sourceIteration(tol, 200)

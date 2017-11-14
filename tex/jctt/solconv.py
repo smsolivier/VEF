@@ -11,7 +11,9 @@ import ld as LD
 from hidespines import * 
 
 if (len(sys.argv) > 1):
-	outfile = sys.argv[1:]
+	outfile = sys.argv[1]
+	ftype = '.' + outfile.split('.')[1]
+	outfile = outfile.split('.')[0]
 else:
 	outfile = None 
 
@@ -44,15 +46,13 @@ def makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol):
 
 	print(err0/err1)
 
-	fsize = 20
 	plt.figure()
 	plt.loglog(h, err0, '-o', clip_on=False, label='Flat')
 	plt.loglog(h, err1, '-*', clip_on=False, label='van Leer')
 	plt.xlim(h[0], h[-1])
-	plt.legend(loc='best', frameon=False)
-	plt.xlabel('$h$', fontsize=fsize)
-	plt.ylabel('SI/VEF Convergence', fontsize=fsize)
-	hidespines(plt.gca())
+	plt.legend()
+	plt.xlabel('$h$')
+	plt.ylabel('SI/VEF Convergence')
 
 nrun = 5
 h = np.logspace(-2, -1, nrun)
@@ -66,7 +66,7 @@ Sigmaa = lambda x: Sigmat(x) * (1 - c)
 Q = lambda x, mu: 1 
 makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol)
 if (outfile != None):
-	plt.savefig(outfile[0])
+	plt.savefig(outfile + ftype)
 
 h = np.logspace(-2.3, -1.3, nrun)
 Sigmamax = 10
@@ -76,6 +76,6 @@ Sigmaa = lambda x: Sigmamax*(x<2) + .1*(x>=4)*(x<6) + 5*(x>=6)*(x<7) + .1*(x>=7)
 Q = lambda x, mu: Sigmamax*(x<2) + 1*(x>=7)*(x<=8)
 makePlot(h, xb, n, Sigmaa, Sigmat, Q, tol)
 if (outfile != None):
-	plt.savefig(outfile[1])
+	plt.savefig(outfile + '1' + ftype)
 else:
 	plt.show()

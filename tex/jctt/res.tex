@@ -4,7 +4,7 @@
 
 
 We first consider a test problem that is homogeneous with a reflecting left boundary, vacuum right boundary, and a total thickness of \SI{10}{cm}.  The total and scattering macroscopic cross sections were set to \SI{1}{cm^{-1}} and 
-\SI{0.99}{cm^{-1}} leading to a scattering ratio of $c = \frac{\sigma_s}{\sigma_t}=0.99$. With 50 spatial cells the optical thickness per cell was 0.2 mfp and the domain thickness was 10 mfp. The isotropic fixed source was set to \SI{1}{particles/(s-cm^3)}. 
+\SI{0.99}{cm^{-1}} leading to a scattering ratio of $c = \frac{\sigma_s}{\sigma_t}=0.99$. With 50 spatial cells the optical thickness per cell was 0.2 mfp and the domain thickness was 10 mfp. The isotropic fixed source was set to \SI{1}{\particles\per\second\per\cm\cubed}. 
 Unless otherwise indicated in this section, all calculations were performed with 50 uniform spatial cells and S$_8$ Gauss quadrature. In addition, the scalar flux was point-wise converged for both the left and right discontinuous fluxes according to:
 	\begin{equation} 
 		\frac{1}{1 - \rho}\max\bracket{\phi_{i,L/R}\relll - \phi_{i,L/R}\rell} < \num{e-6} \,,
@@ -19,14 +19,14 @@ is an estimate for an asymptotic error reduction factor.
 \centering
 \begin{subfigure}{.515\textwidth}
 	\centering
-	\includegraphics[width=\textwidth]{figs/si.pdf}
+	\includegraphics[width=\textwidth]{figs/converge.pdf}
 	\caption{}
 	\label{fig:si}
 \end{subfigure}
 \hspace{-2em}
 \begin{subfigure}{.515\textwidth}
 	\centering
-	\includegraphics[width=\textwidth]{figs/vef.pdf}  
+	\includegraphics[width=\textwidth]{figs/converge1.pdf}  
 	\caption{}
 	\label{fig:vef}
 \end{subfigure}
@@ -58,7 +58,7 @@ For the previously-described homogeneous problem, the number of iterations requi
 
 	\begin{figure}[htb]
 		\centering
-		\includegraphics[width=.75\textwidth]{figs/si_vef_s2sa.pdf} 
+		\includegraphics[width=.75\textwidth]{figs/acceleration.pdf} 
 		\caption{A comparison of the number of iterations required to converge for Source Iteration, VEF acceleration, and S$_2$SA for varying ratios of $\sigma_s$ to $\sigma_t$. } 
 		\label{fig:si_vef_s2sa}
 	\end{figure}
@@ -66,9 +66,7 @@ For the previously-described homogeneous problem, the number of iterations requi
 The Method of Manufactured Solutions (MMS) was used to compare the spatial accuracy of our VEF method as the cell width was decreased. A solution to Eq. \ref{eq:sn} was assumed as follows: 
 		\begin{equation} \label{res:solMMS}
 			% \psi_{n,\text{MMS}}(x) = \sin\paren{\frac{\pi x}{x_b}} \,, \quad x\in [0,x_b],
-			{\color{red}
 			\psi_{n,\text{MMS}}(x) = \sin\paren{\frac{\pi x}{x_b}} \paren{1 + \mu_n \frac{2x - x_b}{x_b}} \,, \quad x\in[0,x_b] \,, 
-			}
 		\end{equation}
 with the corresponding scalar flux given by
 		\begin{equation}
@@ -81,7 +79,6 @@ Substituting this solution into the following version of Eq. \ref{eq:sn} with a 
 		\frac{\sigma_s(x)}{2} \phi(x) +  Q_n(x) \,, \quad 1 \leq n \leq N \,,
 	\end{equation}\
 and solving for $Q_n(x)$ yields:
-	{\color{red}
 	\begin{multline} \label{res:fixedSource}
 		% Q_{n,\text{MMS}}(x) = \mu_n \frac{\pi}{x_b} \cos\paren{\frac{\pi x}{x_b}} + \bracket{\sigma_t(x) - 
 		% \sigma_s(x)}\sin\paren{\frac{\pi x}{x_b}} \,.
@@ -89,7 +86,7 @@ and solving for $Q_n(x)$ yields:
 			\mu_n\bracket{2\frac{\mu_n}{x_b}\sin\paren{\frac{\pi x}{x_b}} + 
 				\frac{\pi}{x_b}\cos\paren{\frac{\pi x}{x_b}}\paren{1 + \mu_n \frac{2x-x_b}{x_b}}}
 				\\+ \sigma_t(x)\sin\paren{\frac{\pi x}{x_b}}\paren{1 + \mu_n \frac{2x - x_b}{x_b}} - \sigma_s(x) \sin\paren{\frac{\pi x}{x_b}} \,.
-	\end{multline}}%
+	\end{multline}
 Using Eq.~\ref{res:fixedSource} as the fixed source in Eq.~\ref{eq:snaq}, and imposing 
 vacuum boundary conditions at $x=0$ and $x=x_b$ makes Eq.~\ref{res:solMMS} the 
 analytic solution of Eq. \ref{eq:snaq}.  Thus the difference between a numerical 
@@ -105,7 +102,6 @@ was used to determine the order of accuracy, $n$, and the constant of proportion
  accuracy it does not affect the order of accuracy of the method. 
 	\begin{table}[htb]
 	\centering
-	{\color{red}
 	\begin{tabular}{|c|c|c|c|}
 	\hline
 	\hline
@@ -117,10 +113,9 @@ was used to determine the order of accuracy, $n$, and the constant of proportion
 	\end{tabular}
 	\caption{The order of accuracy, error, and $R^2$ values for flat and van Leer slope reconstruction scattering source update methods. }
 	\label{tab:mms}
-	}%
 	\end{table}
 The difference between the \SN solution and the drift-diffusion solution was compared as a function of cell width for the homogeneous slab problem and for a 
-{\color{red}modified Reed's problem \cite{reed}}. S$_2$SA was used to generate the \SN solution to which the VEF method was compared. In both cases, the left boundary was reflecting and the right boundary was vacuum. The homogeneous slab had a scattering ratio of 0.99. The cross sections and sources for Reed's problem are provided in Table \ref{tab:reedXS}. The L2 norm of the difference between the SI solution and VEF solution is plotted for the flat and van Leer scattering source update methods in Figs.~\ref{fig:homo} and \ref{fig:reed} for the homogeneous slab problem and Reed's problem. 
+modified Reed's problem \cite{reed}. S$_2$SA was used to generate the \SN solution to which the VEF method was compared. In both cases, the left boundary was reflecting and the right boundary was vacuum. The homogeneous slab had a scattering ratio of 0.99. The cross sections and sources for Reed's problem are provided in Table \ref{tab:reedXS}. The L2 norm of the difference between the SI solution and VEF solution is plotted for the flat and van Leer scattering source update methods in Figs.~\ref{fig:homo} and \ref{fig:reed} for the homogeneous slab problem and Reed's problem. 
 
 	\begin{table}[htb]
 	 \centering
@@ -144,14 +139,14 @@ The difference between the \SN solution and the drift-diffusion solution was com
 		\centering
 		\begin{subfigure}{.5\textwidth}
 			\centering
-			\includegraphics[width=\textwidth]{figs/solconv_homo.pdf}
+			\includegraphics[width=\textwidth]{figs/solconv.pdf}
 			\caption{}
 			\label{fig:homo}
 		\end{subfigure}
 		\hspace{-2em}
 		\begin{subfigure}{.5\textwidth}
 			\centering
-			\includegraphics[width=\textwidth]{figs/solconv_reed.pdf}
+			\includegraphics[width=\textwidth]{figs/solconv1.pdf}
 			\caption{}
 			\label{fig:reed}
 		\end{subfigure}
@@ -167,25 +162,45 @@ These problems differed from the homogeneous problem only with respect to the cr
 			\sigma_t(x) \rightarrow \sigma_t(x)/\epsilon \,, 
 		\end{equation}
 		\begin{equation}
-			\sigma_s(x) \rightarrow \epsilon \sigma_s(x) \,,
+			\sigma_a(x) \rightarrow \epsilon \sigma_a(x) \,,
 		\end{equation}
 		\begin{equation}
 			Q(x) \rightarrow \epsilon Q(x) \,, 
 		\end{equation}
 	\end{subequations}
-with $\sigma_t=\sigma_a=$ \SI{1}{cm^{-1}} and Q = 1 (particle/s-cm$^3$).  As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations for convergence as $\epsilon \rightarrow 0$ is plotted in Fig.~\ref{fig:dl_it}.  Note that only one iteration 
-is required for $\epsilon=1$ because that case corresponds to a pure absorber.  The error between the VEF solution and the exact diffusion solution is provided in Fig.~\ref{fig:dl_err}. These results support the claim that the VEF method is robust in the diffusion limit as both scattering update methods properly preserved the thick diffusion limit. 
+with $\sigma_t=\sigma_a=$ \SI{1}{cm^{-1}} and $Q = \SI{1}{\particles\per\second\per\cm\cubed}$.  As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations until convergence as $\epsilon \rightarrow 0$ is provided in Table \ref{tab:diffLim}. 
+% The error between the VEF solution and the exact diffusion solution is provided in Fig.~\ref{fig:dl_err}. 
+These results support the claim that the VEF method is robust in the diffusion limit as both scattering update methods properly preserved the thick diffusion limit. 
+	\begin{table}[htb]
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	\hline
+	$\epsilon$ & Flat & Linear \\ 
+	\hline
+		\input{figs/perm_dl}
+	\hline
+	\hline
+	\end{tabular}
+	\caption{The number of iterations until convergence for a range of $\epsilon$ values for the flat and linear scattering update methods. }
+	\label{tab:diffLim}
+	\end{table}
 	
-	\begin{figure}[htb]
-		\centering
-		\includegraphics[width=.75\textwidth]{figs/dl_it.pdf}
-		\caption{The number of iterations required for convergence in the diffusion limit ($\epsilon \rightarrow 0$). }
-		\label{fig:dl_it}
-	\end{figure}
-	\begin{figure}
-		\centering
-		\includegraphics[width=.75\textwidth]{figs/dl_err.pdf}
-		\caption{The error between the VEF methods and the exact diffusion solution as $\epsilon \rightarrow 0$. }
-		\label{fig:dl_err}
-	\end{figure}
-	\clearpage
+	% \begin{figure}[htb]
+	% 	\centering
+	% 	\includegraphics[width=.75\textwidth]{figs/perm_dl.pdf}
+	% 	\caption{The number of iterations required for convergence in the diffusion limit ($\epsilon \rightarrow 0$). }
+	% 	\label{fig:dl_it}
+	% \end{figure}
+	% \begin{figure}
+	% 	\centering
+	% 	\includegraphics[width=.75\textwidth]{figs/perm_dl1.pdf}
+	% 	\caption{The error between the VEF methods and the exact diffusion solution as $\epsilon \rightarrow 0$. }
+	% 	\label{fig:dl_err}
+	% \end{figure}
+	% \begin{figure}
+	% 	\centering
+	% 	\includegraphics[width=.75\textwidth]{figs/profile.pdf}
+	% 	\caption{The scalar flux profiles }
+	% 	\label{fig:flux_profiles}
+	% \end{figure}

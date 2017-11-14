@@ -23,11 +23,12 @@ else:
 Nruns = 15
 eps = np.logspace(-3, 0, Nruns)
 
-tol = 1e-6
+tol = 1e-10
 
 def getIt(eps, opt, gauss):
 
 	N = 50
+	N *= 15
 
 	xb = 10
 
@@ -63,8 +64,8 @@ diff1, it1 = getIt(eps, 2, 1)
 # diff21, it21 = getIt(eps, 2, 1)
 
 plt.figure()
-plt.loglog(eps, it0, '--', clip_on=False, label='Flat')
-plt.loglog(eps, it1, '-', clip_on=False, label='van Leer')
+plt.loglog(eps, it0, '-o', clip_on=False, label='Flat')
+plt.loglog(eps, it1, '-*', clip_on=False, label='van Leer')
 
 plt.xlabel(r'$\epsilon$', fontsize=18)
 plt.ylabel('Number of Iterations', fontsize=18)
@@ -74,8 +75,8 @@ if (outfile != None):
 	plt.savefig(outfile[0])
 
 plt.figure()
-plt.loglog(eps, diff0, '--', clip_on=False, label='Flat')
-plt.loglog(eps, diff1, '-', clip_on=False, label='van Leer')
+plt.loglog(eps, diff0, '-o', clip_on=False, label='Flat')
+plt.loglog(eps, diff1, '-*', clip_on=False, label='van Leer')
 
 plt.xlabel(r'$\epsilon$', fontsize=18)
 plt.ylabel('Error', fontsize=18)

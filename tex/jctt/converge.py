@@ -14,7 +14,9 @@ import ld as LD
 ''' plot eddington and flux convergence for unaccelerated and accelerated Sn ''' 
 
 if (len(sys.argv) > 1):
-	outfile = sys.argv[1:] 
+	outfile = sys.argv[1] 
+	ftype = '.' + outfile.split('.')[1]
+	outfile = outfile.split('.')[0]
 else:
 	outfile = None 
 
@@ -42,20 +44,17 @@ x, phi, it = unac.sourceIteration(tol, maxiter)
 
 xac, phiac, itac = acc.sourceIteration(tol, maxiter)
 
-fontsize = 20
-
 # unaccelerated 
 plt.figure()
 plt.semilogy(np.arange(1, len(unac.phiConv)+1), 
 	unac.phiConv, label=r'$\phi(x)$', clip_on=False)
 plt.semilogy(np.arange(1, len(unac.eddConv)+1), 
 	unac.eddConv, label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
-plt.xlabel('Iteration Number', fontsize=fontsize)
-plt.ylabel('Convergence', fontsize=fontsize)
-plt.legend(loc='best', frameon=False, fontsize=fontsize)
-hidespines(plt.gca())
+plt.xlabel('Iteration Number')
+plt.ylabel('Convergence')
+plt.legend()
 if (outfile != None):
-	plt.savefig(outfile[0], transparent=True)
+	plt.savefig(outfile+ftype)
 
 # accelerated 
 plt.figure()
@@ -63,11 +62,10 @@ plt.semilogy(np.arange(1, len(acc.phiConv)+1),
 	acc.phiConv, '-o', label=r'$\phi(x)$', clip_on=False)
 plt.semilogy(np.arange(1, len(acc.eddConv)+1), 
 	acc.eddConv, '-*', label=r'$\langle \mu^2 \rangle(x)$', clip_on=False)
-plt.xlabel('Iteration Number', fontsize=fontsize)
-plt.ylabel('Convergence', fontsize=fontsize)
-plt.legend(loc='best', frameon=False, fontsize=fontsize)
-hidespines(plt.gca())
+plt.xlabel('Iteration Number')
+plt.ylabel('Convergence')
+plt.legend()
 if (outfile != None):
-	plt.savefig(outfile[1], transparent=True)
+	plt.savefig(outfile+'1'+ftype)
 if (outfile == None):
 	plt.show()

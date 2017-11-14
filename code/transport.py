@@ -80,28 +80,56 @@ class Transport:
 
 				self.q[i,j] = q(self.xc[j], self.mu[i])
 
-	def setMMS(self):
+	def setMMS(self, OPT=0):
 		''' setup MMS q 
 			force phi = sin(pi*x/xb)
 		''' 
 
-		# mms solution 
-		self.phi_mms = lambda x: np.sin(np.pi*x/self.xb)
+		if (OPT==0):
 
-		# ensure correct BCs 
-		self.BCL = 1 
-		self.BCR = 1 
+			# mms solution 
+			self.phi_mms = lambda x: np.sin(np.pi*x/self.xb)
 
-		# loop through all angles 
-		for i in range(self.n):
+			# ensure correct BCs 
+			self.BCL = 1 
+			self.BCR = 1 
 
-			# loop through space 
-			for j in range(self.N):
+			# loop through all angles 
+			for i in range(self.n):
 
-				# set q 
-				self.q[i,j] = self.mu[i]*np.pi/self.xb * \
-					np.cos(np.pi*self.xc[j]/self.xb) + (self.Sigmat(self.xc[j]) - 
-						self.Sigmas(self.xc[j]))*np.sin(np.pi*self.xc[j]/self.xb)
+				# loop through space 
+				for j in range(self.N):
+
+					# set q 
+					self.q[i,j] = self.mu[i]*np.pi/self.xb * \
+						np.cos(np.pi*self.xc[j]/self.xb) + (self.Sigmat(self.xc[j]) - 
+							self.Sigmas(self.xc[j]))*np.sin(np.pi*self.xc[j]/self.xb)
+
+		elif (OPT == 1):
+
+			# mms solution 
+			self.phi_mms = lambda x: np.sin(np.pi*x/self.xb)
+
+			# ensure correct BCs
+			self.BCL = 1
+			self.BCR = 1
+
+			# loop through all angles 
+			for i in range(self.n):
+
+				# loop through space 
+				for j in range(self.N):
+
+					streaming = self.mu[i]*(2*self.mu[i]/self.xb*np.sin(np.pi*self.xc[j]/self.xb) + 
+						np.pi/self.xb*np.cos(np.pi*self.xc[j]/self.xb)*(
+							1+self.mu[i]*(2*self.xc[j] - self.xb)/self.xb))
+
+					rest = np.sin(np.pi*self.xc[j]/self.xb)*(
+						self.Sigmat(self.xc[j])*(1+self.mu[i]*(2*self.xc[j] - self.xb)/self.xb) -
+						self.Sigmas(self.xc[j]))
+
+					self.q[i,j] = streaming + rest
+
 
 	def zeroMoment(self, psi):
 		''' use guass quadrature points to integrate psi ''' 

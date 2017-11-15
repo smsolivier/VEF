@@ -18,7 +18,7 @@ Here, we describe the VEF method for a planar geometry, fixed-source problem:
 		\mu \pderiv{\psi}{x} \paren{x, \mu} + \sigma_t(x) \psi(x,\mu) = 
 			\frac{\sigma_s(x)}{2} \int_{-1}^1 \psi(x,\mu') \ud \mu' + \frac{Q(x)}{2} \,,
 	\end{equation}
-where $\mu$ is the x--axis cosine of the direction of neutron flow,  $\sigma_t(x)$ and $\sigma_s(x)$ are the total and scattering macroscopic cross sections, $Q(x)$ is the isotropic fixed-source and $\psi(x, \mu)$ is the angular flux. Applying the Discrete Ordinates (\SN) angular discretization yields the following set of $N$ coupled, ordinary differential equations: 
+where $\mu$ is the $x$--axis cosine of the direction of neutron flow,  $\sigma_t(x)$ and $\sigma_s(x)$ are the total and scattering macroscopic cross sections, $Q(x)$ is the isotropic fixed-source and $\psi(x, \mu)$ is the angular flux. Applying the Discrete Ordinates (\SN) angular discretization yields the following set of $N$ coupled, ordinary differential equations: 
 	\begin{equation} \label{eq:sn}
 		\mu_n \dderiv{\psi_n}{x}(x) + \sigma_t(x) \psi_n(x) = 
 		\frac{\sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \quad 1 \leq n \leq N \,,
@@ -51,7 +51,7 @@ where the Eddington factor is given by
 \begin{equation} \label{eq:eddington} 
 		\edd\rellh(x) = \frac{\int_{-1}^1 \mu^2 \psi\rellh(x, \mu) \ud \mu}{\int_{-1}^1 \psi\rellh(x, \mu) \ud \mu} \, .
 	\end{equation}
-While transport-consistent boundary conditions must be defined for Eq. \ref{eq:drift}, there is not a unique way to do this. Thus, we postpone discussion of the boundary conditions to Sec. 2.3. 
+\change{While transport-consistent boundary conditions must be defined for Eq. \ref{eq:drift}, there is not a unique way to do this. Thus, we postpone discussion of the boundary conditions to Sec. 2.3.}
 Note that the Eddington factor depends only upon the angular shape of the angular flux, and not its magnitude.  This drift-diffusion equation is derived by first taking the first two angular moments of Eq.~\ref{eq:sn}: 
 	\begin{subequations} 
 	\begin{equation} \label{eq:zero}
@@ -61,7 +61,8 @@ Note that the Eddington factor depends only upon the angular shape of the angula
 		\dderiv{}{x} \bracket{\edd(x) \phi (x)} + \sigma_t(x) J(x) = 0 \,,
 	\end{equation}
 	\end{subequations}
-where $J(x)$ is the current. Then Eq.~\ref{eq:first} is solved for $J(x)$, and this expression is then substituted into
+% added isotropic part since the MMS solution uses a non-isotropic source 
+where $J(x)$ is the current \change{and the fixed source has been assumed to be isotropic}. Then Eq.~\ref{eq:first} is solved for $J(x)$, and this expression is then substituted into
 Eq.~\ref{eq:zero}. 
 Performing a SI, computing the Eddington factor from the SI angular flux iterate, and then solving 
 the drift-diffusion equation to obtain a new scalar flux iterate completes one accelerated iteration. These iterations 

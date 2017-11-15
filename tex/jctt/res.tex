@@ -61,11 +61,10 @@ For the previously-described homogeneous problem, the number of iterations requi
 		\label{fig:si_vef_s2sa}
 	\end{figure}
 
-The Method of Manufactured Solutions (MMS) was used to compare the spatial accuracy of our VEF method as the cell width was decreased. A solution to Eq. \ref{eq:sn} was assumed as follows: 
+The Method of Manufactured Solutions (MMS) was used to compare the spatial accuracy of our VEF method as the cell width was decreased. A solution to Eq. \ref{eq:sn} was assumed as follows: \change{
 		\begin{equation} \label{res:solMMS}
-			% \psi_{n,\text{MMS}}(x) = \sin\paren{\frac{\pi x}{x_b}} \,, \quad x\in [0,x_b],
 			\psi_{n,\text{MMS}}(x) = \sin\paren{\frac{\pi x}{x_b}} \paren{1 + \mu_n \frac{2x - x_b}{x_b}} \,, \quad x\in[0,x_b] \,, 
-		\end{equation}
+		\end{equation}}%
 with the corresponding scalar flux given by
 		\begin{equation}
 			\phi_\text{MMS}(x) = \sum_{n=1}^N \psi_{n,\text{MMS}}(x) w_n = 2 \sin\paren{\frac{\pi x}{x_b}} \,.
@@ -76,15 +75,13 @@ Substituting this solution into the following version of Eq. \ref{eq:sn} with a 
 		\mu_n \dderiv{\psi_n}{x}(x) + \sigma_t(x) \psi_n(x) = 
 		\frac{\sigma_s(x)}{2} \phi(x) +  Q_n(x) \,, \quad 1 \leq n \leq N \,,
 	\end{equation}\
-and solving for $Q_n(x)$ yields:
+and solving for $Q_n(x)$ yields: \change{
 	\begin{multline} \label{res:fixedSource}
-		% Q_{n,\text{MMS}}(x) = \mu_n \frac{\pi}{x_b} \cos\paren{\frac{\pi x}{x_b}} + \bracket{\sigma_t(x) - 
-		% \sigma_s(x)}\sin\paren{\frac{\pi x}{x_b}} \,.
 		Q_{n,\text{MMS}}(x) = 
 			\mu_n\bracket{2\frac{\mu_n}{x_b}\sin\paren{\frac{\pi x}{x_b}} + 
 				\frac{\pi}{x_b}\cos\paren{\frac{\pi x}{x_b}}\paren{1 + \mu_n \frac{2x-x_b}{x_b}}}
 				\\+ \sigma_t(x)\sin\paren{\frac{\pi x}{x_b}}\paren{1 + \mu_n \frac{2x - x_b}{x_b}} - \sigma_s(x) \sin\paren{\frac{\pi x}{x_b}} \,.
-	\end{multline}
+	\end{multline}}%
 Using Eq.~\ref{res:fixedSource} as the fixed source in Eq.~\ref{eq:snaq}, and imposing 
 vacuum boundary conditions at $x=0$ and $x=x_b$ makes Eq.~\ref{res:solMMS} the 
 analytic solution of Eq. \ref{eq:snaq}.  Thus the difference between a numerical 
@@ -97,9 +94,10 @@ The L2 norm of the difference between the numerical and MMS solutions was comput
 	\end{equation}
 was used to determine the order of accuracy, $n$, and the constant of proportionality, $C$. These values are provided in Table \ref{tab:mms} for the VEF method with the flat and van Leer slope reconstruction scattering source update methods. 
  The lower $C$ value for VEF with van Leer reconstructed slopes indicates that constructing a linear scalar flux dependence from the MFEM drift-diffusion flux increases numerical accuracy. Both methods show second-order accuracy as expected from the orders of accuracy of the LLDG and constant-linear MFEM discretizations in isolation. This indicates that while slope reconstruction can affect numerical 
- accuracy it does not affect the order of accuracy of the method. 
+ accuracy it does not affect the order of accuracy of the method.
 	\begin{table}[htb]
 	\centering
+	\change{
 	\begin{tabular}{|c|c|c|c|}
 	\hline
 	\hline
@@ -109,12 +107,12 @@ was used to determine the order of accuracy, $n$, and the constant of proportion
 	\hline
 	\hline
 	\end{tabular}
+	}
 	\caption{The order of accuracy, error, and $R^2$ values for flat and van Leer slope reconstruction scattering source update methods. }
 	\label{tab:mms}
 	\end{table}
 	
-The difference between the \SN solution and the drift-diffusion solution was compared as a function of cell width for the homogeneous slab problem and for a 
-modified Reed's problem \cite{reed}. S$_2$SA was used to generate the \SN solution to which the VEF method was compared. In both cases, the left boundary was reflecting and the right boundary was vacuum. The homogeneous slab had a scattering ratio of 0.99. The cross sections and sources for Reed's problem are provided in Table \ref{tab:reedXS}. The L2 norm of the difference between the SI solution and VEF solution is plotted for the flat and van Leer scattering source update methods in Figs.~\ref{fig:homo} and \ref{fig:reed} for the homogeneous slab problem and Reed's problem. 
+The difference between the \SN solution and the drift-diffusion solution was compared as a function of cell width for the homogeneous slab problem and \change{for a heterogeneous problem. The heterogeneous problem is a modified version of Reed's problem \cite{reed}.} S$_2$SA was used to generate the \SN solution to which the VEF method was compared. In both cases, the left boundary was reflecting and the right boundary was vacuum. The homogeneous slab had a scattering ratio of 0.99. The cross sections and sources for the \change{heterogeneous problem} are provided in Table \ref{tab:reedXS}. The L2 norm of the difference between the SI solution and VEF solution is plotted for the flat and van Leer scattering source update methods in Figs.~\ref{fig:homo} and \ref{fig:reed} for the homogeneous and \change{heterogeneous problems, respectively.}
 
 	\begin{table}[htb]
 	 \centering
@@ -130,7 +128,7 @@ modified Reed's problem \cite{reed}. S$_2$SA was used to generate the \SN soluti
 				$6 \leq x < 7$ & $7 \leq x \leq 8$\\ 
 			\hline 
 		\end{tabular}
-		\caption{The cross sections and source used for Reed's problem.}
+		\caption{The cross sections and source used for the \change{heterogeneous} problem.}
 		\label{tab:reedXS}
 	\end{table}
 
@@ -152,7 +150,7 @@ modified Reed's problem \cite{reed}. S$_2$SA was used to generate the \SN soluti
 		\caption{The L2 norm of the difference between the \SN and drift-diffusion solutions as a function of cell width for the two scattering source update methods. Results for the homogeneous problem and Reed's problem are given in (a) and (b), respectively.}
 	\end{figure}
 
-In the homogeneous problem, VEF with van Leer limited slope reconstruction was three times closer to the \SN solution than VEF without reconstruction. However, in Reed's problem, reconstruction did not affect the convergence of drift-diffusion to \SN. This could be due to the fact that the flux derivatives are discontinuous at material interfaces and the cell-centered slope reconstruction method has no knowledge of these discontinuities. 
+In the homogeneous problem, VEF with van Leer limited slope reconstruction was three times closer to the \SN solution than VEF without reconstruction. However, in the \change{heterogeneous} problem, reconstruction did not affect the convergence of drift-diffusion to \SN. This could be due to the fact that the flux derivatives are discontinuous at material interfaces and the cell-centered slope reconstruction method has no knowledge of these discontinuities. 
 
 Lastly, the VEF method was tested in the diffusion limit. Calculations were performed for several variants of the homogeneous problem. 
 These problems differed from the homogeneous problem only with respect to the cross sections and fixed source, which were scaled as follows \cite{diflim}: 
@@ -161,16 +159,17 @@ These problems differed from the homogeneous problem only with respect to the cr
 			\sigma_t(x) \rightarrow \sigma_t(x)/\epsilon \,, 
 		\end{equation}
 		\begin{equation}
-			\sigma_a(x) \rightarrow \epsilon \sigma_a(x) \,,
+			\sigma_{\change{a}}(x) \rightarrow \epsilon \sigma_{\change{a}}(x) \,,
 		\end{equation}
 		\begin{equation}
 			Q(x) \rightarrow \epsilon Q(x) \,, 
 		\end{equation}
 	\end{subequations}
-with $\sigma_t=\sigma_a=$ \SI{1}{cm^{-1}} and $Q = \SI{1}{\particles\per\second\per\cm\cubed}$.  As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations until convergence as $\epsilon \rightarrow 0$ is provided in Table \ref{tab:diffLim}. Figure \ref{fig:flux_profiles} shows that the scalar fluxes from the VEF method and analytic diffusion agree for small $\epsilon$ as expected from the scaling of the cross sections and source. 
+with $\sigma_t=\sigma_a=$ \SI{1}{cm^{-1}} and $Q = \SI{1}{\particles\per\second\per\cm\cubed}$.  As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations until convergence as $\epsilon \rightarrow 0$ is provided in \change{Table \ref{tab:diffLim}.} \change{Figure \ref{fig:flux_profiles} shows that the scalar fluxes from the VEF method and analytic diffusion agree for small $\epsilon$ as expected from the scaling of the cross sections and source.}
 These results support the claim that the VEF method is robust in the diffusion limit as both scattering update methods properly preserved the thick diffusion limit. 
 	\begin{table}[htb]
 	\centering
+	\change{
 	\begin{tabular}{|c|c|c|c|}
 	\hline
 	\hline
@@ -180,7 +179,8 @@ These results support the claim that the VEF method is robust in the diffusion l
 	\hline
 	\hline
 	\end{tabular}
-	\caption{The number of iterations until convergence for a range of $\epsilon$ values for the flat and linear scattering update methods. }
+	}
+	\caption{\change{The number of iterations until convergence for a range of $\epsilon$ values for the flat and linear scattering update methods. }}
 	\label{tab:diffLim}
 	\end{table}
 	
@@ -199,6 +199,6 @@ These results support the claim that the VEF method is robust in the diffusion l
 	\begin{figure}
 		\centering
 		\includegraphics[width=.75\textwidth]{figs/profile.pdf}
-		\caption{The scalar flux profile for the VEF solution with $\epsilon=\num{e-5}$ compared to the exact diffusion solution. }
+		\caption{\change{The scalar flux profile for the VEF solution with $\epsilon=\num{e-5}$ compared to the exact diffusion solution. }}
 		\label{fig:flux_profiles}
 	\end{figure}

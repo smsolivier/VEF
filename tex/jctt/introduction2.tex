@@ -1,6 +1,6 @@
 %!TEX root = ./jctt.tex
 The Variable Eddington Factor (VEF) method, also known as Quasi-Diffusion (QD), was one of the first nonlinear methods 
-for accelerating source iterations in \SN calculations \cite{AL,mihalas,goldin}.  It is comparable in effectiveness to both linear 
+for accelerating source iterations in \SN calculations \change{\cite{AL,mihalas,goldin}.}  It is comparable in effectiveness to both linear 
 and nonlinear forms of Diffusion Synthetic Acceleration (DSA), but it offers much more flexibility than DSA.   
 Stability can only be guaranteed with DSA if the diffusion equation is differenced in a manner consistent with that 
 of the \SN equations \cite{A}. Modern \SN codes often use advanced discretization schemes such as Discontinuous 
@@ -28,10 +28,10 @@ preserved using the VEF method.
  
 The purpose of this paper is to investigate the application of the VEF method to the 1-D \SN equations 
 discretized with the Lumped Linear Discontinuous Galerkin (LLDG) method and the drift-diffusion equation discretized using the 
-constant-linear Mixed Finite-Element Method (MFEM) \cite{Raviart1977}. The pairing of discontinuous and continuous finite-elements through the VEF method has been investigated before \cite{wieselquist,anistratov} and a finite-element discretization of the VEF equations were developed in \cite{hybrid}. However, to our knowledge, this specific combination has not been previously 
+constant-linear Mixed Finite-Element Method (MFEM) \cite{Raviart1977}. \change{The pairing of discontinuous and continuous finite-elements through the VEF method has been investigated before \cite{wieselquist,anistratov} and a finite-element discretization of the VEF equations was developed in \cite{hybrid}. However,} to our knowledge, this \change{specific} combination has not been previously 
 investigated. Our motivation for this investigation is that MFEM methods are now being used for high-order hydrodynamics 
 calculations \cite{blast}.  A radiation transport method compatible with MFEM 
-methods is clearly desirable for developing a MFEM radiation-hydrodynamics code.  Such a code would combine thermal 
+methods is clearly desirable for developing an MFEM radiation-hydrodynamics code.  Such a code would combine thermal 
 radiation transport with hydrodynamics.  However, MFEM methods are inappropriate for the standard first-order form of the 
 transport equation.  Thus, the use of the VEF method with a DG \SN discretization and a MFEM drift-diffusion discretization 
 suggests itself.  Only the drift-diffusion equation would be directly coupled to the hydrodynamics equations.
@@ -50,7 +50,7 @@ A full investigation for radiative transfer calculations will be carried out in 
 
 The remainder of this paper is organized as follows.  First, we describe the VEF method analytically. Then, we describe 
 our discretized \SN equations, followed by a description of the discretized VEF drift-diffusion equation. Methods for increased 
-consistency between LLDG and MFEM are also presented. We next give computational results.  In particular, we show the acceleration properties of the VEF method; compare the convergence rates of unaccelerated Source Iteration, the VEF method, and consistently-differenced S$_2$-synthetic acceleration (S$_2$SA); present the numerically-determined order of accuracy of our VEF method; compare the \SN and drift-diffusion solutions as the mesh is refined; and show that our VEF method preserves the thick diffusion limit. Finally, we give conclusions and recommendations for future work. 
+consistency between LLDG and MFEM are also presented. We next give computational results.  In particular, we show the acceleration properties of the VEF method; compare the convergence rates of unaccelerated Source Iteration, the VEF method, and consistently-differenced S$_2$-synthetic acceleration (S$_2$SA); present the numerically-determined order of accuracy of \change{our} VEF method; compare the \SN and drift-diffusion solutions as the mesh is refined; and show that our VEF method preserves the thick diffusion limit. Finally, we give conclusions and recommendations for future work. 
 
 % \begin{thebibliography}{99}
 % \bibitem{AL} M.L.  Adams  and  E.W.  Larsen,  ``Fast  Iterative  Methods  for  Discrete-Ordinates  Particle  Transport 

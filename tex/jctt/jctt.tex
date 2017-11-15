@@ -1,3 +1,5 @@
+\newif\ifcolor
+\colortrue % turns on coloring, default is no colors 
 \documentclass[12pt]{article}
 \usepackage{afterpage}
 \usepackage{amsmath}
@@ -38,6 +40,15 @@
 % -----------------------------------------------------------------------------
 % define newcommands
 % -----------------------------------------------------------------------------
+
+% --- coloring commands --- 
+% set whether to color changes or not 
+\ifcolor
+\newcommand{\change}[1]{\textcolor{blue}{#1}} % add color 
+\else
+\newcommand{\change}[1]{#1} % no color
+\fi
+% -- end coloring command --- 
 
 %\setlength{\floatsep}{4pt plus 1pt minus 1pt}
 %\setlength{\textfloatsep}{8pt plus 1pt minus 1pt}
@@ -240,8 +251,9 @@
 \newcommand{\ud}{\mathop{}\!\mathrm{d}} % upright derivative symbol
 \newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
 \newcommand{\dderiv}[2]{\frac{\ud #1}{\ud #2}}
-\newcommand{\edd}{\langle \mu^2 \rangle} 	
-	
+\newcommand{\edd}{\langle \mu^2 \rangle}
+
+
 % =================================================================================================
 \date{}
 
@@ -295,6 +307,7 @@ $ $\\
 
 \input{conclusions}
 
+\clearpage
 \bibliographystyle{unsrt}
 \bibliography{references}
 \end{document}

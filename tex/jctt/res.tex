@@ -1,8 +1,6 @@
 %!TEX root = ./jctt.tex
 
 \section{Computational Results}
-
-
 We first consider a test problem that is homogeneous with a reflecting left boundary, vacuum right boundary, and a total thickness of \SI{10}{cm}.  The total and scattering macroscopic cross sections were set to \SI{1}{cm^{-1}} and 
 \SI{0.99}{cm^{-1}} leading to a scattering ratio of $c = \frac{\sigma_s}{\sigma_t}=0.99$. With 50 spatial cells the optical thickness per cell was 0.2 mfp and the domain thickness was 10 mfp. The isotropic fixed source was set to \SI{1}{\particles\per\second\per\cm\cubed}. 
 Unless otherwise indicated in this section, all calculations were performed with 50 uniform spatial cells and S$_8$ Gauss quadrature. In addition, the scalar flux was point-wise converged for both the left and right discontinuous fluxes according to:
@@ -169,8 +167,7 @@ These problems differed from the homogeneous problem only with respect to the cr
 			Q(x) \rightarrow \epsilon Q(x) \,, 
 		\end{equation}
 	\end{subequations}
-with $\sigma_t=\sigma_a=$ \SI{1}{cm^{-1}} and $Q = \SI{1}{\particles\per\second\per\cm\cubed}$.  As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations until convergence as $\epsilon \rightarrow 0$ is provided in Table \ref{tab:diffLim}. 
-% The error between the VEF solution and the exact diffusion solution is provided in Fig.~\ref{fig:dl_err}. 
+with $\sigma_t=\sigma_a=$ \SI{1}{cm^{-1}} and $Q = \SI{1}{\particles\per\second\per\cm\cubed}$.  As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations until convergence as $\epsilon \rightarrow 0$ is provided in Table \ref{tab:diffLim}. Figure \ref{fig:flux_profiles} shows that the scalar fluxes from the VEF method and analytic diffusion agree for small $\epsilon$ as expected from the scaling of the cross sections and source. 
 These results support the claim that the VEF method is robust in the diffusion limit as both scattering update methods properly preserved the thick diffusion limit. 
 	\begin{table}[htb]
 	\centering
@@ -199,9 +196,9 @@ These results support the claim that the VEF method is robust in the diffusion l
 	% 	\caption{The error between the VEF methods and the exact diffusion solution as $\epsilon \rightarrow 0$. }
 	% 	\label{fig:dl_err}
 	% \end{figure}
-	% \begin{figure}
-	% 	\centering
-	% 	\includegraphics[width=.75\textwidth]{figs/profile.pdf}
-	% 	\caption{The scalar flux profiles }
-	% 	\label{fig:flux_profiles}
-	% \end{figure}
+	\begin{figure}
+		\centering
+		\includegraphics[width=.75\textwidth]{figs/profile.pdf}
+		\caption{The scalar flux profile for the VEF solution with $\epsilon=\num{e-5}$ compared to the exact diffusion solution. }
+		\label{fig:flux_profiles}
+	\end{figure}

@@ -24,6 +24,7 @@ else:
 
 Nruns = 5
 eps = np.logspace(-5, -1, Nruns)
+print(eps)
 
 tol = 1e-6
 
@@ -44,6 +45,8 @@ def getIt(eps, opt, gauss):
 
 	diff = np.zeros(len(eps))
 
+	phi = np.zeros((len(eps), N))
+
 	plt.figure()
 
 	for i in range(len(eps)):
@@ -51,13 +54,16 @@ def getIt(eps, opt, gauss):
 		sol = LD.Eddington(x0, n, lambda x: eps[i], lambda x: 1/eps[i], 
 			lambda x, mu: eps[i], OPT=opt, GAUSS=gauss)
 
-		x, phi, it[i] = sol.sourceIteration(tol, maxIter=200)
-		plt.plot(x, phi, label='$\epsilon = $' + '{:.2e}'.format(eps[i]))
+		x, phi[i,:], it[i] = sol.sourceIteration(tol, maxIter=200)
 
 		phi_ex = exactDiff(eps[i], 1/eps[i], eps[i], xb)
 
-		diff[i] = np.linalg.norm(phi - phi_ex(x), 2)/np.linalg.norm(phi_ex(x), 2)
+		diff[i] = np.linalg.norm(phi[i,:] - phi_ex(x), 2)/np.linalg.norm(phi_ex(x), 2)
 
+	# plt.plot(x, phi[0,:], label='$\epsilon=$' + '{:.2e}'.format(eps[0]))
+	plt.plot(x, phi[0,:], label='$\epsilon=10^{-5}$')
+	phi_ex = exactDiff(eps[0], 1/eps[0], eps[0], xb)
+	plt.plot(x, phi_ex(x), '--', label='Diffusion')
 	plt.xlabel(r'$x$ (cm)')
 	plt.ylabel(r'$\phi(x)$ (1/cm$^2$-s)')
 	plt.legend()
@@ -77,26 +83,27 @@ plt.ylabel('Number of Iterations')
 plt.legend()
 # if (outfile != None):
 # 	plt.savefig(outfile+ftype)
-plt.show()
 
 table = tex.table() 
 for i in range(Nruns-1, -1, -1):
 	table.addLine(
 		tex.utils.writeNumber(eps[i], '{:.1e}'), 
-		tex.utils.writeNumber(it0[i]), 
-		tex.utils.writeNumber(it1[i])
+		str(int(it0[i])), 
+		str(int(it1[i]))
 		)
 if (outfile != None):
 	table.save(outfile+ftype)
 
-# plt.figure()
-# plt.loglog(eps, diff0, '--', clip_on=False, label='Flat')
-# plt.loglog(eps, diff1, '-', clip_on=False, label='van Leer')
+plt.figure()
+plt.loglog(eps, diff0, '--', clip_on=False, label='Flat')
+plt.loglog(eps, diff1, '-', clip_on=False, label='van Leer')
 
-# plt.xlabel(r'$\epsilon$')
-# plt.ylabel('Error')
-# plt.legend()
+plt.xlabel(r'$\epsilon$')
+plt.ylabel('Error')
+plt.legend()
 # if (outfile != None):
 # 	plt.savefig(outfile+'1'+ftype)
 # else:
 # 	plt.show()
+
+plt.show()

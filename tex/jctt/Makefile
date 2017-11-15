@@ -3,6 +3,7 @@ figdir = figs/
 
 PYTHON = python3
 MPLRC = matplotlibrc 
+BIB = references.bib
 
 MAIN = jctt
 FIGS = solconv converge acceleration
@@ -30,50 +31,15 @@ all : $(figdir) $(FIGS) $(INK) $(TABS) $(MAIN).pdf
 $(figdir) : 
 	-mkdir $(figdir) 
 
-# # plot SI v VEF v S2SA
-# $(figdir)si_vef_s2sa.pdf : acceleration.py 
-# 	./$< $@ 
-
-# # plot convergence of phi and edd for VEF and SI 
-# $(figdir)si.pdf : converge.py 
-# 	./$< $@ $(figdir)vef.pdf 
-
-# # create table of MMS errors 
-# $(figdir)mms.tex : mms.py
-# 	./$< $@ 
-
-# # plot of solution convergence for homogeneous and Reed's problem 
-# $(figdir)solconv_homo.pdf : solconv.py 
-# 	./$< $@ $(figdir)solconv_reed.pdf 
-
-# # diff limit of 4 permutations 
-# $(figdir)dl_it.pdf : perm_dl.py 
-# 	./$< $@ $(figdir)dl_err.pdf 
-
-# # latex SVG of MFEM figure 
-# $(figdir)mfemgrid.pdf : ink/mfem.svg 
-# 	# generate pdfs 
-# 	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
-# 	# make it recognize directory structure 
-# 	sed -i 's/mfemgrid.pdf/figs\/mfemgrid.pdf/' $(figdir)mfemgrid.pdf_tex 
-# 	# delete lines with page=2 
-# 	sed -i '/page=2/d' $(figdir)mfemgrid.pdf_tex 
-
-# # latex SVG of LLDG figure 
-# $(figdir)lldggrid.pdf : ink/lldg.svg 
-# 	# generate pdfs 
-# 	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
-# 	# make it recognize directory structure 
-# 	sed -i 's/lldggrid.pdf/figs\/lldggrid.pdf/' $(figdir)lldggrid.pdf_tex 
-# 	# delete lines with page=2 
-# 	sed -i '/page=2/d' $(figdir)lldggrid.pdf_tex 
-
+# build tables 
 $(figdir)%.tex : %.py
 	$(PYTHON) $< $@ 
 
+# built figures 
 $(figdir)%.pdf : %.py $(MPLRC) 
 	$(PYTHON) $< $@ 
 
+# build inkscape figures 
 $(figdir)%.pdf : %.svg
 	# generate pdfs 
 	inkscape -D -z --file=$< --export-pdf=$@ --export-latex
@@ -83,7 +49,7 @@ $(figdir)%.pdf : %.svg
 	sed -i '/page=2/d' $@_tex
 
 # compile latex 
-$(MAIN).pdf: $(MAIN).tex $(FIGS) $(TABS)
+$(MAIN).pdf: $(MAIN).tex $(FIGS) $(TABS) $(BIB)
 	latexmk -pdf \
 		-pdflatex="pdflatex --interaction=nonstopmode --shell-escape %O %S" $(MAIN)
 

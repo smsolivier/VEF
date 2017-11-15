@@ -61,9 +61,9 @@ def getIt(eps, opt, gauss):
 		diff[i] = np.linalg.norm(phi[i,:] - phi_ex(x), 2)/np.linalg.norm(phi_ex(x), 2)
 
 	# plt.plot(x, phi[0,:], label='$\epsilon=$' + '{:.2e}'.format(eps[0]))
-	plt.plot(x, phi[0,:], label='$\epsilon=10^{-5}$')
+	plt.plot(x, phi[0,:], label='VEF')
 	phi_ex = exactDiff(eps[0], 1/eps[0], eps[0], xb)
-	plt.plot(x, phi_ex(x), '--', label='Diffusion')
+	plt.plot(x, phi_ex(x), '--', label='Analytic Diffusion')
 	plt.xlabel(r'$x$ (cm)')
 	plt.ylabel(r'$\phi(x)$ (1/cm$^2$-s)')
 	plt.legend()

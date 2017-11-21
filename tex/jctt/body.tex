@@ -14,16 +14,23 @@
 \section{The VEF Method}
 \subsection{The Algorithm}
 Here, we describe the VEF method for a planar geometry, fixed-source problem:
+\change{
 	\begin{equation} 
 		\mu \pderiv{\psi}{x} \paren{x, \mu} + \sigma_t(x) \psi(x,\mu) = 
-			\frac{\sigma_s(x)}{2} \int_{-1}^1 \psi(x,\mu') \ud \mu' + \frac{Q(x)}{2} \,,
+			\frac{\sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,,
 	\end{equation}
-where $\mu$ is the $x$--axis cosine of the direction of neutron flow,  $\sigma_t(x)$ and $\sigma_s(x)$ are the total and scattering macroscopic cross sections, $Q(x)$ is the isotropic fixed-source and $\psi(x, \mu)$ is the angular flux. Applying the Discrete Ordinates (\SN) angular discretization yields the following set of $N$ coupled, ordinary differential equations: 
+where $\mu$ is the $x$--axis cosine of the direction of neutron flow,  $\sigma_t(x)$ and $\sigma_s(x)$ are the total and scattering macroscopic cross sections, $Q(x)$ is the isotropic fixed-source and $\psi(x, \mu)$ is the angular flux,
+and $\phi(x)$ is the scalar flux:
+\begin{equation}
+\phi(x) = \int_{-1}^1 \psi(x,\mu') \ud \mu' \,.
+\end{equation}
+}
+Applying the Discrete Ordinates (\SN) angular discretization yields the following set of $N$ coupled, ordinary differential equations: 
 	\begin{equation} \label{eq:sn}
 		\mu_n \dderiv{\psi_n}{x}(x) + \sigma_t(x) \psi_n(x) = 
 		\frac{\sigma_s(x)}{2} \phi(x) + \frac{Q(x)}{2} \,, \quad 1 \leq n \leq N \,,
 	\end{equation}
-where $\psi_n(x) = \psi(x, \mu_n)$ is the angular flux due to neutrons with directions in the cone defined by $\mu_n$.  The $\mu_n$ are given by an $N$-point Gauss quadrature rule such that the scalar flux, $\phi(x)$, is numerically integrated as follows: 
+where $\psi_n(x) = \psi(x, \mu_n)$ is the angular flux due to neutrons with directions in the cone defined by $\mu_n$.  The $\mu_n$ are given by an $N$-point Gauss quadrature rule such that the scalar flux is numerically integrated as follows: 
 	\begin{equation} \label{eq:phiquad}
 		\phi(x) = \sum_{n=1}^N w_n \psi_n(x) \,,
 	\end{equation}
@@ -61,8 +68,13 @@ Note that the Eddington factor depends only upon the angular shape of the angula
 		\dderiv{}{x} \bracket{\edd(x) \phi (x)} + \sigma_t(x) J(x) = 0 \,,
 	\end{equation}
 	\end{subequations}
-% added isotropic part since the MMS solution uses a non-isotropic source 
-where $J(x)$ is the current \change{and the fixed source has been assumed to be isotropic}. Then Eq.~\ref{eq:first} is solved for $J(x)$, and this expression is then substituted into
+% added isotropic part since the MMS solution uses a non-isotropic source (removed JEM 11-18-17) 
+% added current definition since it was never defined.
+\change{where $J(x)$ is the current:
+ \begin{equation}
+ J(x) = \int_{-1}^1 \mu' \psi(x,\mu')  \ud \mu' \,.
+ \end{equation}}
+Then Eq.~\ref{eq:first} is solved for $J(x)$, and this expression is then substituted into
 Eq.~\ref{eq:zero}. 
 Performing a SI, computing the Eddington factor from the SI angular flux iterate, and then solving 
 the drift-diffusion equation to obtain a new scalar flux iterate completes one accelerated iteration. These iterations 

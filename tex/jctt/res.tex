@@ -165,7 +165,8 @@ These problems differed from the homogeneous problem only with respect to the cr
 			Q(x) \rightarrow \epsilon Q(x) \,, 
 		\end{equation}
 	\end{subequations}
-with $\sigma_t=\sigma_a=$ \SI{1}{cm^{-1}} and $Q = \SI{1}{\particles\per\second\per\cm\cubed}$.  As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations until convergence as $\epsilon \rightarrow 0$ is provided in \change{Table \ref{tab:diffLim}.} \change{Figure \ref{fig:flux_profiles} shows that the scalar fluxes from the VEF method and analytic diffusion agree for small $\epsilon$ as expected from the scaling of the cross sections and source.}
+with $\sigma_t=\sigma_a=$ \SI{1}{cm^{-1}} and $Q = \SI{1}{\particles\per\second\per\cm\cubed}$.  As $\epsilon \rightarrow 0$, the system becomes diffusive. The number of iterations until convergence as $\epsilon \rightarrow 0$ is provided in \change{Table \ref{tab:diffLim}.} \change{Figure \ref{fig:flux_profiles} shows that the scalar fluxes from the VEF method and analytic diffusion agree very well for small $\epsilon$. However, the VEF solution does not converge to the diffusion solution in the limit as $\epsilon \rightarrow 0$, but rather converges to the MFEM solution for the diffusion equation. The mesh resolution for the VEF calculation is sufficiently high that the analytic diffusion and 
+VEF solutions visually appear to be identical.}
 These results support the claim that the VEF method is robust in the diffusion limit as both scattering update methods properly preserved the thick diffusion limit. 
 	\begin{table}[htb]
 	\centering

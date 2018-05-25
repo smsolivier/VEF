@@ -1,5 +1,5 @@
 # EddingtonAcceleration
-Python code, papers, and latex documents relevant to implementing Eddington Acceleration into Linear Discontinuous Galerkin and Diamond Differenced Discrete Ordinates. 
+Python code, papers, and latex documents relevant to implementing constant-linear Mixed Finite Element Eddington Acceleration into Linear Discontinuous Galerkin Sn. 
 
 ## code 
 Contains all python scripts 
